@@ -41,5 +41,10 @@
   		<version>1.7.12</version>
   		<scope>test</scope>
   	</dependency>
+  	<dependency>
+  		<groupId>org.sujavabot</groupId>
+  		<artifactId>sujavabot-api</artifactId>
+  		<version>0.0.1-SNAPSHOT</version>
+  	</dependency>
 	</dependencies>
 </project>
