@@ -6,7 +6,7 @@ import java.util.List;
 public class ConfigurationBuilder extends org.pircbotx.Configuration.Builder<Bot> {
 
 	protected List<Plugin> plugins = new ArrayList<>();
-
+	
 	@Override
 	public Configuration buildConfiguration() {
 		return new Configuration(this);

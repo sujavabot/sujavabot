@@ -15,65 +15,65 @@ import org.sujavabot.core.xml.ConverterHelpers.MarshalHelper;
 import org.sujavabot.core.xml.ConverterHelpers.UnmarshalHelper;
 
 import com.thoughtworks.xstream.XStream;
-import com.thoughtworks.xstream.converters.Converter;
 import com.thoughtworks.xstream.converters.MarshallingContext;
 import com.thoughtworks.xstream.converters.UnmarshallingContext;
 import com.thoughtworks.xstream.io.HierarchicalStreamReader;
 import com.thoughtworks.xstream.io.HierarchicalStreamWriter;
 
-public class ConfigurationBuilderConverter implements Converter {
+public class ConfigurationBuilderConverter extends AbstractConverter<ConfigurationBuilder> {
 
-	protected XStream x;
-	
 	public ConfigurationBuilderConverter(XStream x) {
-		this.x = x;
-	}
-	
-	@Override
-	public boolean canConvert(@SuppressWarnings("rawtypes") Class type) {
-		return ConfigurationBuilder.class.equals(type);
+		super(x, ConfigurationBuilder.class);
 	}
 
 	@Override
-	public void marshal(Object source, HierarchicalStreamWriter writer, MarshallingContext context) {
-		MarshalHelper h = new MarshalHelper(x, writer, context);
-		ConfigurationBuilder current = (ConfigurationBuilder) source;
+	protected ConfigurationBuilder createCurrent() {
+		return new ConfigurationBuilder();
+	}
+	
+	@Override
+	protected ConfigurationBuilder createDefaults() {
+		return new ConfigurationBuilder();
+	}
+	
+	@Override
+	protected void configure(ConfigurationBuilder current, MarshalHelper helper, ConfigurationBuilder defaults) {
+		HierarchicalStreamWriter writer = helper.getWriter();
+		MarshallingContext context = helper.getContext();
 		
-		ConfigurationBuilder def = new ConfigurationBuilder();
-		
-		h.field("web-irc-enabled", Boolean.class, () -> current.isWebIrcEnabled(), () -> def.isWebIrcEnabled());
-		h.field("web-irc-username", String.class, () -> current.getWebIrcUsername(), () -> def.getWebIrcUsername());
-		h.field("web-irc-hostname", String.class, () -> current.getWebIrcHostname(), () -> def.getWebIrcHostname());
-		h.field("web-irc-address", InetAddress.class, () -> current.getWebIrcAddress(), () -> def.getWebIrcAddress());
-		h.field("web-irc-password", String.class, () -> current.getWebIrcPassword(), () -> def.getWebIrcPassword());
-		h.field("nickname", String.class, () -> current.getName());
-		h.field("username", String.class, () -> current.getLogin());
-		h.field("version", String.class, () -> current.getVersion(), () -> def.getVersion());
-		h.field("finger", String.class, () -> current.getFinger(), () -> def.getFinger());
-		h.field("realname", String.class, () -> current.getRealName());
-		h.field("channel-prefixes", String.class, () -> current.getChannelPrefixes(), () -> def.getChannelPrefixes());
-		h.field("dcc-filename-quotes", Boolean.class, () -> current.isDccFilenameQuotes(), () -> def.isDccFilenameQuotes());
+		helper.field("web-irc-enabled", Boolean.class, () -> current.isWebIrcEnabled(), () -> defaults.isWebIrcEnabled());
+		helper.field("web-irc-username", String.class, () -> current.getWebIrcUsername(), () -> defaults.getWebIrcUsername());
+		helper.field("web-irc-hostname", String.class, () -> current.getWebIrcHostname(), () -> defaults.getWebIrcHostname());
+		helper.field("web-irc-address", InetAddress.class, () -> current.getWebIrcAddress(), () -> defaults.getWebIrcAddress());
+		helper.field("web-irc-password", String.class, () -> current.getWebIrcPassword(), () -> defaults.getWebIrcPassword());
+		helper.field("nickname", String.class, () -> current.getName());
+		helper.field("username", String.class, () -> current.getLogin());
+		helper.field("version", String.class, () -> current.getVersion(), () -> defaults.getVersion());
+		helper.field("finger", String.class, () -> current.getFinger(), () -> defaults.getFinger());
+		helper.field("realname", String.class, () -> current.getRealName());
+		helper.field("channel-prefixes", String.class, () -> current.getChannelPrefixes(), () -> defaults.getChannelPrefixes());
+		helper.field("dcc-filename-quotes", Boolean.class, () -> current.isDccFilenameQuotes(), () -> defaults.isDccFilenameQuotes());
 		for(Integer port : current.getDccPorts())
-			h.field("dcc-port", Integer.class, () -> port);
-		h.field("dcc-local-address", InetAddress.class, () -> current.getDccLocalAddress(), () -> def.getDccLocalAddress());
-		h.field("dcc-accept-timeout", Integer.class, () -> current.getDccAcceptTimeout(), () -> def.getDccAcceptTimeout());
-		h.field("dcc-resume-accept-timeout", Integer.class, () -> current.getDccResumeAcceptTimeout(), () -> def.getDccResumeAcceptTimeout());
-		h.field("dcc-transfer-buffer-size", Integer.class, () -> current.getDccTransferBufferSize(), () -> def.getDccTransferBufferSize());
-		h.field("dcc-passive-request", Boolean.class, () -> current.isDccPassiveRequest(), () -> def.isDccPassiveRequest());
-		h.field("server-hostname", String.class, () -> current.getServerHostname(), () -> def.getServerHostname());
-		h.field("server-port", Integer.class, () -> current.getServerPort(), () -> def.getServerPort());
-		h.field("server-password", String.class, () -> current.getServerPassword(), () -> def.getServerPassword());
-		h.field("local-address", InetAddress.class, () -> current.getLocalAddress(), () -> def.getLocalAddress());
-		h.field("encoding", Charset.class, () -> current.getEncoding(), () -> def.getEncoding());
-		h.field("locale", Locale.class, () -> current.getLocale(), () -> def.getLocale());
-		h.field("socket-timeout", Integer.class, () -> current.getSocketTimeout(), () -> def.getSocketTimeout());
-		h.field("max-line-length", Integer.class, () -> current.getMaxLineLength(), () -> def.getMaxLineLength());
-		h.field("auto-split-message", Boolean.class, () -> current.isAutoSplitMessage(), () -> def.isAutoSplitMessage());
-		h.field("auto-nick-change", Boolean.class, () -> current.isAutoNickChange(), () -> def.isAutoNickChange());
-		h.field("message-delay", Long.class, () -> current.getMessageDelay(), () -> def.getMessageDelay());
+			helper.field("dcc-port", Integer.class, () -> port);
+		helper.field("dcc-local-address", InetAddress.class, () -> current.getDccLocalAddress(), () -> defaults.getDccLocalAddress());
+		helper.field("dcc-accept-timeout", Integer.class, () -> current.getDccAcceptTimeout(), () -> defaults.getDccAcceptTimeout());
+		helper.field("dcc-resume-accept-timeout", Integer.class, () -> current.getDccResumeAcceptTimeout(), () -> defaults.getDccResumeAcceptTimeout());
+		helper.field("dcc-transfer-buffer-size", Integer.class, () -> current.getDccTransferBufferSize(), () -> defaults.getDccTransferBufferSize());
+		helper.field("dcc-passive-request", Boolean.class, () -> current.isDccPassiveRequest(), () -> defaults.isDccPassiveRequest());
+		helper.field("server-hostname", String.class, () -> current.getServerHostname(), () -> defaults.getServerHostname());
+		helper.field("server-port", Integer.class, () -> current.getServerPort(), () -> defaults.getServerPort());
+		helper.field("server-password", String.class, () -> current.getServerPassword(), () -> defaults.getServerPassword());
+		helper.field("local-address", InetAddress.class, () -> current.getLocalAddress(), () -> defaults.getLocalAddress());
+		helper.field("encoding", Charset.class, () -> current.getEncoding(), () -> defaults.getEncoding());
+		helper.field("locale", Locale.class, () -> current.getLocale(), () -> defaults.getLocale());
+		helper.field("socket-timeout", Integer.class, () -> current.getSocketTimeout(), () -> defaults.getSocketTimeout());
+		helper.field("max-line-length", Integer.class, () -> current.getMaxLineLength(), () -> defaults.getMaxLineLength());
+		helper.field("auto-split-message", Boolean.class, () -> current.isAutoSplitMessage(), () -> defaults.isAutoSplitMessage());
+		helper.field("auto-nick-change", Boolean.class, () -> current.isAutoNickChange(), () -> defaults.isAutoNickChange());
+		helper.field("message-delay", Long.class, () -> current.getMessageDelay(), () -> defaults.getMessageDelay());
 		
 		for(Entry<String, String> e : current.getAutoJoinChannels().entrySet()) {
-			h.handler("auto-join-channel", h2 -> {
+			helper.handler("auto-join-channel", h2 -> {
 				writer.startNode("channel-name");
 				context.convertAnother(e.getKey());
 				writer.endNode();
@@ -85,13 +85,13 @@ public class ConfigurationBuilderConverter implements Converter {
 			});
 		}
 		
-		h.field("ident-server-enabled", Boolean.class, () -> current.isIdentServerEnabled(), () -> def.isIdentServerEnabled());
-		h.field("nickserv-password", String.class, () -> current.getNickservPassword(), () -> def.getNickservPassword());
-		h.field("auto-reconnect", Boolean.class, () -> current.isAutoReconnect(), () -> def.isAutoReconnect());
-		h.field("cap-enabled", Boolean.class, () -> current.isCapEnabled(), () -> def.isCapEnabled());
+		helper.field("ident-server-enabled", Boolean.class, () -> current.isIdentServerEnabled(), () -> defaults.isIdentServerEnabled());
+		helper.field("nickserv-password", String.class, () -> current.getNickservPassword(), () -> defaults.getNickservPassword());
+		helper.field("auto-reconnect", Boolean.class, () -> current.isAutoReconnect(), () -> defaults.isAutoReconnect());
+		helper.field("cap-enabled", Boolean.class, () -> current.isCapEnabled(), () -> defaults.isCapEnabled());
 		
 		if(!"[EnableCapHandler(cap=multi-prefix, ignoreFail=true), EnableCapHandler(cap=away-notify, ignoreFail=true)]".equals(current.getCapHandlers().toString())) {
-			h.handler("cap-handlers", h2 -> {
+			helper.handler("cap-handlers", h2 -> {
 				for(CapHandler ch : current.getCapHandlers()) {
 					writer.startNode("cap-handler");
 					writer.addAttribute("class", x.getMapper().serializedClass(ch.getClass()));
@@ -100,8 +100,8 @@ public class ConfigurationBuilderConverter implements Converter {
 				}
 			});
 		}
-		if(!current.getChannelModeHandlers().equals(def.getChannelModeHandlers())) {
-			h.handler("channel-mode-handlers", h2 -> {
+		if(!current.getChannelModeHandlers().equals(defaults.getChannelModeHandlers())) {
+			helper.handler("channel-mode-handlers", h2 -> {
 				for(ChannelModeHandler cmh : current.getChannelModeHandlers()) {
 					writer.startNode("channel-mode-handler");
 					writer.addAttribute("class", x.getMapper().serializedClass(cmh.getClass()));
@@ -112,50 +112,48 @@ public class ConfigurationBuilderConverter implements Converter {
 		}
 		
 		for(Plugin plugin : current.getPlugins())
-			h.handler("plugin", h2 -> {
+			helper.handler("plugin", h2 -> {
 				writer.addAttribute("class", x.getMapper().serializedClass(plugin.getClass()));
-				context.convertAnother(plugin, plugin.getConfigurableConverter());
+				context.convertAnother(plugin, plugin.getConfigurableConverter(x));
 			});
-		
-		h.write();
 	}
 
 	@Override
-	public Object unmarshal(HierarchicalStreamReader reader, UnmarshallingContext context) {
-		ConfigurationBuilder current = new ConfigurationBuilder();
-		UnmarshalHelper h = new UnmarshalHelper(x, reader, context);
+	protected void configure(ConfigurationBuilder current, UnmarshalHelper helper) {
+		HierarchicalStreamReader reader = helper.getReader();
+		UnmarshallingContext context = helper.getContext();
 		
-		h.field("web-irc-enabled", Boolean.class, b -> current.setWebIrcEnabled(b));
-		h.field("web-irc-username", String.class, s -> current.setWebIrcUsername(s));
-		h.field("web-irc-hostname", String.class, s -> current.setWebIrcHostname(s));
-		h.field("web-irc-address", InetAddress.class, a -> current.setWebIrcAddress(a));
-		h.field("web-irc-password", String.class, s -> current.setWebIrcPassword(s));
-		h.field("nickname", String.class, s -> current.setName(s));
-		h.field("username", String.class, s -> current.setLogin(s));
-		h.field("version", String.class, s -> current.setVersion(s));
-		h.field("finger", String.class, s -> current.setFinger(s));
-		h.field("realname", String.class, s -> current.setRealName(s));
-		h.field("channel-prefixes", String.class, s -> current.setChannelPrefixes(s));
-		h.field("dcc-filename-quotes", Boolean.class, b -> current.setDccFilenameQuotes(b));
-		h.field("dcc-port", Integer.class, i -> current.getDccPorts().add(i));
-		h.field("dcc-local-address", InetAddress.class, a -> current.setDccLocalAddress(a));
-		h.field("dcc-accept-timeout", Integer.class, i -> current.setDccAcceptTimeout(i));
-		h.field("dcc-resume-accept-timeout", Integer.class, i -> current.setDccResumeAcceptTimeout(i));
-		h.field("dcc-transfer-buffer-size", Integer.class, i -> current.setDccTransferBufferSize(i));
-		h.field("dcc-passive-request", Boolean.class, b -> current.setDccPassiveRequest(b));
-		h.field("server-hostname", String.class, s -> current.setServerHostname(s));
-		h.field("server-port", Integer.class, i -> current.setServerPort(i));
-		h.field("server-password", String.class, s -> current.setServerPassword(s));
-		h.field("local-address", InetAddress.class, a -> current.setLocalAddress(a));
-		h.field("encoding", Charset.class, c -> current.setEncoding(c));
-		h.field("locale", Locale.class, l -> current.setLocale(l));
-		h.field("socket-timeout", Integer.class, i -> current.setSocketTimeout(i));
-		h.field("max-line-length", Integer.class, i -> current.setMaxLineLength(i));
-		h.field("auto-split-message", Boolean.class, b -> current.setAutoSplitMessage(b));
-		h.field("auto-nick-change", Boolean.class, b -> current.setAutoNickChange(b));
-		h.field("message-delay", Integer.class, i -> current.setMessageDelay(i));
+		helper.field("web-irc-enabled", Boolean.class, b -> current.setWebIrcEnabled(b));
+		helper.field("web-irc-username", String.class, s -> current.setWebIrcUsername(s));
+		helper.field("web-irc-hostname", String.class, s -> current.setWebIrcHostname(s));
+		helper.field("web-irc-address", InetAddress.class, a -> current.setWebIrcAddress(a));
+		helper.field("web-irc-password", String.class, s -> current.setWebIrcPassword(s));
+		helper.field("nickname", String.class, s -> current.setName(s));
+		helper.field("username", String.class, s -> current.setLogin(s));
+		helper.field("version", String.class, s -> current.setVersion(s));
+		helper.field("finger", String.class, s -> current.setFinger(s));
+		helper.field("realname", String.class, s -> current.setRealName(s));
+		helper.field("channel-prefixes", String.class, s -> current.setChannelPrefixes(s));
+		helper.field("dcc-filename-quotes", Boolean.class, b -> current.setDccFilenameQuotes(b));
+		helper.field("dcc-port", Integer.class, i -> current.getDccPorts().add(i));
+		helper.field("dcc-local-address", InetAddress.class, a -> current.setDccLocalAddress(a));
+		helper.field("dcc-accept-timeout", Integer.class, i -> current.setDccAcceptTimeout(i));
+		helper.field("dcc-resume-accept-timeout", Integer.class, i -> current.setDccResumeAcceptTimeout(i));
+		helper.field("dcc-transfer-buffer-size", Integer.class, i -> current.setDccTransferBufferSize(i));
+		helper.field("dcc-passive-request", Boolean.class, b -> current.setDccPassiveRequest(b));
+		helper.field("server-hostname", String.class, s -> current.setServerHostname(s));
+		helper.field("server-port", Integer.class, i -> current.setServerPort(i));
+		helper.field("server-password", String.class, s -> current.setServerPassword(s));
+		helper.field("local-address", InetAddress.class, a -> current.setLocalAddress(a));
+		helper.field("encoding", Charset.class, c -> current.setEncoding(c));
+		helper.field("locale", Locale.class, l -> current.setLocale(l));
+		helper.field("socket-timeout", Integer.class, i -> current.setSocketTimeout(i));
+		helper.field("max-line-length", Integer.class, i -> current.setMaxLineLength(i));
+		helper.field("auto-split-message", Boolean.class, b -> current.setAutoSplitMessage(b));
+		helper.field("auto-nick-change", Boolean.class, b -> current.setAutoNickChange(b));
+		helper.field("message-delay", Integer.class, i -> current.setMessageDelay(i));
 		
-		h.handler("auto-join-channel", (current2, h2) -> {
+		helper.handler("auto-join-channel", (current2, h2) -> {
 			String channelName;
 			String channelKey;
 			reader.moveDown();
@@ -171,12 +169,12 @@ public class ConfigurationBuilderConverter implements Converter {
 		});
 		
 		
-		h.field("ident-server-enabled", Boolean.class, b -> current.setIdentServerEnabled(b));
-		h.field("nickserv-password", String.class, s -> current.setNickservPassword(s));
-		h.field("auto-reconnect", Boolean.class, b -> current.setAutoReconnect(b));
-		h.field("cap-enabled", Boolean.class, b -> current.setCapEnabled(b));
+		helper.field("ident-server-enabled", Boolean.class, b -> current.setIdentServerEnabled(b));
+		helper.field("nickserv-password", String.class, s -> current.setNickservPassword(s));
+		helper.field("auto-reconnect", Boolean.class, b -> current.setAutoReconnect(b));
+		helper.field("cap-enabled", Boolean.class, b -> current.setCapEnabled(b));
 		
-		h.handler("cap-handlers", (current2, h2) -> {
+		helper.handler("cap-handlers", (current2, h2) -> {
 			List<CapHandler> capHandlers = new ArrayList<>();
 			while(reader.hasMoreChildren()) {
 				reader.moveDown();
@@ -190,7 +188,7 @@ public class ConfigurationBuilderConverter implements Converter {
 			current.getCapHandlers().clear();
 			current.getCapHandlers().addAll(capHandlers);
 		});
-		h.handler("channel-mode-handlers", (current2, h2) -> {
+		helper.handler("channel-mode-handlers", (current2, h2) -> {
 			List<ChannelModeHandler> channelModeHandlers = new ArrayList<>();
 			while(reader.hasMoreChildren()) {
 				reader.moveDown();
@@ -205,17 +203,15 @@ public class ConfigurationBuilderConverter implements Converter {
 			current.getChannelModeHandlers().addAll(channelModeHandlers);
 		});
 		
-		h.field("cap-handler", (CapHandler ch) -> current.getCapHandlers().add(ch));
-		h.field("channel-mode-handler", (ChannelModeHandler cmh) -> current.getChannelModeHandlers().add(cmh));
+		helper.field("cap-handler", (CapHandler ch) -> current.getCapHandlers().add(ch));
+		helper.field("channel-mode-handler", (ChannelModeHandler cmh) -> current.getChannelModeHandlers().add(cmh));
 		
-		h.handler("plugin", (current2, h2) -> {
+		helper.handler("plugin", (current2, h2) -> {
 			Class<?> type = x.getMapper().realClass(reader.getAttribute("class"));
 			Plugin plugin = (Plugin) x.getReflectionProvider().newInstance(type);
-			plugin = (Plugin) context.convertAnother(current, type, plugin.getConfigurableConverter());
+			plugin = (Plugin) context.convertAnother(current, type, plugin.getConfigurableConverter(x));
 			current.getPlugins().add(plugin);
 		});
-		
-		return h.read(current);
 	}
 
 }
