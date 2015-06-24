@@ -31,11 +31,11 @@ public class ConfigurationBuilder extends org.pircbotx.Configuration.Builder<Bot
 		return plugins;
 	}
 	
-	public void setPlugins(List<Plugin> pluginClasses) {
-		this.plugins = pluginClasses;
+	public void setPlugins(List<Plugin> plugins) {
+		this.plugins = plugins;
 	}
 	
-	public void addPlugin(Plugin pluginClass) {
-		plugins.add(pluginClass);
+	public void addPlugin(Plugin plugin) {
+		plugins.add(plugin);
 	}
 }
