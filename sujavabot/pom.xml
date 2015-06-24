@@ -19,12 +19,14 @@
 			<artifactId>sujavabot-plugin-nop</artifactId>
 			<version>0.0.1-SNAPSHOT</version>
 			<scope>runtime</scope>
+			<classifier>nodeps</classifier>
 		</dependency>
 		<dependency>
 			<groupId>org.sujavabot.plugin</groupId>
 			<artifactId>sujavabot-plugin-jruby</artifactId>
 			<version>0.0.1-SNAPSHOT</version>
 			<scope>runtime</scope>
+			<classifier>nodeps</classifier>
 		</dependency>
 	</dependencies>
 
@@ -46,6 +48,9 @@
 							<overWriteSnapshots>true</overWriteSnapshots>
 							<excludeTransitive>true</excludeTransitive>
 							<includeGroupIds>org.sujavabot.plugin</includeGroupIds>
+							<includeClassifiers>nodeps</includeClassifiers>
+							<stripVersion>true</stripVersion>
+							<stripClassifier>true</stripClassifier>
 						</configuration>
 					</execution>
 				</executions>
