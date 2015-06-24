@@ -1,32 +1,24 @@
 package org.sujavabot.core;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ConfigurationBuilder extends org.pircbotx.Configuration.Builder<Bot> {
+import org.pircbotx.PircBotX;
+
+public class ConfigurationBuilder extends org.pircbotx.Configuration.Builder<PircBotX> {
 
 	protected List<Plugin> plugins = new ArrayList<>();
+
+	public Configuration buildConfiguration(File configFile) {
+		return new Configuration(configFile, this);
+	}
 	
 	@Override
 	public Configuration buildConfiguration() {
-		return new Configuration(this);
+		throw new UnsupportedOperationException("use buildConfiguration(File)");
 	}
 
-	@Override
-	public Configuration buildForServer(String hostname) {
-		return (Configuration) super.buildForServer(hostname);
-	}
-
-	@Override
-	public Configuration buildForServer(String hostname, int port) {
-		return (Configuration) super.buildForServer(hostname, port);
-	}
-
-	@Override
-	public Configuration buildForServer(String hostname, int port, String password) {
-		return (Configuration) super.buildForServer(hostname, port, password);
-	}
-	
 	public List<Plugin> getPlugins() {
 		return plugins;
 	}
