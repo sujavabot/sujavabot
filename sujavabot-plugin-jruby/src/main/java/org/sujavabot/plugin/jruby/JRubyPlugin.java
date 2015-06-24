@@ -2,16 +2,11 @@ package org.sujavabot.plugin.jruby;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileReader;
 import java.io.InputStreamReader;
 import java.io.Reader;
 
 import javax.script.ScriptEngine;
-import javax.script.ScriptEngineFactory;
-
-import org.jruby.embed.jsr223.JRubyEngine;
 import org.jruby.embed.jsr223.JRubyEngineFactory;
-import org.jruby.embed.jsr223.JRubyScriptEngineManager;
 import org.sujavabot.core.Bot;
 import org.sujavabot.core.Plugin;
 

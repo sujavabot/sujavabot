@@ -11,7 +11,7 @@ import com.thoughtworks.xstream.io.HierarchicalStreamWriter;
 public class JRubyPluginConverter implements Converter {
 
 	@Override
-	public boolean canConvert(Class type) {
+	public boolean canConvert(@SuppressWarnings("rawtypes") Class type) {
 		return JRubyPlugin.class.equals(type);
 	}
 
