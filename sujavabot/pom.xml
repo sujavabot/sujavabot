@@ -30,12 +30,12 @@
 				<executions>
 					<execution>
 						<id>copy-plugins</id>
-						<phase>generate-test-resources</phase>
+						<phase>package</phase>
 						<goals>
 							<goal>copy-dependencies</goal>
 						</goals>
 						<configuration>
-							<outputDirectory>${project.build.directory}/plugins</outputDirectory>
+							<outputDirectory>${project.build.directory}/sujavabot/plugins</outputDirectory>
 							<overWriteReleases>true</overWriteReleases>
 							<overWriteSnapshots>true</overWriteSnapshots>
 							<excludeTransitive>true</excludeTransitive>
