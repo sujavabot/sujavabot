@@ -43,6 +43,8 @@ public class Bot extends PircBotX {
 			File configFile = getConfiguration().getConfigFile();
 			File configFileTmp = new File(configFile.getParent(), configFile.getName() + ".tmp");
 			File configFileOld = new File(configFile.getParent(), configFile.getName() + ".old");
+			for(int i = 1; configFileOld.exists(); i++)
+				configFileOld = new File(configFile.getParent(), configFile.getName() + ".old." + i);
 			OutputStream out = new FileOutputStream(configFileTmp);
 			try {
 				ConfigurationBuilder builder = getConfiguration().createBuilder();
