@@ -17,7 +17,7 @@
   		<groupId>org.sujavabot.plugin</groupId>
   		<artifactId>sujavabot-plugin-nop</artifactId>
   		<version>0.0.1-SNAPSHOT</version>
-  		<scope>runtime</scope>
+  		<scope>test</scope>
   	</dependency>
   </dependencies>
 </project>
