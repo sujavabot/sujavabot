@@ -1,0 +1,17 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <artifactId>sujavabot-plugin-jruby</artifactId>
+  <parent>
+  	<groupId>org.sujavabot.plugin</groupId>
+  	<artifactId>sujavabot-plugin-parent</artifactId>
+  	<version>0.0.1-SNAPSHOT</version>
+  	<relativePath>../sujavabot-plugin-parent</relativePath>
+  </parent>
+  <dependencies>
+  	<dependency>
+  		<groupId>org.jruby</groupId>
+  		<artifactId>jruby</artifactId>
+  		<version>1.7.20.1</version>
+  	</dependency>
+  </dependencies>
+</project>
