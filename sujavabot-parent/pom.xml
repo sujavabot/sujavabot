@@ -31,7 +31,6 @@
 		</pluginManagement>
 	</build>
 	<modules>
-		<module>../sujavabot-api</module>
 		<module>../sujavabot-core</module>
 		<module>../sujavabot-plugin-parent</module>
 		<module>../sujavabot</module>

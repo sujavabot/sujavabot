@@ -12,7 +12,7 @@ import javax.script.ScriptEngineFactory;
 import org.jruby.embed.jsr223.JRubyEngine;
 import org.jruby.embed.jsr223.JRubyEngineFactory;
 import org.jruby.embed.jsr223.JRubyScriptEngineManager;
-import org.sujavabot.Bot;
+import org.sujavabot.core.Bot;
 import org.sujavabot.core.Plugin;
 
 import com.thoughtworks.xstream.XStream;
@@ -23,7 +23,7 @@ public class JRubyPlugin implements Plugin {
 	protected String source;
 	protected File file;
 	
-	protected org.sujavabot.Plugin plugin;
+	protected Plugin plugin;
 	
 	public JRubyPlugin(String source) {
 		this.source = source;
@@ -57,11 +57,11 @@ public class JRubyPlugin implements Plugin {
 	public void initializePlugin() throws Exception {
 		ScriptEngine engine = new JRubyEngineFactory().getScriptEngine();
 		if(file == null) {
-			plugin = (org.sujavabot.Plugin) engine.eval(source);
+			plugin = (Plugin) engine.eval(source);
 		} else {
 			Reader r = new InputStreamReader(new FileInputStream(file), "UTF-8");
 			try {
-				plugin = (org.sujavabot.Plugin) engine.eval(r);
+				plugin = (Plugin) engine.eval(r);
 			} finally {
 				r.close();
 			}

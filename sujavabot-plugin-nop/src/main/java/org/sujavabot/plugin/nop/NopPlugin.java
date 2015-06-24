@@ -1,6 +1,6 @@
 package org.sujavabot.plugin.nop;
 
-import org.sujavabot.Bot;
+import org.sujavabot.core.Bot;
 import org.sujavabot.core.Plugin;
 
 import com.thoughtworks.xstream.XStream;
