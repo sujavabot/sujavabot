@@ -17,7 +17,7 @@
   	</dependency>
   </dependencies>
   <modules>
-  	<module>../sujavabot-plugins-nop</module>
+  	<module>../sujavabot-plugin-nop</module>
   </modules>
   <groupId>org.sujavabot.plugin</groupId>
 </project>
