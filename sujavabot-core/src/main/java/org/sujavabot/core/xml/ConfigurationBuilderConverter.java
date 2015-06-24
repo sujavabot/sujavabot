@@ -21,6 +21,13 @@ import com.thoughtworks.xstream.io.HierarchicalStreamReader;
 import com.thoughtworks.xstream.io.HierarchicalStreamWriter;
 
 public class ConfigurationBuilderConverter extends AbstractConverter<ConfigurationBuilder> {
+	
+	public static XStream createXStream() {
+		XStream x = new XStream();
+		x.registerConverter(new ConfigurationBuilderConverter(x));
+		x.alias("sujavabot", ConfigurationBuilder.class);
+		return x;
+	}
 
 	public ConfigurationBuilderConverter(XStream x) {
 		super(x, ConfigurationBuilder.class);

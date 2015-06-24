@@ -8,8 +8,7 @@ import com.thoughtworks.xstream.XStream;
 public class ConfigurationBuilderConverterTest {
 	@Test
 	public void testToXML() {
-		XStream x = new XStream();
-		x.registerConverter(new ConfigurationBuilderConverter(x));
+		XStream x = ConfigurationBuilderConverter.createXStream();
 		System.out.println(x.toXML(new ConfigurationBuilder()));
 	}
 }
