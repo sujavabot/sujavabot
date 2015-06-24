@@ -15,6 +15,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sujavabot.core.util.Throwables;
 import org.sujavabot.core.xml.ConfigurationBuilderConverter;
+import org.sujavabot.core.xml.XStreams;
 
 import com.thoughtworks.xstream.XStream;
 
@@ -47,7 +48,7 @@ public class Bot extends PircBotX {
 			OutputStream out = new FileOutputStream(configFileTmp);
 			try {
 				ConfigurationBuilder builder = getConfiguration().createBuilder();
-				XStream x = ConfigurationBuilderConverter.createXStream();
+				XStream x = XStreams.configure(new XStream());
 				x.toXML(builder, out);
 			} finally {
 				out.close();

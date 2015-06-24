@@ -22,11 +22,12 @@ import com.thoughtworks.xstream.io.HierarchicalStreamWriter;
 
 public class ConfigurationBuilderConverter extends AbstractConverter<ConfigurationBuilder> {
 	
-	public static XStream createXStream() {
-		XStream x = new XStream();
-		x.registerConverter(new ConfigurationBuilderConverter(x));
-		x.alias("sujavabot", ConfigurationBuilder.class);
-		return x;
+	public static class SPI extends XStreams.SPI {
+		@Override
+		public void configure(XStream x) {
+			x.registerConverter(new ConfigurationBuilderConverter(x));
+			x.alias("sujavabot", ConfigurationBuilder.class);
+		}
 	}
 
 	public ConfigurationBuilderConverter(XStream x) {
