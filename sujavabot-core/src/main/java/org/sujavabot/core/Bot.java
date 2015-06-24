@@ -1,8 +1,12 @@
 package org.sujavabot.core;
 
+import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -36,7 +40,10 @@ public class Bot extends PircBotX {
 	
 	public void saveConfiguration() {
 		try {
-			OutputStream out = new FileOutputStream(getConfiguration().getConfigFile());
+			File configFile = getConfiguration().getConfigFile();
+			File configFileTmp = new File(configFile.getParent(), configFile.getName() + ".tmp");
+			File configFileOld = new File(configFile.getParent(), configFile.getName() + ".old");
+			OutputStream out = new FileOutputStream(configFileTmp);
 			try {
 				ConfigurationBuilder builder = getConfiguration().createBuilder();
 				XStream x = ConfigurationBuilderConverter.createXStream();
@@ -44,6 +51,8 @@ public class Bot extends PircBotX {
 			} finally {
 				out.close();
 			}
+			Files.move(configFile.toPath(), configFileOld.toPath(), StandardCopyOption.REPLACE_EXISTING);
+			Files.move(configFileTmp.toPath(), configFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
 		} catch(IOException e) {
 			throw Throwables.as(RuntimeException.class, e);
 		}
