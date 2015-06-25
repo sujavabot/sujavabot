@@ -8,7 +8,10 @@ import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 
 import org.pircbotx.PircBotX;
 import org.slf4j.Logger;
@@ -22,14 +25,16 @@ import com.thoughtworks.xstream.XStream;
 public class Bot extends PircBotX {
 	private static final Logger LOG = LoggerFactory.getLogger(Bot.class);
 
-	protected List<Plugin> plugins = new ArrayList<>();
+	protected Map<File, Plugin> plugins = new LinkedHashMap<>();
 
 	public Bot(Configuration configuration) {
 		super(configuration);
-		plugins.addAll(configuration.getPlugins());
+		for(File pluginConfig : configuration.getPluginConfigs()) {
+			plugins.put(pluginConfig, null);
+		}
 	}
 
-	public List<Plugin> getPlugins() {
+	public Map<File, Plugin> getPlugins() {
 		return plugins;
 	}
 
@@ -61,21 +66,24 @@ public class Bot extends PircBotX {
 	}
 
 	public void initializePlugins() {
-		Iterator<Plugin> pi = plugins.iterator();
+		Iterator<Entry<File, Plugin>> pi = plugins.entrySet().iterator();
 
 		while(pi.hasNext()) {
-			Plugin p = pi.next();
+			Entry<File, Plugin> e = pi.next();
+			Plugin plugin = null;
 			try {
-				p.initializePlugin();
-			} catch(Exception e) {
-				LOG.error("Unable to initialize plugin {} ({}), removing from plugins list. {}", p.getName(), p, e);
+				plugin = (Plugin) XStreams.configure(new XStream()).fromXML(e.getKey());
+				e.setValue(plugin);
+				plugin.initializePlugin();
+			} catch(Exception ex) {
+				LOG.error("Unable to initialize plugin {} ({}), removing from plugins list. {}", e.getKey(), plugin, ex);
 				pi.remove();
 			}
 		}
 	}
 
 	public void initializeBot() {
-		Iterator<Plugin> pi = plugins.iterator();
+		Iterator<Plugin> pi = plugins.values().iterator();
 
 		while(pi.hasNext()) {
 			Plugin p = pi.next();

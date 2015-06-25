@@ -1,6 +1,6 @@
 package org.sujavabot.core;
 
-public interface Plugin extends Configurable {
+public interface Plugin {
 	public String getName();
 	
 	public void initializePlugin() throws Exception;

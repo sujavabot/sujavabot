@@ -11,7 +11,7 @@ public abstract class XStreams {
 	}
 
 	public static XStream configure(XStream x) {
-		for(SPI spi : ServiceLoader.load(SPI.class, XStreams.class.getClassLoader())) {
+		for(SPI spi : ServiceLoader.load(SPI.class, x.getClassLoader())) {
 			spi.configure(x);
 		}
 		return x;

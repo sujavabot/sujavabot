@@ -8,7 +8,7 @@ import org.pircbotx.PircBotX;
 
 public class ConfigurationBuilder extends org.pircbotx.Configuration.Builder<PircBotX> {
 
-	protected List<Plugin> plugins = new ArrayList<>();
+	protected List<File> pluginConfigs = new ArrayList<>();
 
 	public Configuration buildConfiguration(File configFile) {
 		return new Configuration(configFile, this);
@@ -19,15 +19,15 @@ public class ConfigurationBuilder extends org.pircbotx.Configuration.Builder<Pir
 		throw new UnsupportedOperationException("use buildConfiguration(File)");
 	}
 
-	public List<Plugin> getPlugins() {
-		return plugins;
+	public List<File> getPluginConfigs() {
+		return pluginConfigs;
 	}
 	
-	public void setPlugins(List<Plugin> plugins) {
-		this.plugins = plugins;
+	public void setPluginConfigs(List<File> pluginConfigs) {
+		this.pluginConfigs = pluginConfigs;
 	}
 	
-	public void addPlugin(Plugin plugin) {
-		plugins.add(plugin);
+	public void addPluginConfig(File pluginConfig) {
+		pluginConfigs.add(pluginConfig);
 	}
 }

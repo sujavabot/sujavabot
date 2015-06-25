@@ -9,16 +9,16 @@ import org.pircbotx.PircBotX;
 public class Configuration extends org.pircbotx.Configuration<PircBotX> {
 	
 	protected File configFile;
-	protected List<Plugin> plugins = new ArrayList<>();
+	protected List<File> pluginConfigs = new ArrayList<>();
 
 	public Configuration(File configFile, ConfigurationBuilder builder) {
 		super(builder);
 		this.configFile = configFile;
-		plugins.addAll(builder.getPlugins());
+		pluginConfigs.addAll(builder.getPluginConfigs());
 	}
-	
-	public List<Plugin> getPlugins() {
-		return plugins;
+
+	public List<File> getPluginConfigs() {
+		return pluginConfigs;
 	}
 	
 	public File getConfigFile() {
@@ -51,7 +51,7 @@ public class Configuration extends org.pircbotx.Configuration<PircBotX> {
 		builder.setMessageDelay(getMessageDelay());
 		builder.setName(getName());
 		builder.setNickservPassword(getNickservPassword());
-		builder.setPlugins(getPlugins());
+		builder.setPluginConfigs(getPluginConfigs());
 		builder.setRealName(getRealName());
 		builder.setServerHostname(getServerHostname());
 		builder.setServerPassword(getServerPassword());

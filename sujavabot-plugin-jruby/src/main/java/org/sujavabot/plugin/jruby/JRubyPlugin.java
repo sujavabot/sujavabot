@@ -30,14 +30,11 @@ public class JRubyPlugin implements Plugin {
 	
 	@Override
 	public String getName() {
+		if(plugin != null)
+			return plugin.getName();
 		if(file != null)
 			return "jruby:" + file.getPath();
 		return "jruby:<inline>";
-	}
-
-	@Override
-	public Converter getConfigurableConverter(XStream x) {
-		return new JRubyPluginConverter();
 	}
 
 	public String getSource() {

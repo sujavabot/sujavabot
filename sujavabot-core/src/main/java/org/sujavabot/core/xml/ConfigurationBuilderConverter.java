@@ -1,5 +1,6 @@
 package org.sujavabot.core.xml;
 
+import java.io.File;
 import java.net.InetAddress;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
@@ -119,11 +120,8 @@ public class ConfigurationBuilderConverter extends AbstractConverter<Configurati
 			});
 		}
 		
-		for(Plugin plugin : current.getPlugins())
-			helper.handler("plugin", h2 -> {
-				writer.addAttribute("class", x.getMapper().serializedClass(plugin.getClass()));
-				context.convertAnother(plugin, plugin.getConfigurableConverter(x));
-			});
+		for(File pluginConfig : current.getPluginConfigs())
+			helper.field("plugin", File.class, () -> pluginConfig);
 	}
 
 	@Override
@@ -214,11 +212,8 @@ public class ConfigurationBuilderConverter extends AbstractConverter<Configurati
 		helper.field("cap-handler", (CapHandler ch) -> current.getCapHandlers().add(ch));
 		helper.field("channel-mode-handler", (ChannelModeHandler cmh) -> current.getChannelModeHandlers().add(cmh));
 		
-		helper.handler("plugin", (current2, h2) -> {
-			Class<?> type = x.getMapper().realClass(reader.getAttribute("class"));
-			Plugin plugin = (Plugin) x.getReflectionProvider().newInstance(type);
-			plugin = (Plugin) context.convertAnother(current, type, plugin.getConfigurableConverter(x));
-			current.getPlugins().add(plugin);
+		helper.field("plugin", File.class, f -> {
+			current.addPluginConfig(f);
 		});
 	}
 

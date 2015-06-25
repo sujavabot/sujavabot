@@ -1,0 +1,23 @@
+<jruby-plugin>
+<![CDATA[
+	
+require 'java'
+class TestInlinePlugin
+	include org.sujavabot.core.Plugin
+
+	def getName()
+		"inline"
+	end
+
+	def initializePlugin()
+	end
+
+	def initializeBot(bot)
+	end
+	
+end
+
+TestInlinePlugin.new
+
+]]>
+</jruby-plugin>

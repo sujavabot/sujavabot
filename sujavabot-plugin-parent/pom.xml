@@ -19,7 +19,6 @@
 		</dependency>
 	</dependencies>
 	<modules>
-		<module>../sujavabot-plugin-nop</module>
 		<module>../sujavabot-plugin-jruby</module>
 	</modules>
 	<build>
