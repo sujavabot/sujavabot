@@ -32,7 +32,7 @@ QUOTED_STRING:
 ;
 
 NON_WHITESPACE:
-	(~(' ' | '\t' | '\n'))+
+	(~(' ' | '\t' | '\n' | '[' | ']'))+
 ;
 
 WHITESPACE:
