@@ -1,7 +1,7 @@
 grammar Command;
 
 @header {
-import java.util.*;
+//import java.util.*;
 }
 
 command returns [Object[] c]:
@@ -9,7 +9,7 @@ command returns [Object[] c]:
 ;
 
 args returns [List<Object> r]:
-	a=arg { $r = new ArrayList<>(Arrays.asList($a.a)); }
+	a=arg { $r = new ArrayList<>(java.util.Arrays.asList($a.a)); }
 |	l=args a=arg { $l.r.add($a.a); $r = $l.r; }
 ;
 

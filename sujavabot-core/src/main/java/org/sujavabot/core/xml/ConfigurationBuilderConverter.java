@@ -160,6 +160,7 @@ public class ConfigurationBuilderConverter extends AbstractConverter<Configurati
 		}
 	}
 
+	@SuppressWarnings({ "rawtypes", "unchecked" })
 	@Override
 	protected void configure(ConfigurationBuilder current, UnmarshalHelper helper) {
 		HierarchicalStreamReader reader = helper.getReader();

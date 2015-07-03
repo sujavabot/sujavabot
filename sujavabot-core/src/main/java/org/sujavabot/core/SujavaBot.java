@@ -28,7 +28,6 @@ import org.pircbotx.hooks.events.NickChangeEvent;
 import org.pircbotx.hooks.events.PartEvent;
 import org.pircbotx.hooks.events.QuitEvent;
 import org.pircbotx.hooks.events.ServerResponseEvent;
-import org.pircbotx.hooks.events.WhoisEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sujavabot.core.commands.CommandHandler;
