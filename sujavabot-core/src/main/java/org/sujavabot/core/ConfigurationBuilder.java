@@ -53,4 +53,12 @@ public class ConfigurationBuilder extends org.pircbotx.Configuration.Builder<Pir
 	public List<AuthorizedUser> getUsers() {
 		return users;
 	}
+
+	public void setGroups(List<AuthorizedGroup> groups) {
+		this.groups = groups;
+	}
+
+	public void setUsers(List<AuthorizedUser> users) {
+		this.users = users;
+	}
 }

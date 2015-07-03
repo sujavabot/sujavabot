@@ -15,14 +15,18 @@
 		<name>admin</name>
 		<parent>root</parent>
 		<commands>
+			<config class="org.sujavabot.core.commands.ConfigCommand" />
 			<group class="org.sujavabot.core.commands.GroupAdminCommand" />
+			<user class="org.sujavabot.core.commands.UserAdminCommand" />
 		</commands>
 	</group>
 	<user>
 		<name>admin</name>
 		<nick>changeme</nick>
 		<group>admin</group>
-		<commands>
-		</commands>
+		<commands />
 	</user>
+	<listener class="org.sujavabot.core.commands.CommandReceiverListener">
+		<prefix>!</prefix>
+	</listener>
 </sujavabot>

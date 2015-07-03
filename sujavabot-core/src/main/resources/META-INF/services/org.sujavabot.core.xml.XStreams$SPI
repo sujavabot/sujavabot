@@ -1,1 +1,2 @@
 org.sujavabot.core.xml.ConfigurationBuilderConverter$SPI
+org.sujavabot.core.xml.HelperConvertableConverter$SPI

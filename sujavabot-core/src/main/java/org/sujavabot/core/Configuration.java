@@ -10,11 +10,15 @@ public class Configuration extends org.pircbotx.Configuration<PircBotX> {
 	
 	protected File configFile;
 	protected List<File> pluginConfigs = new ArrayList<>();
+	protected List<AuthorizedGroup> groups = new ArrayList<>();
+	protected List<AuthorizedUser> users = new ArrayList<>();
 
 	public Configuration(File configFile, ConfigurationBuilder builder) {
 		super(builder);
 		this.configFile = configFile;
 		pluginConfigs.addAll(builder.getPluginConfigs());
+		groups.addAll(builder.getGroups());
+		users.addAll(builder.getUsers());
 	}
 
 	public List<File> getPluginConfigs() {
@@ -23,6 +27,14 @@ public class Configuration extends org.pircbotx.Configuration<PircBotX> {
 	
 	public File getConfigFile() {
 		return configFile;
+	}
+	
+	public List<AuthorizedGroup> getGroups() {
+		return groups;
+	}
+	
+	public List<AuthorizedUser> getUsers() {
+		return users;
 	}
 	
 	public ConfigurationBuilder createBuilder() {
@@ -65,6 +77,9 @@ public class Configuration extends org.pircbotx.Configuration<PircBotX> {
 		builder.setWebIrcHostname(getWebIrcHostname());
 		builder.setWebIrcPassword(getWebIrcPassword());
 		builder.setWebIrcUsername(getWebIrcUsername());
+		
+		builder.setGroups(getGroups());
+		builder.setUsers(getUsers());
 		
 		return builder;
 	}

@@ -14,7 +14,7 @@ public class AuthorizedGroupConverter extends AbstractConverter<AuthorizedGroup>
 	}
 
 	@Override
-	protected AuthorizedGroup createCurrent() {
+	protected AuthorizedGroup createCurrent(Class<? extends AuthorizedGroup> required) {
 		return new AuthorizedGroup();
 	}
 	

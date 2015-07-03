@@ -28,8 +28,8 @@ public class SujavaBot extends PircBotX {
 
 	protected Map<File, Plugin> plugins = new LinkedHashMap<>();
 	
-	protected List<AuthorizedUser> authorizedUsers = new ArrayList<>();
 	protected List<AuthorizedGroup> authorizedGroups = new ArrayList<>();
+	protected List<AuthorizedUser> authorizedUsers = new ArrayList<>();
 	
 	protected CommandHandler commands;
 
@@ -39,6 +39,8 @@ public class SujavaBot extends PircBotX {
 			plugins.put(pluginConfig, null);
 		}
 		commands = new DefaultCommandHandler(this);
+		authorizedGroups.addAll(configuration.getGroups());
+		authorizedUsers.addAll(configuration.getUsers());
 	}
 
 	public Map<File, Plugin> getPlugins() {
@@ -93,8 +95,13 @@ public class SujavaBot extends PircBotX {
 	}
 	
 	public void saveConfiguration() {
+		saveConfiguration(null);
+	}
+	
+	public File saveConfiguration(File configFile) {
+		if(configFile == null)
+			configFile = getConfiguration().getConfigFile();
 		try {
-			File configFile = getConfiguration().getConfigFile();
 			File configFileTmp = new File(configFile.getParent(), configFile.getName() + ".tmp");
 			File configFileOld = new File(configFile.getParent(), configFile.getName() + ".old");
 			for(int i = 2; configFileOld.exists(); i++)
@@ -112,6 +119,7 @@ public class SujavaBot extends PircBotX {
 		} catch(IOException e) {
 			throw Throwables.as(RuntimeException.class, e);
 		}
+		return configFile;
 	}
 
 	public void initializePlugins() {

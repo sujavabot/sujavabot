@@ -17,7 +17,7 @@ public class AuthorizedUserConverter extends AbstractConverter<AuthorizedUser> {
 	}
 	
 	@Override
-	protected AuthorizedUser createCurrent() {
+	protected AuthorizedUser createCurrent(Class<? extends AuthorizedUser> required) {
 		return new AuthorizedUser();
 	}
 

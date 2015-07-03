@@ -15,7 +15,7 @@ public class CommandsMapConverter extends AbstractConverter<CommandsMap> {
 	}
 
 	@Override
-	protected CommandsMap createCurrent() {
+	protected CommandsMap createCurrent(Class<? extends CommandsMap> required) {
 		return new CommandsMap();
 	}
 	

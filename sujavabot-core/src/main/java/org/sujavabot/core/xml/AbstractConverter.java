@@ -29,12 +29,12 @@ public abstract class AbstractConverter<T> implements Converter {
 		return this.type.equals(type);
 	}
 
-	protected T createDefaults() {
+	protected T createDefaults(T current) {
 		return type.cast(x.getReflectionProvider().newInstance(type));
 	}
 	
-	protected T createCurrent() {
-		return type.cast(x.getReflectionProvider().newInstance(type));
+	protected T createCurrent(Class<? extends T> required) {
+		return type.cast(x.getReflectionProvider().newInstance(required));
 	}
 	
 	protected abstract void configure(T current, MarshalHelper helper, T defaults);
@@ -44,7 +44,7 @@ public abstract class AbstractConverter<T> implements Converter {
 		try {
 			MarshalHelper helper = new MarshalHelper(x, writer, context);
 			T current = type.cast(source);
-			T defaults = createDefaults();
+			T defaults = createDefaults(current);
 
 			configure(current, helper, defaults);
 
@@ -60,7 +60,7 @@ public abstract class AbstractConverter<T> implements Converter {
 	public Object unmarshal(HierarchicalStreamReader reader, UnmarshallingContext context) {
 		try {
 			UnmarshalHelper helper = new UnmarshalHelper(x, reader, context);
-			T current = createCurrent();
+			T current = createCurrent(context.getRequiredType());
 			
 			configure(current, helper);
 			

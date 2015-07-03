@@ -11,6 +11,8 @@ import java.util.Map.Entry;
 
 import org.pircbotx.ChannelModeHandler;
 import org.pircbotx.cap.CapHandler;
+import org.pircbotx.hooks.CoreHooks;
+import org.pircbotx.hooks.Listener;
 import org.sujavabot.core.AuthorizedGroup;
 import org.sujavabot.core.AuthorizedUser;
 import org.sujavabot.core.ConfigurationBuilder;
@@ -50,12 +52,12 @@ public class ConfigurationBuilderConverter extends AbstractConverter<Configurati
 	}
 	
 	@Override
-	protected ConfigurationBuilder createCurrent() {
+	protected ConfigurationBuilder createCurrent(Class<? extends ConfigurationBuilder> required) {
 		return new ConfigurationBuilder();
 	}
 	
 	@Override
-	protected ConfigurationBuilder createDefaults() {
+	protected ConfigurationBuilder createDefaults(ConfigurationBuilder current) {
 		return ConfigurationBuilder.createDefault();
 	}
 	
@@ -145,6 +147,12 @@ public class ConfigurationBuilderConverter extends AbstractConverter<Configurati
 		
 		for(AuthorizedUser user : current.getUsers())
 			helper.field("user", AuthorizedUser.class, () -> user);
+		
+		for(Listener<?> l : current.getListenerManager().getListeners()) {
+			if(l instanceof CoreHooks)
+				continue;
+			helper.field("listener", () -> l);
+		}
 	}
 
 	@Override
@@ -248,6 +256,8 @@ public class ConfigurationBuilderConverter extends AbstractConverter<Configurati
 		helper.field("user", AuthorizedUser.class, u -> {
 			current.getUsers().add(u);
 		});
+		
+		helper.field("listener", l -> current.addListener((Listener) l));
 	}
 
 }
