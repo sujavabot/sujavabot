@@ -15,8 +15,13 @@ import java.util.Map.Entry;
 import java.util.TreeMap;
 
 import org.pircbotx.PircBotX;
+import org.pircbotx.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.sujavabot.core.commands.AbstractCommandHandler;
+import org.sujavabot.core.commands.CommandHandler;
+import org.sujavabot.core.commands.DefaultCommandHandler;
+import org.sujavabot.core.commands.RootCommandHandler;
 import org.sujavabot.core.util.Throwables;
 import org.sujavabot.core.xml.ConfigurationBuilderConverter;
 import org.sujavabot.core.xml.XStreams;
@@ -28,14 +33,19 @@ public class SujavaBot extends PircBotX {
 
 	protected Map<File, Plugin> plugins = new LinkedHashMap<>();
 	
+	protected Map<String, AuthorizedUser> authorizedUsers = new TreeMap<>();
+	protected Map<String, AuthorizedGroup> authorizedGroups = new TreeMap<>();
+	
 	protected CommandHandler commands;
+	protected CommandHandler rootCommands;
 
 	public SujavaBot(Configuration configuration) {
 		super(configuration);
 		for(File pluginConfig : configuration.getPluginConfigs()) {
 			plugins.put(pluginConfig, null);
 		}
-		commands = new CommandHandler(this);
+		commands = new DefaultCommandHandler(this);
+		rootCommands = new RootCommandHandler(this);
 	}
 
 	public Map<File, Plugin> getPlugins() {
@@ -45,7 +55,26 @@ public class SujavaBot extends PircBotX {
 	public CommandHandler getCommands() {
 		return commands;
 	}
+	
+	public CommandHandler getRootCommands() {
+		return rootCommands;
+	}
 
+	public Map<String, AuthorizedUser> getAuthorizedUsers() {
+		return authorizedUsers;
+	}
+	
+	public Map<String, AuthorizedGroup> getAuthorizedGroups() {
+		return authorizedGroups;
+	}
+	
+	public AuthorizedUser getAuthorizedUser(User user) {
+		AuthorizedUser a = getAuthorizedUsers().get(user.getNick());
+		if(a != null && user.isVerified())
+			return a;
+		return null;
+	}
+	
 	@Override
 	public Configuration getConfiguration() {
 		return (Configuration) super.getConfiguration();

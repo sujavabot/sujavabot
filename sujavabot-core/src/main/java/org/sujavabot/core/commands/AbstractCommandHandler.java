@@ -1,4 +1,4 @@
-package org.sujavabot.core;
+package org.sujavabot.core.commands;
 
 import java.util.Arrays;
 import java.util.Map;
@@ -8,34 +8,34 @@ import org.antlr.v4.runtime.ANTLRInputStream;
 import org.antlr.v4.runtime.BailErrorStrategy;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.pircbotx.hooks.Event;
-import org.sujavabot.core.commands.ParseErrorCommand;
-import org.sujavabot.core.commands.UnrecognizedCommand;
+import org.sujavabot.core.Command;
+import org.sujavabot.core.CommandLexer;
+import org.sujavabot.core.CommandParser;
+import org.sujavabot.core.SujavaBot;
 
-public class CommandHandler {
+public abstract class AbstractCommandHandler implements CommandHandler {
 	protected SujavaBot bot;
 	protected Map<String, Command> commands = new TreeMap<>();
-	protected Command defaultCommand;
 	
-	public CommandHandler(SujavaBot bot) {
+	public AbstractCommandHandler(SujavaBot bot) {
 		this.bot = bot;
-		commands.put("__parse_error", new ParseErrorCommand());
-		defaultCommand = new UnrecognizedCommand();
 	}
 	
 	public Map<String, Command> getCommands() {
 		return commands;
 	}
 	
-	public Command getDefaultCommand() {
-		return defaultCommand;
-	}
+	public abstract Command getDefaultCommand(Event<?> cause, String name);
 	
-	public void setDefaultCommand(Command defaultCommand) {
-		this.defaultCommand = defaultCommand;
-	}
-	
+	/* (non-Javadoc)
+	 * @see org.sujavabot.core.commands.CommandHandler#get(org.pircbotx.hooks.Event, java.lang.String)
+	 */
+	@Override
 	public Command get(Event<?> cause, String name) {
-		return commands.getOrDefault(name, defaultCommand);
+		Command c = commands.get(name);
+		if(c == null)
+			c = getDefaultCommand(cause, name);
+		return c;
 	}
 	
 	public Object[] parse(String unparsed) {
@@ -48,6 +48,10 @@ public class CommandHandler {
 		}
 	}
 	
+	/* (non-Javadoc)
+	 * @see org.sujavabot.core.commands.CommandHandler#perform(org.pircbotx.hooks.Event, java.lang.String)
+	 */
+	@Override
 	public void perform(Event<?> cause, String unparsed) {
 		perform(cause, parse(unparsed));
 	}
