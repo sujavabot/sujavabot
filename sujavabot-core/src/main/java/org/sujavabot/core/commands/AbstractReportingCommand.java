@@ -15,7 +15,7 @@ public abstract class AbstractReportingCommand implements Command {
 	}
 	
 	protected void reportMessage(SujavaBot bot, MessageEvent<?> cause, String result) {
-		cause.getChannel().send().message(result);
+		cause.getChannel().send().message(bot.buffer(cause.getChannel(), cause.getUser(), result));
 	}
 	
 	protected void reportAction(SujavaBot bot, ActionEvent<?> cause, String result) {
@@ -28,6 +28,8 @@ public abstract class AbstractReportingCommand implements Command {
 	
 	@Override
 	public void report(SujavaBot bot, Event<?> cause, String result) {
+		if(result.isEmpty())
+			return;
 		if(cause instanceof MessageEvent<?>) {
 			MessageEvent<?> m = (MessageEvent<?>) cause;
 			reportMessage(bot, m, prefix(m.getUser(), result));

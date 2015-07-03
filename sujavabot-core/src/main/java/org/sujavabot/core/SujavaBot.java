@@ -15,7 +15,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.WeakHashMap;
 
+import org.pircbotx.Channel;
 import org.pircbotx.PircBotX;
 import org.pircbotx.User;
 import org.pircbotx.hooks.Event;
@@ -47,6 +49,8 @@ public class SujavaBot extends PircBotX {
 	protected CommandHandler commands;
 	
 	protected Set<User> verified = Collections.synchronizedSet(new HashSet<>());
+	
+	protected Map<Channel, Map<User, String>> outputBuffers = Collections.synchronizedMap(new WeakHashMap<>());
 
 	public SujavaBot(Configuration configuration) {
 		super(configuration);
@@ -142,6 +146,38 @@ public class SujavaBot extends PircBotX {
 	@Override
 	public Configuration getConfiguration() {
 		return (Configuration) super.getConfiguration();
+	}
+	
+	public Map<Channel, Map<User, String>> getOutputBuffers() {
+		return outputBuffers;
+	}
+	
+	public String buffer(Channel channel, User user, String result) {
+		if(!outputBuffers.containsKey(channel))
+			outputBuffers.put(channel, Collections.synchronizedMap(new WeakHashMap<>()));
+		Map<User, String> channelBuffer = outputBuffers.get(channel);
+		channelBuffer.remove(user);
+		if(result.length() > getConfiguration().getMaxLineLength()) {
+			int stop = getConfiguration().getMaxLineLength() - " (!more)".length();
+			channelBuffer.put(user, result.substring(stop));
+			return result.substring(0, stop) + " (!more)";
+		}
+		return result;
+	}
+	
+	public String continueBuffer(Channel channel, User user) {
+		if(!outputBuffers.containsKey(channel))
+			outputBuffers.put(channel, Collections.synchronizedMap(new WeakHashMap<>()));
+		Map<User, String> channelBuffer = outputBuffers.get(channel);
+		String result = channelBuffer.remove(user);
+		if(result == null)
+			return null;
+		if(result.length() > getConfiguration().getMaxLineLength()) {
+			int stop = getConfiguration().getMaxLineLength() - " (!more)".length();
+			channelBuffer.put(user, result.substring(stop));
+			return result.substring(0, stop) + " (!more)";
+		}
+		return result;
 	}
 	
 	public void saveConfiguration() {

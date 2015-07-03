@@ -13,6 +13,7 @@
 			<__unrecognized class="org.sujavabot.core.commands.UnrecognizedCommand" />
 			<action class="org.sujavabot.core.commands.ActionCommand" />
 			<echo class="org.sujavabot.core.commands.EchoCommand" />
+			<more class="org.sujavabot.core.commands.MoreBufferCommand" />
 		</commands>
 	</group>
 	<group>
