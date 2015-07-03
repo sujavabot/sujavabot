@@ -15,13 +15,18 @@ public class AuthorizedUserConverter extends AbstractConverter<AuthorizedUser> {
 	public AuthorizedUserConverter(XStream x) {
 		super(x, AuthorizedUser.class);
 	}
+	
+	@Override
+	protected AuthorizedUser createCurrent() {
+		return new AuthorizedUser();
+	}
 
 	@Override
 	protected void configure(AuthorizedUser current, MarshalHelper helper, AuthorizedUser defaults) {
 		helper.field("name", String.class, () -> current.getName());
 		for(AuthorizedGroup group : current.getGroups())
 			helper.field("group", String.class, () -> group.getName());
-		helper.field("commands", TreeMap.class, () -> new TreeMap<>(current.getCommands().getCommands()));
+		helper.field("commands", CommandsMap.class, () -> new CommandsMap(current.getCommands().getCommands()));
 	}
 
 	@Override
@@ -33,7 +38,7 @@ public class AuthorizedUserConverter extends AbstractConverter<AuthorizedUser> {
 				if(s.equals(g.getName()))
 					current.getGroups().add(g);
 		});
-		helper.field("commands", TreeMap.class, m -> current.getCommands().getCommands().putAll(m));
+		helper.field("commands", CommandsMap.class, m -> current.getCommands().getCommands().putAll(m));
 	}
 
 }

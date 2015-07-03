@@ -16,6 +16,11 @@ public class AuthorizedGroupConverter extends AbstractConverter<AuthorizedGroup>
 	}
 
 	@Override
+	protected AuthorizedGroup createCurrent() {
+		return new AuthorizedGroup();
+	}
+	
+	@Override
 	protected void configure(AuthorizedGroup current, MarshalHelper helper, AuthorizedGroup defaults) {
 		helper.field("name", String.class, () -> current.getName());
 		for(AuthorizedGroup subgroup : current.getSubgroups())

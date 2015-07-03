@@ -23,12 +23,14 @@ public class AuthorizedGroup {
 	protected GroupCommandHandler commands;
 	protected List<AuthorizedGroup> subgroups;
 	
-	public AuthorizedGroup() {}
-	
-	public AuthorizedGroup(String name) {
-		this.name = name;
+	public AuthorizedGroup() {
 		commands = new GroupCommandHandler(this);
 		subgroups = new ArrayList<>();
+	}
+	
+	public AuthorizedGroup(String name) {
+		this();
+		this.name = name;
 	}
 	
 	public String getName() {

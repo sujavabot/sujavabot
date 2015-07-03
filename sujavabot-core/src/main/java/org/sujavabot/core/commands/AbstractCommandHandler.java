@@ -44,7 +44,7 @@ public abstract class AbstractCommandHandler implements CommandHandler {
 		try {
 			return parser.command().c;
 		} catch(RuntimeException re) {
-			return new Object[] {".parse.error", unparsed};
+			return new Object[] {"_parse_error", unparsed};
 		}
 	}
 	

@@ -28,6 +28,8 @@ public class DefaultCommandHandler extends AbstractCommandHandler {
 			c = user.getCommands().get(cause, name);
 		if(c == null)
 			c = bot.getRootCommands().get(cause, name);
+		if(c == null && !"_unrecognized".equals(name))
+			c = get(cause, "_unrecognized");
 		return c;
 	}
 

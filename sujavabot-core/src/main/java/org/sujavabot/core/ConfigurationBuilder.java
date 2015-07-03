@@ -6,6 +6,9 @@ import java.util.List;
 
 import org.pircbotx.PircBotX;
 import org.sujavabot.core.commands.RootCommandHandler;
+import org.sujavabot.core.xml.XStreams;
+
+import com.thoughtworks.xstream.XStream;
 
 public class ConfigurationBuilder extends org.pircbotx.Configuration.Builder<PircBotX> {
 
@@ -16,8 +19,9 @@ public class ConfigurationBuilder extends org.pircbotx.Configuration.Builder<Pir
 	protected List<AuthorizedUser> users = new ArrayList<>();
 
 	public ConfigurationBuilder() {
-		AuthorizedGroup root = new AuthorizedGroup("root");
-		root.setCommands(new RootCommandHandler(root));
+		XStream x = XStreams.configure(new XStream());
+		x.alias("group", AuthorizedGroup.class);
+		AuthorizedGroup root = (AuthorizedGroup) x.fromXML(ConfigurationBuilder.class.getResource("root-group.xml"));
 		groups.add(root);
 	}
 	

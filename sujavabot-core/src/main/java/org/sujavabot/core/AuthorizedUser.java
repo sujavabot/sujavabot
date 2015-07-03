@@ -11,10 +11,14 @@ public class AuthorizedUser {
 	protected UserCommandHandler commands;
 	protected List<AuthorizedGroup> groups;
 	
-	public AuthorizedUser(String name) {
-		this.name = name;
+	public AuthorizedUser() {
 		commands = new UserCommandHandler(this);
 		groups = new ArrayList<>();
+	}
+	
+	public AuthorizedUser(String name) {
+		this();
+		this.name = name;
 	}
 	
 	public String getName() {
