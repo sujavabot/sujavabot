@@ -16,6 +16,7 @@ import org.pircbotx.hooks.Listener;
 import org.sujavabot.core.AuthorizedGroup;
 import org.sujavabot.core.AuthorizedUser;
 import org.sujavabot.core.ConfigurationBuilder;
+import org.sujavabot.core.SujavaBot.UnverifyListener;
 import org.sujavabot.core.xml.ConverterHelpers.MarshalHelper;
 import org.sujavabot.core.xml.ConverterHelpers.UnmarshalHelper;
 
@@ -53,7 +54,9 @@ public class ConfigurationBuilderConverter extends AbstractConverter<Configurati
 	
 	@Override
 	protected ConfigurationBuilder createCurrent(Class<? extends ConfigurationBuilder> required) {
-		return new ConfigurationBuilder();
+		ConfigurationBuilder current = new ConfigurationBuilder();
+		current.addListener(new UnverifyListener());
+		return current;
 	}
 	
 	@Override
@@ -150,6 +153,8 @@ public class ConfigurationBuilderConverter extends AbstractConverter<Configurati
 		
 		for(Listener<?> l : current.getListenerManager().getListeners()) {
 			if(l instanceof CoreHooks)
+				continue;
+			if(l instanceof UnverifyListener)
 				continue;
 			helper.field("listener", () -> l);
 		}

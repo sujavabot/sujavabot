@@ -7,14 +7,24 @@ import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
+
 import org.pircbotx.PircBotX;
 import org.pircbotx.User;
+import org.pircbotx.hooks.Event;
+import org.pircbotx.hooks.ListenerAdapter;
 import org.pircbotx.hooks.WaitForQueue;
+import org.pircbotx.hooks.events.ConnectEvent;
+import org.pircbotx.hooks.events.NickChangeEvent;
+import org.pircbotx.hooks.events.PartEvent;
+import org.pircbotx.hooks.events.QuitEvent;
 import org.pircbotx.hooks.events.ServerResponseEvent;
 import org.pircbotx.hooks.events.WhoisEvent;
 import org.slf4j.Logger;
@@ -35,6 +45,8 @@ public class SujavaBot extends PircBotX {
 	protected List<AuthorizedUser> authorizedUsers = new ArrayList<>();
 	
 	protected CommandHandler commands;
+	
+	protected Set<User> verified = Collections.synchronizedSet(new HashSet<>());
 
 	public SujavaBot(Configuration configuration) {
 		super(configuration);
@@ -44,6 +56,7 @@ public class SujavaBot extends PircBotX {
 		commands = new DefaultCommandHandler(this);
 		authorizedGroups.addAll(configuration.getGroups());
 		authorizedUsers.addAll(configuration.getUsers());
+		
 	}
 
 	public Map<File, Plugin> getPlugins() {
@@ -74,16 +87,17 @@ public class SujavaBot extends PircBotX {
 	}
 	
 	public AuthorizedUser getAuthorizedUser(User user) {
+		AuthorizedUser found = null;
 		for(AuthorizedUser u : authorizedUsers) {
 			if(u.getNick().matcher(user.getNick()).matches()) {
 				if(!isVerified(user)) {
 					LOG.info("nick {} not verified", user.getNick());
-					return null;
+					return getAuthorizedUser("nobody");
 				}
-				return u;
+				found = u;
 			}
 		}
-		return null;
+		return found;
 	}
 	
 	public AuthorizedUser getAuthorizedUser(String name) {
@@ -95,8 +109,12 @@ public class SujavaBot extends PircBotX {
 	}
 	
 	public boolean isVerified(User user) {
-		if(user.isVerified())
+		if(verified.contains(user))
 			return true;
+		if(user.isVerified()) {
+			verified.add(user);
+			return true;
+		}
 		try {
 			sendRaw().rawLine("WHOIS " + user.getNick() + " " + user.getNick());
 			WaitForQueue waitForQueue = new WaitForQueue(this);
@@ -107,6 +125,8 @@ public class SujavaBot extends PircBotX {
 
 				if(event.getCode() == 318 || event.getCode() == 307) {
 					waitForQueue.close();
+					if(event.getCode() == 307)
+						verified.add(user);
 					return event.getCode() == 307;
 				}
 			}
@@ -115,6 +135,9 @@ public class SujavaBot extends PircBotX {
 		}
 	}
 
+	public Set<User> getVerified() {
+		return verified;
+	}
 	
 	@Override
 	public Configuration getConfiguration() {
@@ -178,5 +201,38 @@ public class SujavaBot extends PircBotX {
 				pi.remove();
 			}
 		}
+	}
+	
+	public static class UnverifyListener extends ListenerAdapter<PircBotX> {
+		protected Set<User> verified(Event<?> event) {
+			return ((SujavaBot) event.getBot()).getVerified();
+		}
+		
+		@Override
+		public void onConnect(ConnectEvent<PircBotX> event) throws Exception {
+			verified(event).clear();
+		}
+
+		@Override
+		public void onNickChange(NickChangeEvent<PircBotX> event) throws Exception {
+			verified(event).remove(event.getUser());
+		}
+
+		@Override
+		public void onPart(PartEvent<PircBotX> event) throws Exception {
+			if(event.getUser().getNick().equals(event.getBot().getNick()))
+				verified(event).clear();
+			else
+				verified(event).remove(event.getUser());
+		}
+
+		@Override
+		public void onQuit(QuitEvent<PircBotX> event) throws Exception {
+			if(event.getUser().getNick().equals(event.getBot().getNick()))
+				verified(event).clear();
+			else
+				verified(event).remove(event.getUser());
+		}
+		
 	}
 }
