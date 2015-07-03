@@ -8,6 +8,8 @@ import org.antlr.v4.runtime.ANTLRInputStream;
 import org.antlr.v4.runtime.BailErrorStrategy;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.pircbotx.hooks.Event;
+import org.sujavabot.core.commands.ParseErrorCommand;
+import org.sujavabot.core.commands.UnrecognizedCommand;
 
 public class CommandHandler {
 	protected SujavaBot bot;
@@ -16,6 +18,8 @@ public class CommandHandler {
 	
 	public CommandHandler(SujavaBot bot) {
 		this.bot = bot;
+		commands.put("__parse_error", new ParseErrorCommand());
+		defaultCommand = new UnrecognizedCommand();
 	}
 	
 	public Map<String, Command> getCommands() {
