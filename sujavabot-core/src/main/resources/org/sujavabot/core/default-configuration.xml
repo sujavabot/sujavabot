@@ -22,6 +22,11 @@
 		</commands>
 	</group>
 	<user>
+		<name>@nobody</name>
+		<nick>$^</nick>
+		<commands />
+	</user>
+	<user>
 		<name>admin</name>
 		<nick>changeme</nick>
 		<group>admin</group>

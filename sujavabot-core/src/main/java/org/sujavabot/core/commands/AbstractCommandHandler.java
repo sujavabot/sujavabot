@@ -7,6 +7,8 @@ import java.util.TreeMap;
 import org.antlr.v4.runtime.ANTLRInputStream;
 import org.antlr.v4.runtime.BailErrorStrategy;
 import org.antlr.v4.runtime.CommonTokenStream;
+import org.pircbotx.Channel;
+import org.pircbotx.User;
 import org.pircbotx.hooks.Event;
 import org.sujavabot.core.Command;
 import org.sujavabot.core.CommandLexer;
@@ -14,6 +16,22 @@ import org.sujavabot.core.CommandParser;
 import org.sujavabot.core.SujavaBot;
 
 public abstract class AbstractCommandHandler implements CommandHandler {
+	protected static User getUser(Event<?> event) {
+		try {
+			return (User) event.getClass().getMethod("getUser").invoke(event);
+		} catch(Exception e) {
+			return null;
+		}
+	}
+	
+	protected static Channel getChannel(Event<?> event) {
+		try {
+			return (Channel) event.getClass().getMethod("getChannel").invoke(event);
+		} catch(Exception e) {
+			return null;
+		}
+	}
+	
 	protected SujavaBot bot;
 	protected Map<String, Command> commands = new TreeMap<>();
 	

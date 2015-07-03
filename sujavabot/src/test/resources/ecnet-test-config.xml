@@ -6,6 +6,9 @@
 	<auto-join-channel>
 		<channel-name>#test</channel-name>
 	</auto-join-channel>
+	<auto-join-channel>
+		<channel-name>#robin</channel-name>
+	</auto-join-channel>
 	<group>
 		<name>root</name>
 		<commands>
@@ -25,6 +28,11 @@
 			<user class="org.sujavabot.core.commands.UserAdminCommand" />
 		</commands>
 	</group>
+	<user>
+		<name>@nobody</name>
+		<nick>$^</nick>
+		<commands />
+	</user>
 	<user>
 		<name>admin</name>
 		<nick>robin</nick>
