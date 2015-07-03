@@ -5,8 +5,7 @@ import java.util.*;
 }
 
 command returns [Object[] c]:
-	s=string { $c = new Object[] { $s.s }; }
-|	s=string a=args { $a.r.add(0, $s.s); $c = $a.r.toArray(); }
+	a=args { $c = $a.r.toArray(); }
 ;
 
 args returns [List<Object> r]:
