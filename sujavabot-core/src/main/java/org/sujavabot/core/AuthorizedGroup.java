@@ -3,6 +3,9 @@ package org.sujavabot.core;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.TreeMap;
 
 import org.sujavabot.core.commands.GroupCommandHandler;
 
@@ -66,5 +69,16 @@ public class AuthorizedGroup {
 
 	public void setParents(List<AuthorizedGroup> subgroups) {
 		this.parents = subgroups;
+	}
+	
+	public Map<String, Command> getAllCommands() {
+		Map<String, Command> all = new TreeMap<>();
+		all.putAll(getCommands().getCommands());
+		for(AuthorizedGroup parent : getParents()) {
+			for(Entry<String, Command> e : parent.getAllCommands().entrySet())
+				if(!all.containsKey(e.getKey()))
+					all.put(e.getKey(), e.getValue());
+		}
+		return all;
 	}
 }

@@ -2,6 +2,9 @@ package org.sujavabot.core;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
+import java.util.Map.Entry;
 import java.util.regex.Pattern;
 
 import org.sujavabot.core.commands.UserCommandHandler;
@@ -57,5 +60,16 @@ public class AuthorizedUser {
 
 	public void setGroups(List<AuthorizedGroup> groups) {
 		this.groups = groups;
+	}
+
+	public Map<String, Command> getAllCommands() {
+		Map<String, Command> all = new TreeMap<>();
+		all.putAll(getCommands().getCommands());
+		for(AuthorizedGroup group : getGroups()) {
+			for(Entry<String, Command> e : group.getAllCommands().entrySet())
+				if(!all.containsKey(e.getKey()))
+					all.put(e.getKey(), e.getValue());
+		}
+		return all;
 	}
 }

@@ -14,9 +14,39 @@ public class UserAdminCommand extends AbstractReportingCommand {
 	@Override
 	public String invoke(SujavaBot bot, Event<?> cause, List<String> args) {
 		if(args.size() <= 1) {
-			return "user <command>: create, delete, set_name, set_nick";
+			return "user <command>: list, info, create, delete, set_name, set_nick";
 		}
 		boolean help = "help".equals(args.get(0));
+		if("list".equals(args.get(1))) {
+			if(help || args.size() != 2)
+				return "user list: list the user names";
+			StringBuilder sb = new StringBuilder();
+			for(AuthorizedUser user : bot.getAuthorizedUsers()) {
+				if(sb.length() > 0)
+					sb.append(" ");
+				sb.append(user.getName());
+			}
+			return sb.toString();
+		}
+		if("info".equals(args.get(1))) {
+			if(help || args.size() != 3)
+				return "user info <name>: show user info";
+			String name = args.get(2);
+			AuthorizedUser user = bot.getAuthorizedUser(name);
+			if(user == null)
+				return "user " + name + " does not exist";
+			
+			List<String> commands = new ArrayList<>();
+			List<String> groups = new ArrayList<>();
+			List<String> allCommands = new ArrayList<>();
+			
+			commands.addAll(user.getCommands().getCommands().keySet());
+			for(AuthorizedGroup parent : user.getGroups())
+				groups.add(parent.getName());
+			allCommands.addAll(user.getAllCommands().keySet());
+			
+			return String.format("user %s: nick:%s commands: %s groups:%s all-commands:%s", name, user.getNick().pattern(), commands, groups, allCommands);
+		}
 		if("create".equals(args.get(1))) {
 			if(help || args.size() < 3)
 				return "user create <name> <nick> [<group>...]: create a user";
@@ -82,7 +112,7 @@ public class UserAdminCommand extends AbstractReportingCommand {
 			user.setNick(p);
 			return "user updated";
 		}
-		return "user <command>: create, delete, set_name, set_nick";
+		return "user <command>: list, info, create, delete, set_name, set_nick";
 	}
 
 }

@@ -1,5 +1,6 @@
 package org.sujavabot.core.commands;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.pircbotx.hooks.Event;
@@ -12,9 +13,38 @@ public class GroupAdminCommand extends AbstractReportingCommand {
 	@Override
 	public String invoke(SujavaBot bot, Event<?> cause, List<String> args) {
 		if(args.size() <= 1) {
-			return "group <command>: create, delete, set_name, add_user, remove_user, add_parent, remove_parent";
+			return "group <command>: list, info, create, delete, set_name, add_user, remove_user, add_parent, remove_parent";
 		}
 		boolean help = "help".equals(args.get(0));
+		if("list".equals(args.get(1))) {
+			if(help || args.size() != 2)
+				return "group list: list the group names";
+			StringBuilder sb = new StringBuilder();
+			for(AuthorizedGroup group : bot.getAuthorizedGroups()) {
+				if(sb.length() > 0)
+					sb.append(" ");
+				sb.append(group.getName());
+			}
+			return sb.toString();
+		}
+		if("info".equals(args.get(1))) {
+			if(help || args.size() != 3)
+				return "group info <name>: show group info";
+			String name = args.get(2);
+			AuthorizedGroup group = bot.getAuthorizedGroup(name);
+			if(group == null)
+				return "group " + name + " does not exist";
+			List<String> commands = new ArrayList<>();
+			List<String> parents = new ArrayList<>();
+			List<String> allCommands = new ArrayList<>();
+			
+			commands.addAll(group.getCommands().getCommands().keySet());
+			for(AuthorizedGroup parent : group.getParents())
+				parents.add(parent.getName());
+			allCommands.addAll(group.getAllCommands().keySet());
+			
+			return String.format("group %s: commands: %s parents:%s all-commands:%s", name, commands, parents, allCommands);
+		}
 		if("create".equals(args.get(1))) {
 			if(help || args.size() != 3)
 				return "group create <name>: create a group";
@@ -106,7 +136,7 @@ public class GroupAdminCommand extends AbstractReportingCommand {
 			child.getParents().remove(parent);
 			return "parent removed";
 		}
-		return "group <command>: create, delete, set_name, add_user, remove_user, add_parent, remove_parent";
+		return "group <command>: list, info, create, delete, set_name, add_user, remove_user, add_parent, remove_parent";
 	}
 
 }
