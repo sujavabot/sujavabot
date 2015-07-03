@@ -70,6 +70,9 @@ public class UserAdminCommand extends AbstractReportingCommand {
 				return "invalid nick pattern";
 			}
 			List<AuthorizedGroup> groups = new ArrayList<>();
+			AuthorizedGroup root = bot.getAuthorizedGroup("root");
+			if(root != null)
+				groups.add(root);
 			for(int i = 4; i < args.size(); i++) {
 				AuthorizedGroup group = bot.getAuthorizedGroup(args.get(i));
 				if(group == null)

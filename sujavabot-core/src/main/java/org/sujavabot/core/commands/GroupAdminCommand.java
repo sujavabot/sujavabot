@@ -61,6 +61,9 @@ public class GroupAdminCommand extends AbstractReportingCommand {
 			if(bot.getAuthorizedGroup(name) != null)
 				return "group " + name + " already exists";
 			AuthorizedGroup group = new AuthorizedGroup(name);
+			AuthorizedGroup root = bot.getAuthorizedGroup("root");
+			if(root != null)
+				group.getParents().add(root);
 			bot.getAuthorizedGroups().add(group);
 			return "group created";
 		}
