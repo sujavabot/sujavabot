@@ -121,6 +121,8 @@ public abstract class ConverterHelpers {
 		
 		protected Map<String, BiConsumer<Object, UnmarshalHelper>> handlers = new HashMap<>();
 		
+		protected BiConsumer<Object, UnmarshalHelper> defaultHandler;
+		
 		public UnmarshalHelper(XStream x, HierarchicalStreamReader reader, UnmarshallingContext context) {
 			this.x = x;
 			this.reader = reader;
@@ -175,9 +177,19 @@ public abstract class ConverterHelpers {
 				BiConsumer<Object, UnmarshalHelper> h = handlers.get(reader.getNodeName());
 				if(h != null)
 					h.accept(current, this);
+				else if(defaultHandler != null)
+					defaultHandler.accept(current, this);
 				reader.moveUp();
 			}
 			return current;
+		}
+
+		public BiConsumer<Object, UnmarshalHelper> getDefaultHandler() {
+			return defaultHandler;
+		}
+
+		public void setDefaultHandler(BiConsumer<Object, UnmarshalHelper> defaultHandler) {
+			this.defaultHandler = defaultHandler;
 		}
 	}
 	

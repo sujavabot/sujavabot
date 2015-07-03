@@ -44,13 +44,10 @@ public abstract class AbstractCommandHandler implements CommandHandler {
 		try {
 			return parser.command().c;
 		} catch(RuntimeException re) {
-			return new Object[] {"__parse_error", re.toString(), unparsed};
+			return new Object[] {".parse.error", unparsed};
 		}
 	}
 	
-	/* (non-Javadoc)
-	 * @see org.sujavabot.core.commands.CommandHandler#perform(org.pircbotx.hooks.Event, java.lang.String)
-	 */
 	@Override
 	public void perform(Event<?> cause, String unparsed) {
 		perform(cause, parse(unparsed));

@@ -9,7 +9,7 @@ public class ParseErrorCommand extends AbstractReportingCommand {
 
 	@Override
 	public String invoke(SujavaBot bot, Event<?> cause, List<String> args) {
-		return "Parse error for input: " + args.get(args.size()-1);
+		return "Parse error for input: " + args.get(0);
 	}
 
 }

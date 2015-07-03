@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.pircbotx.PircBotX;
+import org.sujavabot.core.commands.RootCommandHandler;
 
 public class ConfigurationBuilder extends org.pircbotx.Configuration.Builder<PircBotX> {
 
@@ -15,7 +16,9 @@ public class ConfigurationBuilder extends org.pircbotx.Configuration.Builder<Pir
 	protected List<AuthorizedUser> users = new ArrayList<>();
 
 	public ConfigurationBuilder() {
-		groups.add(new AuthorizedGroup("root"));
+		AuthorizedGroup root = new AuthorizedGroup("root");
+		root.setCommands(new RootCommandHandler(root));
+		groups.add(root);
 	}
 	
 	public Configuration buildConfiguration(File configFile) {

@@ -11,14 +11,15 @@ public class RootCommandHandler extends GroupCommandHandler {
 	
 	public RootCommandHandler(AuthorizedGroup root) {
 		super(root);
-		commands.put("__parse_error", new ParseErrorCommand());
+		commands.put(".unrecognized", new UnrecognizedCommand());
+		commands.put(".parse.error", new ParseErrorCommand());
 	}
 
 	@Override
 	public Command getDefaultCommand(Event<?> cause, String name) {
 		Command c = super.getDefaultCommand(cause, name);
-		if(c == null)
-			c = unrecognized;
+		if(c == null && !"unrecognized".equals(name))
+			c = get(cause, "unrecognized");
 		return c;
 	}
 

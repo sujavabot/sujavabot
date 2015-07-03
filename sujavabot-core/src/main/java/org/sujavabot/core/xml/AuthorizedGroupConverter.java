@@ -20,7 +20,7 @@ public class AuthorizedGroupConverter extends AbstractConverter<AuthorizedGroup>
 		helper.field("name", String.class, () -> current.getName());
 		for(AuthorizedGroup subgroup : current.getSubgroups())
 			helper.field("subgroup", String.class, () -> subgroup.getName());
-		helper.field("commands", TreeMap.class, () -> new TreeMap<>(current.getCommands().getCommands()));
+		helper.field("commands", CommandsMap.class, () -> new CommandsMap(current.getCommands().getCommands()));
 	}
 
 	@Override
@@ -32,7 +32,7 @@ public class AuthorizedGroupConverter extends AbstractConverter<AuthorizedGroup>
 				if(s.equals(g.getName()))
 					current.getSubgroups().add(g);
 		});
-		helper.field("commands", TreeMap.class, m -> current.getCommands().getCommands().putAll(m));
+		helper.field("commands", CommandsMap.class, m -> current.getCommands().getCommands().putAll(m));
 	}
 
 }
