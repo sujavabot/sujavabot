@@ -12,7 +12,7 @@ public class GroupAdminCommand extends AbstractReportingCommand {
 	@Override
 	public String invoke(SujavaBot bot, Event<?> cause, List<String> args) {
 		if(args.size() <= 1) {
-			return "group <command>: create, delete, add_user, remove_user, add_parent, remove_parent";
+			return "group <command>: create, delete, set_name, add_user, remove_user, add_parent, remove_parent";
 		}
 		boolean help = "help".equals(args.get(0));
 		if("create".equals(args.get(1))) {
@@ -36,6 +36,19 @@ public class GroupAdminCommand extends AbstractReportingCommand {
 			AuthorizedGroup group = bot.getAuthorizedGroup(name);
 			bot.getAuthorizedGroups().remove(group);
 			return "group deleted";
+		}
+		if("set_name".equals(args.get(1))) {
+			if(help || args.size() != 4)
+				return "group set_name <old_name> <new_name>";
+			String oldName = args.get(2);
+			AuthorizedGroup group = bot.getAuthorizedGroup(oldName);
+			if(group == null)
+				return "group with old name " + oldName + " does not exist";
+			String newName = args.get(3);
+			if(bot.getAuthorizedGroup(newName) != null)
+				return "group with new name " + newName + " already exists";
+			group.setName(newName);
+			return "group updated";
 		}
 		if("add_user".equals(args.get(1))) {
 			if(help || args.size() != 4)
@@ -93,7 +106,7 @@ public class GroupAdminCommand extends AbstractReportingCommand {
 			child.getParents().remove(parent);
 			return "parent removed";
 		}
-		return "group <command>: create, delete, add_user, remove_user, add_parent, remove_parent";
+		return "group <command>: create, delete, set_name, add_user, remove_user, add_parent, remove_parent";
 	}
 
 }
