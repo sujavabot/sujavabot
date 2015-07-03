@@ -24,11 +24,13 @@
 	<user>
 		<name>@nobody</name>
 		<nick>$^</nick>
+		<group>root</group>
 		<commands />
 	</user>
 	<user>
 		<name>admin</name>
 		<nick>changeme</nick>
+		<group>root</group>
 		<group>admin</group>
 		<commands />
 	</user>

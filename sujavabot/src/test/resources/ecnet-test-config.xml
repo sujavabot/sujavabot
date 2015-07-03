@@ -31,11 +31,13 @@
 	<user>
 		<name>@nobody</name>
 		<nick>$^</nick>
+		<group>root</group>
 		<commands />
 	</user>
 	<user>
 		<name>admin</name>
 		<nick>robin</nick>
+		<group>root</group>
 		<group>admin</group>
 		<commands />
 	</user>
