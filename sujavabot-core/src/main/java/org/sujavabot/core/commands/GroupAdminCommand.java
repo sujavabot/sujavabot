@@ -1,7 +1,9 @@
 package org.sujavabot.core.commands;
 
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.pircbotx.hooks.Event;
 import org.sujavabot.core.AuthorizedGroup;
@@ -43,7 +45,13 @@ public class GroupAdminCommand extends AbstractReportingCommand {
 				parents.add(parent.getName());
 			allCommands.addAll(group.getAllCommands().keySet());
 			
-			return String.format("group %s: commands: %s parents:%s all-commands:%s", name, commands, parents, allCommands);
+			Map<String, Object> m = new LinkedHashMap<>();
+			m.put("name", name);
+			m.put("commands", commands);
+			m.put("parents", parents);
+			m.put("all-commands", allCommands);
+			
+			return m.toString();
 		}
 		if("create".equals(args.get(1))) {
 			if(help || args.size() != 3)

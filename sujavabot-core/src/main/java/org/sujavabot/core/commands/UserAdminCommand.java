@@ -1,7 +1,9 @@
 package org.sujavabot.core.commands;
 
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.regex.Pattern;
 
 import org.pircbotx.hooks.Event;
@@ -45,7 +47,14 @@ public class UserAdminCommand extends AbstractReportingCommand {
 				groups.add(parent.getName());
 			allCommands.addAll(user.getAllCommands().keySet());
 			
-			return String.format("user %s: nick:%s commands: %s groups:%s all-commands:%s", name, user.getNick().pattern(), commands, groups, allCommands);
+			Map<String, Object> m = new LinkedHashMap<>();
+			m.put("name", name);
+			m.put("nick", user.getNick().pattern());
+			m.put("commands", commands);
+			m.put("groups", groups);
+			m.put("all-commands", allCommands);
+			
+			return m.toString();
 		}
 		if("create".equals(args.get(1))) {
 			if(help || args.size() < 3)
