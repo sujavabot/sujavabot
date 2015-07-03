@@ -9,6 +9,7 @@ import java.util.regex.Pattern;
 import org.pircbotx.hooks.Event;
 import org.sujavabot.core.AuthorizedGroup;
 import org.sujavabot.core.AuthorizedUser;
+import org.sujavabot.core.Command;
 import org.sujavabot.core.SujavaBot;
 
 public class UserAdminCommand extends AbstractReportingCommand {
@@ -16,7 +17,7 @@ public class UserAdminCommand extends AbstractReportingCommand {
 	@Override
 	public String invoke(SujavaBot bot, Event<?> cause, List<String> args) {
 		if(args.size() <= 1) {
-			return "user <command>: list, info, create, delete, set_name, set_nick";
+			return "user <command>: list, info, create, delete, set_name, set_nick, add_alias, remove_alias";
 		}
 		boolean help = "help".equals(args.get(0));
 		if("list".equals(args.get(1))) {
@@ -121,7 +122,32 @@ public class UserAdminCommand extends AbstractReportingCommand {
 			user.setNick(p);
 			return "user updated";
 		}
-		return "user <command>: list, info, create, delete, set_name, set_nick";
+		if("add_alias".equals(args.get(1))) {
+			if(help || args.size() != 5)
+				return "user add_alias <user> <name> <command>";
+			AuthorizedUser user = bot.getAuthorizedUser(args.get(2));
+			if(user == null)
+				return "user does not exist";
+			if(user.getCommands().getCommands().get(args.get(3)) != null)
+				return "named command already exists";
+			user.getCommands().getCommands().put(args.get(3), new AliasCommand(args.get(4)));
+			return "alias added";
+		}
+		if("remove_alias".equals(args.get(1))) {
+			if(help || args.size() != 4)
+				return "group remove_alias <group> <name>";
+			AuthorizedUser user = bot.getAuthorizedUser(args.get(2));
+			if(user == null)
+				return "user does not exist";
+			Command c = user.getCommands().getCommands().get(args.get(3));
+			if(c == null)
+				return "named command does not exist";
+			if(!(c instanceof AliasCommand))
+				return "named command not an alias";
+			user.getCommands().getCommands().remove(args.get(3));
+			return "alias removed";
+		}
+		return "user <command>: list, info, create, delete, set_name, set_nick, add_alias, remove_alias";
 	}
 
 }

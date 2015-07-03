@@ -53,6 +53,11 @@ public abstract class AbstractCommandHandler implements CommandHandler {
 		perform(cause, parse(unparsed));
 	}
 	
+	@Override
+	public String invoke(Event<?> cause, String unparsed) {
+		return invoke(cause, parse(unparsed));
+	}
+	
 	public void perform(Event<?> cause, Object[] cmd) {
 		String[] args = new String[cmd.length];
 		for(int i = 0; i < cmd.length; i++) {
