@@ -35,7 +35,7 @@ public class ActionCommand extends AbstractReportingCommand {
 	public String invoke(SujavaBot bot, Event<?> cause, List<String> args) {
 		StringBuilder sb = new StringBuilder();
 		String sep = "";
-		for(String arg : args) {
+		for(String arg : args.subList(1, args.size())) {
 			sb.append(sep);
 			sb.append(arg);
 			sep = " ";
