@@ -79,6 +79,14 @@ public class SujavaBot extends PircBotX {
 		return null;
 	}
 	
+	public AuthorizedUser getAuthorizedUser(String name) {
+		for(AuthorizedUser u : authorizedUsers) {
+			if(name.equals(u.getName()))
+				return u;
+		}
+		return null;
+	}
+	
 	@Override
 	public Configuration getConfiguration() {
 		return (Configuration) super.getConfiguration();
