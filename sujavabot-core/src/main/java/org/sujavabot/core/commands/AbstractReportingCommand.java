@@ -14,17 +14,29 @@ public abstract class AbstractReportingCommand implements Command {
 		return user.getNick() + ": " + result;
 	}
 	
+	protected void reportMessage(SujavaBot bot, MessageEvent<?> cause, String result) {
+		cause.getChannel().send().message(result);
+	}
+	
+	protected void reportAction(SujavaBot bot, ActionEvent<?> cause, String result) {
+		cause.getChannel().send().message(result);
+	}
+	
+	protected void reportPrivateMessage(SujavaBot bot, PrivateMessageEvent<?> cause, String result) {
+		cause.getUser().send().message(result);
+	}
+	
 	@Override
 	public void report(SujavaBot bot, Event<?> cause, String result) {
 		if(cause instanceof MessageEvent<?>) {
 			MessageEvent<?> m = (MessageEvent<?>) cause;
-			m.getChannel().send().message(prefix(m.getUser(), result));
+			reportMessage(bot, m, prefix(m.getUser(), result));
 		} else if(cause instanceof ActionEvent<?>) {
 			ActionEvent<?> a = (ActionEvent<?>) cause;
-			a.getChannel().send().message(prefix(a.getUser(), result));
+			reportAction(bot, a, prefix(a.getUser(), result));
 		} else if(cause instanceof PrivateMessageEvent<?>) {
 			PrivateMessageEvent<?> p = (PrivateMessageEvent<?>) cause;
-			p.getUser().send().message(prefix(p.getUser(), result));
+			reportPrivateMessage(bot, p, prefix(p.getUser(), result));
 		}
 	}
 

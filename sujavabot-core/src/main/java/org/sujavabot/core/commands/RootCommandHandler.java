@@ -13,6 +13,9 @@ public class RootCommandHandler extends GroupCommandHandler {
 		super(root);
 		commands.put(".unrecognized", new UnrecognizedCommand());
 		commands.put(".parse.error", new ParseErrorCommand());
+		
+		commands.put("action", new ActionCommand());
+		commands.put("echo", new EchoCommand());
 	}
 
 	@Override
