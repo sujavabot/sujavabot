@@ -1,6 +1,6 @@
 package org.sujavabot.core.xml;
 
-import java.util.TreeMap;
+import java.util.regex.Pattern;
 
 import org.sujavabot.core.AuthorizedGroup;
 import org.sujavabot.core.AuthorizedUser;
@@ -24,6 +24,7 @@ public class AuthorizedUserConverter extends AbstractConverter<AuthorizedUser> {
 	@Override
 	protected void configure(AuthorizedUser current, MarshalHelper helper, AuthorizedUser defaults) {
 		helper.field("name", String.class, () -> current.getName());
+		helper.field("nick", String.class, () -> current.getNick().pattern());
 		for(AuthorizedGroup group : current.getGroups())
 			helper.field("group", String.class, () -> group.getName());
 		helper.field("commands", CommandsMap.class, () -> new CommandsMap(current.getCommands().getCommands()));
@@ -32,6 +33,7 @@ public class AuthorizedUserConverter extends AbstractConverter<AuthorizedUser> {
 	@Override
 	protected void configure(AuthorizedUser current, UnmarshalHelper helper) {
 		helper.field("name", String.class, s -> current.setName(s));
+		helper.field("nick", String.class, s -> current.setNick(Pattern.compile(s)));
 		helper.field("group", String.class, s -> {
 			ConfigurationBuilder builder = (ConfigurationBuilder) helper.getContext().get(ConfigurationBuilder.class);
 			for(AuthorizedGroup g : builder.getGroups())

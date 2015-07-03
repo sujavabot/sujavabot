@@ -1,11 +1,8 @@
 package org.sujavabot.core.commands;
 
-import java.util.List;
-
 import org.pircbotx.hooks.Event;
 import org.sujavabot.core.AuthorizedGroup;
 import org.sujavabot.core.Command;
-import org.sujavabot.core.SujavaBot;
 
 public class GroupCommandHandler extends AbstractCommandHandler {
 	protected AuthorizedGroup group;

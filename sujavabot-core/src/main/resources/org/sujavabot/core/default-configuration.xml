@@ -18,7 +18,8 @@
 		</commands>
 	</group>
 	<user>
-		<name>changeme</name>
+		<name>admin</name>
+		<nick>changeme</nick>
 		<group>admin</group>
 		<commands>
 		</commands>

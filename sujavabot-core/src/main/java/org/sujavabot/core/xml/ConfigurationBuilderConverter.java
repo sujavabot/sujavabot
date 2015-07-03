@@ -14,7 +14,6 @@ import org.pircbotx.cap.CapHandler;
 import org.sujavabot.core.AuthorizedGroup;
 import org.sujavabot.core.AuthorizedUser;
 import org.sujavabot.core.ConfigurationBuilder;
-import org.sujavabot.core.Plugin;
 import org.sujavabot.core.xml.ConverterHelpers.MarshalHelper;
 import org.sujavabot.core.xml.ConverterHelpers.UnmarshalHelper;
 

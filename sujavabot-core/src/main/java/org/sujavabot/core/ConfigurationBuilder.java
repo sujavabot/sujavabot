@@ -5,7 +5,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.pircbotx.PircBotX;
-import org.sujavabot.core.commands.RootCommandHandler;
 import org.sujavabot.core.xml.XStreams;
 
 import com.thoughtworks.xstream.XStream;

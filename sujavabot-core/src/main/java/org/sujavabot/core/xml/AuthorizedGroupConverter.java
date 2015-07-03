@@ -1,7 +1,5 @@
 package org.sujavabot.core.xml;
 
-import java.util.TreeMap;
-
 import org.sujavabot.core.AuthorizedGroup;
 import org.sujavabot.core.ConfigurationBuilder;
 import org.sujavabot.core.xml.ConverterHelpers.MarshalHelper;

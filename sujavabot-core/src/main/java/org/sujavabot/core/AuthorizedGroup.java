@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
-import org.sujavabot.core.commands.DefaultCommandHandler;
 import org.sujavabot.core.commands.GroupCommandHandler;
 
 public class AuthorizedGroup {

@@ -10,9 +10,6 @@ import org.jruby.embed.jsr223.JRubyEngineFactory;
 import org.sujavabot.core.SujavaBot;
 import org.sujavabot.core.Plugin;
 
-import com.thoughtworks.xstream.XStream;
-import com.thoughtworks.xstream.converters.Converter;
-
 public class JRubyPlugin implements Plugin {
 	
 	protected String source;

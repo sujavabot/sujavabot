@@ -12,18 +12,13 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.TreeMap;
-
 import org.pircbotx.PircBotX;
 import org.pircbotx.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.sujavabot.core.commands.AbstractCommandHandler;
 import org.sujavabot.core.commands.CommandHandler;
 import org.sujavabot.core.commands.DefaultCommandHandler;
-import org.sujavabot.core.commands.RootCommandHandler;
 import org.sujavabot.core.util.Throwables;
-import org.sujavabot.core.xml.ConfigurationBuilderConverter;
 import org.sujavabot.core.xml.XStreams;
 
 import com.thoughtworks.xstream.XStream;
@@ -33,8 +28,8 @@ public class SujavaBot extends PircBotX {
 
 	protected Map<File, Plugin> plugins = new LinkedHashMap<>();
 	
-	protected Map<String, AuthorizedUser> authorizedUsers = new TreeMap<>();
-	protected Map<String, AuthorizedGroup> authorizedGroups = new TreeMap<>();
+	protected List<AuthorizedUser> authorizedUsers = new ArrayList<>();
+	protected List<AuthorizedGroup> authorizedGroups = new ArrayList<>();
 	
 	protected CommandHandler commands;
 
@@ -55,21 +50,32 @@ public class SujavaBot extends PircBotX {
 	}
 	
 	public CommandHandler getRootCommands() {
-		return getAuthorizedGroups().get("root").getCommands();
+		return getAuthorizedGroup("root").getCommands();
 	}
 
-	public Map<String, AuthorizedUser> getAuthorizedUsers() {
+	public List<AuthorizedUser> getAuthorizedUsers() {
 		return authorizedUsers;
 	}
 	
-	public Map<String, AuthorizedGroup> getAuthorizedGroups() {
+	public List<AuthorizedGroup> getAuthorizedGroups() {
 		return authorizedGroups;
 	}
 	
+	public AuthorizedGroup getAuthorizedGroup(String name) {
+		for(AuthorizedGroup g : authorizedGroups)
+			if(name.equals(g.getName()))
+				return g;
+		return null;
+	}
+	
 	public AuthorizedUser getAuthorizedUser(User user) {
-		AuthorizedUser a = getAuthorizedUsers().get(user.getNick());
-		if(a != null && user.isVerified())
-			return a;
+		for(AuthorizedUser u : authorizedUsers) {
+			if(u.getNick().matcher(user.getNick()).matches()) {
+				if(!user.isVerified())
+					return null;
+				return u;
+			}
+		}
 		return null;
 	}
 	

@@ -2,12 +2,13 @@ package org.sujavabot.core;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Pattern;
 
-import org.sujavabot.core.commands.DefaultCommandHandler;
 import org.sujavabot.core.commands.UserCommandHandler;
 
 public class AuthorizedUser {
 	protected String name;
+	protected Pattern nick;
 	protected UserCommandHandler commands;
 	protected List<AuthorizedGroup> groups;
 	
@@ -23,6 +24,9 @@ public class AuthorizedUser {
 	
 	public String getName() {
 		return name;
+	}
+	public Pattern getNick() {
+		return nick;
 	}
 	public UserCommandHandler getCommands() {
 		return commands;
@@ -44,7 +48,9 @@ public class AuthorizedUser {
 	public void setName(String name) {
 		this.name = name;
 	}
-
+	public void setNick(Pattern nick) {
+		this.nick = nick;
+	}
 	public void setCommands(UserCommandHandler commands) {
 		this.commands = commands;
 	}
