@@ -18,8 +18,8 @@ public class RootCommandHandler extends GroupCommandHandler {
 	@Override
 	public Command getDefaultCommand(Event<?> cause, String name) {
 		Command c = super.getDefaultCommand(cause, name);
-		if(c == null && !"unrecognized".equals(name))
-			c = get(cause, "unrecognized");
+		if(c == null && !".unrecognized".equals(name))
+			c = get(cause, ".unrecognized");
 		return c;
 	}
 
