@@ -7,7 +7,7 @@ import java.io.Reader;
 
 import javax.script.ScriptEngine;
 import org.jruby.embed.jsr223.JRubyEngineFactory;
-import org.sujavabot.core.Bot;
+import org.sujavabot.core.SujavaBot;
 import org.sujavabot.core.Plugin;
 
 import com.thoughtworks.xstream.XStream;
@@ -62,7 +62,7 @@ public class JRubyPlugin implements Plugin {
 	}
 
 	@Override
-	public void initializeBot(Bot bot) throws Exception {
+	public void initializeBot(SujavaBot bot) throws Exception {
 		plugin.initializeBot(bot);
 	}
 }

@@ -22,12 +22,12 @@ import org.sujavabot.core.xml.XStreams;
 
 import com.thoughtworks.xstream.XStream;
 
-public class Bot extends PircBotX {
-	private static final Logger LOG = LoggerFactory.getLogger(Bot.class);
+public class SujavaBot extends PircBotX {
+	private static final Logger LOG = LoggerFactory.getLogger(SujavaBot.class);
 
 	protected Map<File, Plugin> plugins = new LinkedHashMap<>();
 
-	public Bot(Configuration configuration) {
+	public SujavaBot(Configuration configuration) {
 		super(configuration);
 		for(File pluginConfig : configuration.getPluginConfigs()) {
 			plugins.put(pluginConfig, null);
