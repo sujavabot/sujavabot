@@ -65,7 +65,7 @@ public abstract class AbstractCommandHandler implements CommandHandler {
 				args[i] = (String) cmd[i];
 		}
 		Command reporter = get(cause, args[0]);
-		String result = reporter.invoke(bot, cause, args);
+		String result = reporter.invoke(bot, cause, Arrays.asList(args));
 		reporter.report(bot, cause, result);
 	}
 	
@@ -77,6 +77,6 @@ public abstract class AbstractCommandHandler implements CommandHandler {
 			else
 				args[i] = (String) cmd[i];
 		}
-		return get(cause, args[0]).invoke(bot, cause, args);
+		return get(cause, args[0]).invoke(bot, cause, Arrays.asList(args));
 	}
 }
