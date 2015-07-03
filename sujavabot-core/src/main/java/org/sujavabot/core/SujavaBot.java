@@ -37,7 +37,6 @@ public class SujavaBot extends PircBotX {
 	protected Map<String, AuthorizedGroup> authorizedGroups = new TreeMap<>();
 	
 	protected CommandHandler commands;
-	protected CommandHandler rootCommands;
 
 	public SujavaBot(Configuration configuration) {
 		super(configuration);
@@ -45,7 +44,6 @@ public class SujavaBot extends PircBotX {
 			plugins.put(pluginConfig, null);
 		}
 		commands = new DefaultCommandHandler(this);
-		rootCommands = new RootCommandHandler(this);
 	}
 
 	public Map<File, Plugin> getPlugins() {
@@ -57,7 +55,7 @@ public class SujavaBot extends PircBotX {
 	}
 	
 	public CommandHandler getRootCommands() {
-		return rootCommands;
+		return getAuthorizedGroups().get("root").getCommands();
 	}
 
 	public Map<String, AuthorizedUser> getAuthorizedUsers() {

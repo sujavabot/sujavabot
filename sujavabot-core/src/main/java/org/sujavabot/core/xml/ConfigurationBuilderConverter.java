@@ -51,7 +51,9 @@ public class ConfigurationBuilderConverter extends AbstractConverter<Configurati
 	
 	@Override
 	protected ConfigurationBuilder createCurrent() {
-		return new ConfigurationBuilder();
+		ConfigurationBuilder current = new ConfigurationBuilder();
+		current.getGroups().clear();
+		return current;
 	}
 	
 	@Override

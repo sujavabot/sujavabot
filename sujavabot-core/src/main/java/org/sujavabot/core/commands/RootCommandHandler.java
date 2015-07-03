@@ -1,21 +1,25 @@
 package org.sujavabot.core.commands;
 
 import org.pircbotx.hooks.Event;
+import org.sujavabot.core.AuthorizedGroup;
 import org.sujavabot.core.Command;
 import org.sujavabot.core.SujavaBot;
 
-public class RootCommandHandler extends AbstractCommandHandler {
+public class RootCommandHandler extends GroupCommandHandler {
 
 	protected Command unrecognized = new UnrecognizedCommand();
 	
-	public RootCommandHandler(SujavaBot bot) {
-		super(bot);
+	public RootCommandHandler(AuthorizedGroup root) {
+		super(root);
 		commands.put("__parse_error", new ParseErrorCommand());
 	}
 
 	@Override
 	public Command getDefaultCommand(Event<?> cause, String name) {
-		return unrecognized;
+		Command c = super.getDefaultCommand(cause, name);
+		if(c == null)
+			c = unrecognized;
+		return c;
 	}
 
 }

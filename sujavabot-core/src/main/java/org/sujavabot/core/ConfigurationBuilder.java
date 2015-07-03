@@ -14,6 +14,10 @@ public class ConfigurationBuilder extends org.pircbotx.Configuration.Builder<Pir
 	
 	protected List<AuthorizedUser> users = new ArrayList<>();
 
+	public ConfigurationBuilder() {
+		groups.add(new AuthorizedGroup("root"));
+	}
+	
 	public Configuration buildConfiguration(File configFile) {
 		return new Configuration(configFile, this);
 	}
