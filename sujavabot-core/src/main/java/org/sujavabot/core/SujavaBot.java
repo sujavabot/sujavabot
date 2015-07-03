@@ -187,6 +187,12 @@ public class SujavaBot extends PircBotX {
 	public File saveConfiguration(File configFile) {
 		if(configFile == null)
 			configFile = getConfiguration().getConfigFile();
+		if(configFile == null) {
+			ConfigurationBuilder builder = getConfiguration().createBuilder();
+			XStream x = XStreams.configure(new XStream());
+			x.toXML(builder, System.out);
+			return null;
+		}
 		try {
 			File configFileTmp = new File(configFile.getParent(), configFile.getName() + ".tmp");
 			File configFileOld = new File(configFile.getParent(), configFile.getName() + ".old");
