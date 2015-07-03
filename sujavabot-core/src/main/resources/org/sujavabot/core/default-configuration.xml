@@ -1,0 +1,26 @@
+<sujavabot>
+	<nickname>sujavabot</nickname>
+	<username>sujavabot</username>
+	<realname>sujavabot</realname>
+	<group>
+		<name>root</name>
+		<commands>
+			<__parse__error class="org.sujavabot.core.commands.ParseErrorCommand" />
+			<__unrecognized class="org.sujavabot.core.commands.UnrecognizedCommand" />
+			<action class="org.sujavabot.core.commands.ActionCommand" />
+			<echo class="org.sujavabot.core.commands.EchoCommand" />
+		</commands>
+	</group>
+	<group>
+		<name>admin</name>
+		<parent>root</parent>
+		<commands>
+		</commands>
+	</group>
+	<user>
+		<name>changeme</name>
+		<group>admin</group>
+		<commands>
+		</commands>
+	</user>
+</sujavabot>

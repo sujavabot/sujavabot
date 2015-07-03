@@ -21,11 +21,11 @@ public class AuthorizedGroup {
 	
 	protected String name;
 	protected GroupCommandHandler commands;
-	protected List<AuthorizedGroup> subgroups;
+	protected List<AuthorizedGroup> parents;
 	
 	public AuthorizedGroup() {
 		commands = new GroupCommandHandler(this);
-		subgroups = new ArrayList<>();
+		parents = new ArrayList<>();
 	}
 	
 	public AuthorizedGroup(String name) {
@@ -39,14 +39,14 @@ public class AuthorizedGroup {
 	public GroupCommandHandler getCommands() {
 		return commands;
 	}
-	public List<AuthorizedGroup> getSubgroups() {
-		return subgroups;
+	public List<AuthorizedGroup> getParents() {
+		return parents;
 	}
 	
 	public boolean contains(AuthorizedGroup other) {
-		if(subgroups.contains(other))
+		if(parents.contains(other))
 			return true;
-		for(AuthorizedGroup sub : subgroups) {
+		for(AuthorizedGroup sub : parents) {
 			if(sub.contains(other))
 				return true;
 		}
@@ -65,7 +65,7 @@ public class AuthorizedGroup {
 		this.commands = commands;
 	}
 
-	public void setSubgroups(List<AuthorizedGroup> subgroups) {
-		this.subgroups = subgroups;
+	public void setParents(List<AuthorizedGroup> subgroups) {
+		this.parents = subgroups;
 	}
 }

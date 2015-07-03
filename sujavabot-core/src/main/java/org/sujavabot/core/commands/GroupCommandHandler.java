@@ -17,7 +17,7 @@ public class GroupCommandHandler extends AbstractCommandHandler {
 
 	@Override
 	public Command getDefaultCommand(Event<?> cause, String name) {
-		for(AuthorizedGroup subgroup : group.getSubgroups()) {
+		for(AuthorizedGroup subgroup : group.getParents()) {
 			Command c = subgroup.getCommands().get(cause, name);
 			if(c != null)
 				return c;

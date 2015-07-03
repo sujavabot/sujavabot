@@ -23,19 +23,19 @@ public class AuthorizedGroupConverter extends AbstractConverter<AuthorizedGroup>
 	@Override
 	protected void configure(AuthorizedGroup current, MarshalHelper helper, AuthorizedGroup defaults) {
 		helper.field("name", String.class, () -> current.getName());
-		for(AuthorizedGroup subgroup : current.getSubgroups())
-			helper.field("subgroup", String.class, () -> subgroup.getName());
+		for(AuthorizedGroup subgroup : current.getParents())
+			helper.field("parent", String.class, () -> subgroup.getName());
 		helper.field("commands", CommandsMap.class, () -> new CommandsMap(current.getCommands().getCommands()));
 	}
 
 	@Override
 	protected void configure(AuthorizedGroup current, UnmarshalHelper helper) {
 		helper.field("name", String.class, s -> current.setName(s));
-		helper.field("subgroup", String.class, s -> {
+		helper.field("parent", String.class, s -> {
 			ConfigurationBuilder builder = (ConfigurationBuilder) helper.getContext().get(ConfigurationBuilder.class);
 			for(AuthorizedGroup g : builder.getGroups())
 				if(s.equals(g.getName()))
-					current.getSubgroups().add(g);
+					current.getParents().add(g);
 		});
 		helper.field("commands", CommandsMap.class, m -> current.getCommands().getCommands().putAll(m));
 	}

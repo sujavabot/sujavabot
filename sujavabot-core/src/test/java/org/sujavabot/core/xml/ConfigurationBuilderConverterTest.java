@@ -9,6 +9,6 @@ public class ConfigurationBuilderConverterTest {
 	@Test
 	public void testToXML() {
 		XStream x = XStreams.configure(new XStream());
-		System.out.println(x.toXML(new ConfigurationBuilder()));
+		System.out.println(x.toXML(ConfigurationBuilder.createDefault()));
 	}
 }

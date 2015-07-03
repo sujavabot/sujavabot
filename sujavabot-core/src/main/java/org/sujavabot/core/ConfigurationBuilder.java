@@ -11,6 +11,11 @@ import org.sujavabot.core.xml.XStreams;
 import com.thoughtworks.xstream.XStream;
 
 public class ConfigurationBuilder extends org.pircbotx.Configuration.Builder<PircBotX> {
+	
+	public static ConfigurationBuilder createDefault() {
+		XStream x = XStreams.configure(new XStream());
+		return (ConfigurationBuilder) x.fromXML(ConfigurationBuilder.class.getResource("default-configuration.xml"));
+	}
 
 	protected List<File> pluginConfigs = new ArrayList<>();
 	
@@ -19,10 +24,6 @@ public class ConfigurationBuilder extends org.pircbotx.Configuration.Builder<Pir
 	protected List<AuthorizedUser> users = new ArrayList<>();
 
 	public ConfigurationBuilder() {
-		XStream x = XStreams.configure(new XStream());
-		x.alias("group", AuthorizedGroup.class);
-		AuthorizedGroup root = (AuthorizedGroup) x.fromXML(ConfigurationBuilder.class.getResource("root-group.xml"));
-		groups.add(root);
 	}
 	
 	public Configuration buildConfiguration(File configFile) {
