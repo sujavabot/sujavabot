@@ -12,6 +12,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.TreeMap;
 
 import org.pircbotx.PircBotX;
 import org.slf4j.Logger;
@@ -26,16 +27,23 @@ public class SujavaBot extends PircBotX {
 	private static final Logger LOG = LoggerFactory.getLogger(SujavaBot.class);
 
 	protected Map<File, Plugin> plugins = new LinkedHashMap<>();
+	
+	protected CommandHandler commands;
 
 	public SujavaBot(Configuration configuration) {
 		super(configuration);
 		for(File pluginConfig : configuration.getPluginConfigs()) {
 			plugins.put(pluginConfig, null);
 		}
+		commands = new CommandHandler(this);
 	}
 
 	public Map<File, Plugin> getPlugins() {
 		return plugins;
+	}
+	
+	public CommandHandler getCommands() {
+		return commands;
 	}
 
 	@Override

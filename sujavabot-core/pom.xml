@@ -41,5 +41,26 @@
 	  		<version>1.7.12</version>
 	  		<scope>test</scope>
 	  	</dependency>
+	  	<dependency>
+	  		<groupId>org.antlr</groupId>
+	  		<artifactId>antlr4-runtime</artifactId>
+	  		<version>4.5</version>
+	  	</dependency>
 	</dependencies>
+	
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.antlr</groupId>
+				<artifactId>antlr4-maven-plugin</artifactId>
+				<version>4.5</version>
+				<executions>
+					<execution>
+						<goals><goal>antlr4</goal></goals>
+						<phase>generate-sources</phase>
+					</execution>
+				</executions>
+			</plugin>
+		</plugins>
+	</build>
 </project>
