@@ -26,4 +26,26 @@ public class AuthorizedUser {
 	public List<AuthorizedGroup> getGroups() {
 		return groups;
 	}
+	
+	public boolean isMemberOf(AuthorizedGroup group) {
+		if(groups.contains(group))
+			return true;
+		for(AuthorizedGroup g : groups) {
+			if(g.contains(group))
+				return true;
+		}
+		return false;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
+
+	public void setCommands(UserCommandHandler commands) {
+		this.commands = commands;
+	}
+
+	public void setGroups(List<AuthorizedGroup> groups) {
+		this.groups = groups;
+	}
 }

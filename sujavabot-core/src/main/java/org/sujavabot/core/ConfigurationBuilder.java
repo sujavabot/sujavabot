@@ -9,6 +9,10 @@ import org.pircbotx.PircBotX;
 public class ConfigurationBuilder extends org.pircbotx.Configuration.Builder<PircBotX> {
 
 	protected List<File> pluginConfigs = new ArrayList<>();
+	
+	protected List<AuthorizedGroup> groups = new ArrayList<>();
+	
+	protected List<AuthorizedUser> users = new ArrayList<>();
 
 	public Configuration buildConfiguration(File configFile) {
 		return new Configuration(configFile, this);
@@ -29,5 +33,13 @@ public class ConfigurationBuilder extends org.pircbotx.Configuration.Builder<Pir
 	
 	public void addPluginConfig(File pluginConfig) {
 		pluginConfigs.add(pluginConfig);
+	}
+	
+	public List<AuthorizedGroup> getGroups() {
+		return groups;
+	}
+	
+	public List<AuthorizedUser> getUsers() {
+		return users;
 	}
 }

@@ -4,12 +4,15 @@ import java.io.File;
 import java.net.InetAddress;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map.Entry;
 
 import org.pircbotx.ChannelModeHandler;
 import org.pircbotx.cap.CapHandler;
+import org.sujavabot.core.AuthorizedGroup;
+import org.sujavabot.core.AuthorizedUser;
 import org.sujavabot.core.ConfigurationBuilder;
 import org.sujavabot.core.Plugin;
 import org.sujavabot.core.xml.ConverterHelpers.MarshalHelper;
@@ -27,6 +30,8 @@ public class ConfigurationBuilderConverter extends AbstractConverter<Configurati
 		@Override
 		public void configure(XStream x) {
 			x.registerConverter(new ConfigurationBuilderConverter(x));
+			x.registerConverter(new AuthorizedGroupConverter(x));
+			x.registerConverter(new AuthorizedUserConverter(x));
 			x.alias("sujavabot", ConfigurationBuilder.class);
 		}
 	}
@@ -35,6 +40,15 @@ public class ConfigurationBuilderConverter extends AbstractConverter<Configurati
 		super(x, ConfigurationBuilder.class);
 	}
 
+	@Override
+	public Object unmarshal(HierarchicalStreamReader reader, UnmarshallingContext context) {
+		try {
+			return super.unmarshal(reader, context);
+		} finally {
+			context.put(ConfigurationBuilder.class, null);
+		}
+	}
+	
 	@Override
 	protected ConfigurationBuilder createCurrent() {
 		return new ConfigurationBuilder();
@@ -122,12 +136,23 @@ public class ConfigurationBuilderConverter extends AbstractConverter<Configurati
 		
 		for(File pluginConfig : current.getPluginConfigs())
 			helper.field("plugin", File.class, () -> pluginConfig);
+		
+		List<AuthorizedGroup> groups = new ArrayList<>(current.getGroups());
+		Collections.sort(groups, AuthorizedGroup.GROUP_ORDER);
+		
+		for(AuthorizedGroup group : groups)
+			helper.field("group", AuthorizedGroup.class, () -> group);
+		
+		for(AuthorizedUser user : current.getUsers())
+			helper.field("user", AuthorizedUser.class, () -> user);
 	}
 
 	@Override
 	protected void configure(ConfigurationBuilder current, UnmarshalHelper helper) {
 		HierarchicalStreamReader reader = helper.getReader();
 		UnmarshallingContext context = helper.getContext();
+		
+		context.put(ConfigurationBuilder.class, current);
 		
 		helper.field("web-irc-enabled", Boolean.class, b -> current.setWebIrcEnabled(b));
 		helper.field("web-irc-username", String.class, s -> current.setWebIrcUsername(s));
@@ -214,6 +239,14 @@ public class ConfigurationBuilderConverter extends AbstractConverter<Configurati
 		
 		helper.field("plugin", File.class, f -> {
 			current.addPluginConfig(f);
+		});
+		
+		helper.field("group", AuthorizedGroup.class, g -> {
+			current.getGroups().add(g);
+		});
+		
+		helper.field("user", AuthorizedUser.class, u -> {
+			current.getUsers().add(u);
 		});
 	}
 
