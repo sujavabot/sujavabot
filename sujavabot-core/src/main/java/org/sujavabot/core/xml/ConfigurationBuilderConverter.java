@@ -102,7 +102,7 @@ public class ConfigurationBuilderConverter extends AbstractConverter<Configurati
 				writer.startNode("channel-name");
 				context.convertAnother(e.getKey());
 				writer.endNode();
-				if(e.getValue() != null) {
+				if(!e.getValue().isEmpty()) {
 					writer.startNode("channel-key");
 					context.convertAnother(e.getValue());
 					writer.endNode();
@@ -203,7 +203,7 @@ public class ConfigurationBuilderConverter extends AbstractConverter<Configurati
 				channelKey = (String) context.convertAnother(current, String.class);
 				reader.moveUp();
 			} else
-				channelKey = null;
+				channelKey = "";
 			current.getAutoJoinChannels().put(channelName, channelKey);
 		});
 		

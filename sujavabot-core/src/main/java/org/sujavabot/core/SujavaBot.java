@@ -14,6 +14,9 @@ import java.util.Map;
 import java.util.Map.Entry;
 import org.pircbotx.PircBotX;
 import org.pircbotx.User;
+import org.pircbotx.hooks.WaitForQueue;
+import org.pircbotx.hooks.events.ServerResponseEvent;
+import org.pircbotx.hooks.events.WhoisEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sujavabot.core.commands.CommandHandler;
@@ -73,8 +76,10 @@ public class SujavaBot extends PircBotX {
 	public AuthorizedUser getAuthorizedUser(User user) {
 		for(AuthorizedUser u : authorizedUsers) {
 			if(u.getNick().matcher(user.getNick()).matches()) {
-				if(!user.isVerified())
+				if(!isVerified(user)) {
+					LOG.info("nick {} not verified", user.getNick());
 					return null;
+				}
 				return u;
 			}
 		}
@@ -88,6 +93,28 @@ public class SujavaBot extends PircBotX {
 		}
 		return null;
 	}
+	
+	public boolean isVerified(User user) {
+		if(user.isVerified())
+			return true;
+		try {
+			sendRaw().rawLine("WHOIS " + user.getNick() + " " + user.getNick());
+			WaitForQueue waitForQueue = new WaitForQueue(this);
+			while (true) {
+				ServerResponseEvent<?> event = waitForQueue.waitFor(ServerResponseEvent.class);
+				if (!event.getParsedResponse().get(1).equals(user.getNick()))
+					continue;
+
+				if(event.getCode() == 318 || event.getCode() == 307) {
+					waitForQueue.close();
+					return event.getCode() == 307;
+				}
+			}
+		} catch (InterruptedException ex) {
+			throw new RuntimeException("Couldn't finish querying user for verified status", ex);
+		}
+	}
+
 	
 	@Override
 	public Configuration getConfiguration() {

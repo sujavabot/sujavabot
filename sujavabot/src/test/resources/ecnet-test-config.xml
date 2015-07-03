@@ -1,0 +1,36 @@
+<sujavabot>
+	<nickname>sujavabot</nickname>
+	<username>sujavabot</username>
+	<realname>sujavabot</realname>
+	<server-hostname>irc.ecnet.org</server-hostname>
+	<auto-join-channel>
+		<channel-name>#test</channel-name>
+	</auto-join-channel>
+	<group>
+		<name>root</name>
+		<commands>
+			<__parse__error class="org.sujavabot.core.commands.ParseErrorCommand" />
+			<__unrecognized class="org.sujavabot.core.commands.UnrecognizedCommand" />
+			<action class="org.sujavabot.core.commands.ActionCommand" />
+			<echo class="org.sujavabot.core.commands.EchoCommand" />
+		</commands>
+	</group>
+	<group>
+		<name>admin</name>
+		<parent>root</parent>
+		<commands>
+			<config class="org.sujavabot.core.commands.ConfigCommand" />
+			<group class="org.sujavabot.core.commands.GroupAdminCommand" />
+			<user class="org.sujavabot.core.commands.UserAdminCommand" />
+		</commands>
+	</group>
+	<user>
+		<name>admin</name>
+		<nick>robin</nick>
+		<group>admin</group>
+		<commands />
+	</user>
+	<listener class="org.sujavabot.core.commands.CommandReceiverListener">
+		<prefix>!</prefix>
+	</listener>
+</sujavabot>

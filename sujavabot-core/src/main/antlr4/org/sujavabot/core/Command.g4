@@ -34,3 +34,7 @@ QUOTED_STRING:
 NON_WHITESPACE:
 	(~(' ' | '\t' | '\n'))+
 ;
+
+WHITESPACE:
+	(' ' | '\t' | '\n') -> skip
+;
