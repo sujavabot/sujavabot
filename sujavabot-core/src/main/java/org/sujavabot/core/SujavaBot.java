@@ -191,6 +191,7 @@ public class SujavaBot extends PircBotX {
 			ConfigurationBuilder builder = getConfiguration().createBuilder();
 			XStream x = XStreams.configure(new XStream());
 			x.toXML(builder, System.out);
+			System.out.println();
 			return null;
 		}
 		try {

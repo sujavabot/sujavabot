@@ -17,10 +17,13 @@ public class ConfigCommand extends AbstractReportingCommand {
 			if(help || args.size() < 2 || args.size() > 3)
 				return "config save [<file>]: save the configuration file";
 			File configFile = null;
-			if(args.size() >= 3)
+			if(args.size() >= 3 && !"stdout".equals(args.get(2)))
 				configFile = new File(args.get(2));
 			configFile = bot.saveConfiguration(configFile);
-			return "configuration saved to " + configFile;
+			if(configFile != null)
+				return "configuration saved to " + configFile;
+			else
+				return "configuration written to stdout";
 		}
 		return "config <command>: save";
 	}
