@@ -32,6 +32,7 @@
 		<nick>changeme</nick>
 		<group>root</group>
 		<group>admin</group>
+		<owns-group>root</owns-group>
 		<commands />
 	</user>
 	<listener class="org.sujavabot.core.commands.CommandReceiverListener">

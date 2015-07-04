@@ -1,5 +1,6 @@
 package org.sujavabot.core.commands;
 
+import org.pircbotx.Channel;
 import org.pircbotx.User;
 import org.pircbotx.hooks.Event;
 import org.pircbotx.hooks.events.ActionEvent;
@@ -9,6 +10,22 @@ import org.sujavabot.core.Command;
 import org.sujavabot.core.SujavaBot;
 
 public abstract class AbstractReportingCommand implements Command {
+	protected static User getUser(Event<?> event) {
+		try {
+			return (User) event.getClass().getMethod("getUser").invoke(event);
+		} catch(Exception e) {
+			return null;
+		}
+	}
+	
+	protected static Channel getChannel(Event<?> event) {
+		try {
+			return (Channel) event.getClass().getMethod("getChannel").invoke(event);
+		} catch(Exception e) {
+			return null;
+		}
+	}
+	
 
 	protected String prefix(User user, String result) {
 		return user.getNick() + ": " + result;

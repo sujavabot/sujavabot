@@ -27,6 +27,8 @@ public class AuthorizedUserConverter extends AbstractConverter<AuthorizedUser> {
 		helper.field("nick", String.class, () -> current.getNick().pattern());
 		for(AuthorizedGroup group : current.getGroups())
 			helper.field("group", String.class, () -> group.getName());
+		for(AuthorizedGroup owned : current.getOwnedGroups())
+			helper.field("owns-group", String.class, () -> owned.getName());
 		helper.field("commands", CommandsMap.class, () -> new CommandsMap(current.getCommands().getCommands()));
 	}
 
@@ -39,6 +41,12 @@ public class AuthorizedUserConverter extends AbstractConverter<AuthorizedUser> {
 			for(AuthorizedGroup g : builder.getGroups())
 				if(s.equals(g.getName()))
 					current.getGroups().add(g);
+		});
+		helper.field("owns-group", String.class, s -> {
+			ConfigurationBuilder builder = (ConfigurationBuilder) helper.getContext().get(ConfigurationBuilder.class);
+			for(AuthorizedGroup g : builder.getGroups())
+				if(s.equals(g.getName()))
+					current.getOwnedGroups().add(g);
 		});
 		helper.field("commands", CommandsMap.class, m -> current.getCommands().getCommands().putAll(m));
 	}

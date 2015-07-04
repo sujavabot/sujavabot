@@ -14,10 +14,12 @@ public class AuthorizedUser {
 	protected Pattern nick;
 	protected UserCommandHandler commands;
 	protected List<AuthorizedGroup> groups;
+	protected List<AuthorizedGroup> ownedGroups;
 	
 	public AuthorizedUser() {
 		commands = new UserCommandHandler(this);
 		groups = new ArrayList<>();
+		ownedGroups = new ArrayList<>();
 	}
 	
 	public AuthorizedUser(String name) {
@@ -71,5 +73,23 @@ public class AuthorizedUser {
 					all.put(e.getKey(), e.getValue());
 		}
 		return all;
+	}
+
+	public List<AuthorizedGroup> getOwnedGroups() {
+		return ownedGroups;
+	}
+
+	public void setOwnedGroups(List<AuthorizedGroup> ownedGroups) {
+		this.ownedGroups = ownedGroups;
+	}
+	
+	public boolean isOwnerOf(AuthorizedGroup group) {
+		if(ownedGroups.contains(group))
+			return true;
+		for(AuthorizedGroup g : ownedGroups) {
+			if(group.contains(g))
+				return true;
+		}
+		return false;
 	}
 }

@@ -90,6 +90,8 @@ public class SujavaBot extends PircBotX {
 	}
 	
 	public AuthorizedUser getAuthorizedUser(User user) {
+		if(user == null)
+			return null;
 		AuthorizedUser found = null;
 		for(AuthorizedUser u : authorizedUsers) {
 			if(u.getNick().matcher(user.getNick()).matches()) {

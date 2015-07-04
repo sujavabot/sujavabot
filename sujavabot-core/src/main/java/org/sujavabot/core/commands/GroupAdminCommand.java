@@ -19,6 +19,7 @@ public class GroupAdminCommand extends AbstractReportingCommand {
 			return "group <command>: list, info, create, delete, set_name, add_user, remove_user, add_parent, remove_parent, add_alias, remove_alias";
 		}
 		boolean help = "help".equals(args.get(0));
+		AuthorizedUser caller = bot.getAuthorizedUser(getUser(cause));
 		if("list".equals(args.get(1))) {
 			if(help || args.size() != 2)
 				return "group list: list the group names";
@@ -62,8 +63,11 @@ public class GroupAdminCommand extends AbstractReportingCommand {
 				return "group " + name + " already exists";
 			AuthorizedGroup group = new AuthorizedGroup(name);
 			AuthorizedGroup root = bot.getAuthorizedGroup("root");
-			if(root != null)
+			if(root != null) {
+				if(caller == null || !caller.isOwnerOf(root))
+					return "permission denied";
 				group.getParents().add(root);
+			}
 			bot.getAuthorizedGroups().add(group);
 			return "group created";
 		}
@@ -76,6 +80,8 @@ public class GroupAdminCommand extends AbstractReportingCommand {
 			if(bot.getAuthorizedGroup(name) == null)
 				return "group " + name + " does not exist";
 			AuthorizedGroup group = bot.getAuthorizedGroup(name);
+			if(caller == null || !caller.isOwnerOf(group))
+				return "permission denied";
 			bot.getAuthorizedGroups().remove(group);
 			return "group deleted";
 		}
@@ -86,6 +92,8 @@ public class GroupAdminCommand extends AbstractReportingCommand {
 			AuthorizedGroup group = bot.getAuthorizedGroup(oldName);
 			if(group == null)
 				return "group with old name " + oldName + " does not exist";
+			if(caller == null || !caller.isOwnerOf(group))
+				return "permission denied";
 			String newName = args.get(3);
 			if(bot.getAuthorizedGroup(newName) != null)
 				return "group with new name " + newName + " already exists";
@@ -98,6 +106,8 @@ public class GroupAdminCommand extends AbstractReportingCommand {
 			AuthorizedGroup group = bot.getAuthorizedGroup(args.get(2));
 			if(group == null)
 				return "group does not exist";
+			if(caller == null || !caller.isOwnerOf(group))
+				return "permission denied";
 			AuthorizedUser user = bot.getAuthorizedUser(args.get(3));
 			if(user == null)
 				return "user does not exist";
@@ -112,6 +122,8 @@ public class GroupAdminCommand extends AbstractReportingCommand {
 			AuthorizedGroup group = bot.getAuthorizedGroup(args.get(2));
 			if(group == null)
 				return "group does not exist";
+			if(caller == null || !caller.isOwnerOf(group))
+				return "permission denied";
 			AuthorizedUser user = bot.getAuthorizedUser(args.get(3));
 			if(user == null)
 				return "user does not exist";
@@ -126,6 +138,8 @@ public class GroupAdminCommand extends AbstractReportingCommand {
 			AuthorizedGroup child = bot.getAuthorizedGroup(args.get(2));
 			if(child == null)
 				return "child does not exist";
+			if(caller == null || !caller.isOwnerOf(child))
+				return "permission denied";
 			AuthorizedGroup parent = bot.getAuthorizedGroup(args.get(3));
 			if(parent == null)
 				return "parent does not exist";
@@ -140,6 +154,8 @@ public class GroupAdminCommand extends AbstractReportingCommand {
 			AuthorizedGroup child = bot.getAuthorizedGroup(args.get(2));
 			if(child == null)
 				return "child does not exist";
+			if(caller == null || !caller.isOwnerOf(child))
+				return "permission denied";
 			AuthorizedGroup parent = bot.getAuthorizedGroup(args.get(3));
 			if(parent == null)
 				return "parent does not exist";
@@ -154,6 +170,8 @@ public class GroupAdminCommand extends AbstractReportingCommand {
 			AuthorizedGroup group = bot.getAuthorizedGroup(args.get(2));
 			if(group == null)
 				return "group does not exist";
+			if(caller == null || !caller.isOwnerOf(group))
+				return "permission denied";
 			if(group.getCommands().getCommands().get(args.get(3)) != null)
 				return "named command already exists";
 			group.getCommands().getCommands().put(args.get(3), new AliasCommand(args.get(4)));
@@ -165,6 +183,8 @@ public class GroupAdminCommand extends AbstractReportingCommand {
 			AuthorizedGroup group = bot.getAuthorizedGroup(args.get(2));
 			if(group == null)
 				return "group does not exist";
+			if(caller == null || !caller.isOwnerOf(group))
+				return "permission denied";
 			Command c = group.getCommands().getCommands().get(args.get(3));
 			if(c == null)
 				return "named command does not exist";

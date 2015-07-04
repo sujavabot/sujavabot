@@ -20,6 +20,7 @@ public class UserAdminCommand extends AbstractReportingCommand {
 			return "user <command>: list, info, create, delete, set_name, set_nick, add_alias, remove_alias";
 		}
 		boolean help = "help".equals(args.get(0));
+		AuthorizedUser caller = bot.getAuthorizedUser(getUser(cause));
 		if("list".equals(args.get(1))) {
 			if(help || args.size() != 2)
 				return "user list: list the user names";
@@ -71,8 +72,11 @@ public class UserAdminCommand extends AbstractReportingCommand {
 			}
 			List<AuthorizedGroup> groups = new ArrayList<>();
 			AuthorizedGroup root = bot.getAuthorizedGroup("root");
-			if(root != null)
+			if(root != null) {
+				if(caller == null || !caller.isOwnerOf(root))
+					return "permission denied";
 				groups.add(root);
+			}
 			for(int i = 4; i < args.size(); i++) {
 				AuthorizedGroup group = bot.getAuthorizedGroup(args.get(i));
 				if(group == null)
@@ -88,6 +92,11 @@ public class UserAdminCommand extends AbstractReportingCommand {
 		if("delete".equals(args.get(1))) {
 			if(help || args.size() != 3)
 				return "user delete <name>: delete a user";
+			AuthorizedGroup root = bot.getAuthorizedGroup("root");
+			if(root != null) {
+				if(caller == null || !caller.isOwnerOf(root))
+					return "permission denied";
+			}
 			String name = args.get(2);
 			if(bot.getAuthorizedUser(name) == null)
 				return "user " + name + " does not exist";
@@ -98,6 +107,11 @@ public class UserAdminCommand extends AbstractReportingCommand {
 		if("set_name".equals(args.get(1))) {
 			if(help || args.size() != 4)
 				return "user set_name <old_name> <new_name>";
+			AuthorizedGroup root = bot.getAuthorizedGroup("root");
+			if(root != null) {
+				if(caller == null || !caller.isOwnerOf(root))
+					return "permission denied";
+			}
 			String oldName = args.get(2);
 			AuthorizedUser user = bot.getAuthorizedUser(oldName);
 			if(user == null)
@@ -111,6 +125,11 @@ public class UserAdminCommand extends AbstractReportingCommand {
 		if("set_nick".equals(args.get(1))) {
 			if(help || args.size() != 4) 
 				return "user set_name <old_name> <new_name>";
+			AuthorizedGroup root = bot.getAuthorizedGroup("root");
+			if(root != null) {
+				if(caller == null || !caller.isOwnerOf(root))
+					return "permission denied";
+			}
 			String name = args.get(2);
 			AuthorizedUser user = bot.getAuthorizedUser(name);
 			if(user == null)
@@ -131,6 +150,9 @@ public class UserAdminCommand extends AbstractReportingCommand {
 			AuthorizedUser user = bot.getAuthorizedUser(args.get(2));
 			if(user == null)
 				return "user does not exist";
+			AuthorizedGroup root = bot.getAuthorizedGroup("root");
+			if(caller == null || (caller != user && (root == null || !caller.isOwnerOf(root))))
+				return "permission denied";
 			if(user.getCommands().getCommands().get(args.get(3)) != null)
 				return "named command already exists";
 			user.getCommands().getCommands().put(args.get(3), new AliasCommand(args.get(4)));
@@ -142,6 +164,9 @@ public class UserAdminCommand extends AbstractReportingCommand {
 			AuthorizedUser user = bot.getAuthorizedUser(args.get(2));
 			if(user == null)
 				return "user does not exist";
+			AuthorizedGroup root = bot.getAuthorizedGroup("root");
+			if(caller == null || (caller != user && (root == null || !caller.isOwnerOf(root))))
+				return "permission denied";
 			Command c = user.getCommands().getCommands().get(args.get(3));
 			if(c == null)
 				return "named command does not exist";
