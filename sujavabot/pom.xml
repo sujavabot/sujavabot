@@ -19,7 +19,6 @@
 			<artifactId>sujavabot-plugin-jruby</artifactId>
 			<version>0.0.1-SNAPSHOT</version>
 			<scope>runtime</scope>
-			<classifier>nodeps</classifier>
 		</dependency>
 		<dependency>
 			<groupId>commons-cli</groupId>

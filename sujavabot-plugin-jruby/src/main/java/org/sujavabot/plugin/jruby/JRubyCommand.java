@@ -5,10 +5,8 @@ import java.io.FileReader;
 import java.io.Reader;
 import java.util.List;
 
-import javax.script.ScriptContext;
-import javax.script.ScriptEngine;
-
-import org.jruby.embed.jsr223.JRubyEngineFactory;
+import org.jruby.embed.LocalContextScope;
+import org.jruby.embed.ScriptingContainer;
 import org.pircbotx.hooks.Event;
 import org.sujavabot.core.SujavaBot;
 import org.sujavabot.core.commands.AbstractReportingCommand;
@@ -23,15 +21,15 @@ public class JRubyCommand extends AbstractReportingCommand implements HelperConv
 	@Override
 	public String invoke(SujavaBot bot, Event<?> cause, List<String> args) {
 		try {
-			ScriptEngine engine = new JRubyEngineFactory().getScriptEngine();
-			engine.getBindings(ScriptContext.ENGINE_SCOPE).put("ARGV", args);
+			ScriptingContainer container = new ScriptingContainer(LocalContextScope.THREADSAFE);
+			container.setArgv(args.toArray(new String[args.size()]));
 			Object v;
 			if(source != null)
-				v = engine.eval(source);
+				v = container.runScriptlet(source);
 			else {
 				Reader in = new FileReader(file);
 				try {
-					v = engine.eval(in);
+					v = container.runScriptlet(in, file.getPath());
 				} finally {
 					in.close();
 				}
