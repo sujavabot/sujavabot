@@ -32,6 +32,7 @@ public class Main {
 		else
 			cin = Main.class.getClassLoader().getResourceAsStream(cli.getOptionValue("config-resource"));
 		XStream x = XStreams.configure(new XStream());
+		x.setClassLoader(Main.class.getClassLoader());
 		ConfigurationBuilder builder = (ConfigurationBuilder) x.fromXML(cin);
 		Configuration config = builder.buildConfiguration(configFile);
 		SujavaBot bot = new SujavaBot(config);

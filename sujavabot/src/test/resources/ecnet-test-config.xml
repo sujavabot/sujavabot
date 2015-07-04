@@ -39,7 +39,13 @@
 		<nick>robin</nick>
 		<group>root</group>
 		<group>admin</group>
-		<commands />
+		<commands>
+			<rb class="org.sujavabot.plugin.jruby.JRubyCommand">
+				<source><![CDATA[
+ARGV.to_s
+				]]></source>
+			</rb>
+		</commands>
 	</user>
 	<listener class="org.sujavabot.core.commands.CommandReceiverListener">
 		<prefix>!</prefix>

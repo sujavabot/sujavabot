@@ -61,7 +61,7 @@ public abstract class AbstractConverter<T> implements Converter {
 		try {
 			UnmarshalHelper helper = new UnmarshalHelper(x, reader, context);
 			@SuppressWarnings("unchecked")
-			T current = createCurrent(context.getRequiredType());
+			T current = (T) createCurrent(context.getRequiredType());
 			
 			configure(current, helper);
 			
