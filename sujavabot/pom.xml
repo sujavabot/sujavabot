@@ -16,13 +16,13 @@
 		</dependency>
 		<dependency>
 			<groupId>org.sujavabot.plugin</groupId>
-			<artifactId>sujavabot-plugin-jruby</artifactId>
+			<artifactId>jruby-sujavabot-plugin</artifactId>
 			<version>0.0.1-SNAPSHOT</version>
 			<scope>runtime</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.sujavabot.plugin</groupId>
-			<artifactId>sujavabot-plugin-jython</artifactId>
+			<artifactId>jython-sujavabot-plugin</artifactId>
 			<version>0.0.1-SNAPSHOT</version>
 			<scope>runtime</scope>
 		</dependency>
