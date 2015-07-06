@@ -161,4 +161,12 @@ public class HTableMarkov {
 		return null;
 	}
 
+	public HTable getTable() {
+		return table;
+	}
+
+	public Long getLifespan() {
+		return lifespan;
+	}
+
 }

@@ -3,6 +3,8 @@ package org.sujavabot.plugin.markov;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
 
 import org.pircbotx.PircBotX;
 import org.pircbotx.hooks.ListenerAdapter;
@@ -13,22 +15,40 @@ import org.pircbotx.hooks.events.MessageEvent;
 public class MarkovListener extends ListenerAdapter<PircBotX> {
 	protected HTableMarkov markov;
 	protected int maxlen;
+	protected Set<String> channels;
+	protected boolean learn;
 	
 	protected List<String> responses = new ArrayList<>();
 	
-	public MarkovListener(HTableMarkov markov, int maxlen) {
+	public MarkovListener() {}
+	
+	public MarkovListener(HTableMarkov markov, int maxlen, Set<String> channels, boolean learn) {
 		this.markov = markov;
 		this.maxlen = maxlen;
+		this.channels = new TreeSet<>(channels);
+		this.learn = learn;
 	}
 	
-	@Override
-	public void onJoin(JoinEvent<PircBotX> event) throws Exception {
-		MessageEvent<PircBotX> e = new MessageEvent<PircBotX>(event.getBot(), event.getChannel(), event.getUser(), event.getBot().getNick() + ": " + event.getUser().getNick());
-//		onMessage(e);
+	public HTableMarkov getMarkov() {
+		return markov;
+	}
+	
+	public int getMaxlen() {
+		return maxlen;
+	}
+	
+	public Set<String> getChannels() {
+		return channels;
+	}
+	
+	public boolean isLearn() {
+		return learn;
 	}
 	
 	@Override
 	public void onMessage(MessageEvent<PircBotX> event) throws Exception {
+		if(!channels.contains(event.getChannel().getName()))
+			return;
 		String m = event.getMessage();
 		if(m.matches(event.getBot().getNick() + "[,:].*")) {
 			m = m.split("[,:]", 2)[1];
@@ -62,11 +82,27 @@ public class MarkovListener extends ListenerAdapter<PircBotX> {
 				if(Collections.frequency(responses, r) < 3)
 					event.getChannel().send().message(event.getUser().getNick() + ": " + r);
 			}
-		} else if("snacky".equals(event.getUser().getNick()) && event.getUser().isVerified()) {
+		} else if(learn) {
 			m = m.replaceAll("^\\S+:", "");
 			List<String> content = StringContent.parse(m);
 			markov.consume(content, maxlen);
 			markov.flush();
 		}
+	}
+
+	public void setMarkov(HTableMarkov markov) {
+		this.markov = markov;
+	}
+
+	public void setMaxlen(int maxlen) {
+		this.maxlen = maxlen;
+	}
+
+	public void setChannels(Set<String> channels) {
+		this.channels = channels;
+	}
+
+	public void setLearn(boolean learn) {
+		this.learn = learn;
 	}
 }
