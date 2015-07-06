@@ -39,8 +39,8 @@
 		<nick>robin</nick>
 		<group>root</group>
 		<group>admin</group>
-		<commands>
 		<owns-group>root</owns-group>
+		<commands>
 			<rb class="org.sujavabot.plugin.jruby.JRubyCommand">
 				<source><![CDATA[
 ARGV.to_s
@@ -50,5 +50,13 @@ ARGV.to_s
 	</user>
 	<listener class="org.sujavabot.core.commands.CommandReceiverListener">
 		<prefix>!</prefix>
+	</listener>
+	<listener class="org.sujavabot.plugin.markov.MarkovListener">
+		<table>markov-snackybot</table>
+		<hbase.zookeeper.quorum>vps.robinvps.com</hbase.zookeeper.quorum>
+		<maxlen>5</maxlen>
+		<learn>false</learn>
+		<channel>#test</channel>
+		<channel>#robin</channel>
 	</listener>
 </sujavabot>

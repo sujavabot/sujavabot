@@ -17,17 +17,11 @@ public class MarkovListener extends ListenerAdapter<PircBotX> {
 	protected int maxlen;
 	protected Set<String> channels;
 	protected boolean learn;
+	protected String prefix;
 	
 	protected List<String> responses = new ArrayList<>();
 	
 	public MarkovListener() {}
-	
-	public MarkovListener(HTableMarkov markov, int maxlen, Set<String> channels, boolean learn) {
-		this.markov = markov;
-		this.maxlen = maxlen;
-		this.channels = new TreeSet<>(channels);
-		this.learn = learn;
-	}
 	
 	public HTableMarkov getMarkov() {
 		return markov;
@@ -50,8 +44,8 @@ public class MarkovListener extends ListenerAdapter<PircBotX> {
 		if(!channels.contains(event.getChannel().getName()))
 			return;
 		String m = event.getMessage();
-		if(m.matches(event.getBot().getNick() + "[,:].*")) {
-			m = m.split("[,:]", 2)[1];
+		if(m.startsWith(prefix)) {
+			m = m.substring(prefix.length()).trim();
 			m = m.replaceAll("\\?+$", "");
 			List<String> prefix = StringContent.parse(m);
 			if(prefix.size() == 0)
@@ -104,5 +98,13 @@ public class MarkovListener extends ListenerAdapter<PircBotX> {
 
 	public void setLearn(boolean learn) {
 		this.learn = learn;
+	}
+
+	public String getPrefix() {
+		return prefix;
+	}
+
+	public void setPrefix(String prefix) {
+		this.prefix = prefix;
 	}
 }
