@@ -47,6 +47,17 @@
 										<exclude>org/sujavabot/**</exclude>
 										<exclude>META-INF/**</exclude>
 										<exclude>**/*.rb</exclude>
+										<exclude>org/abego/treelayout/**</exclude>
+										<exclude>org/antlr/v4/runtime/**</exclude>
+										<exclude>org/slf4j/**</exclude>
+										<exclude>org/xmlpull/**</exclude>
+										<exclude>com/thoughtworks/xstream/**</exclude>
+										<exclude>com/google/common/**</exclude>
+										<exclude>org/apache/commons/codec/**</exclude>
+										<exclude>org/apache/commons/lang3/**</exclude>
+										<exclude>org/pircbotx/**</exclude>
+										<exclude>java/**</exclude>
+										<exclude>javax/**</exclude>
 									</excludes>
 									<shadedPattern>org.sujavabot.plugin.jruby.</shadedPattern>
 								</relocation>

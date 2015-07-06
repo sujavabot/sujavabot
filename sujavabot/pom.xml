@@ -52,6 +52,19 @@
 				<artifactId>maven-dependency-plugin</artifactId>
 				<executions>
 					<execution>
+						<id>copy-deps</id>
+						<phase>package</phase>
+						<goals>
+							<goal>copy-dependencies</goal>
+						</goals>
+						<configuration>
+							<outputDirectory>${project.build.directory}/sujavabot/lib</outputDirectory>
+							<overWriteReleases>true</overWriteReleases>
+							<overWriteSnapshots>true</overWriteSnapshots>
+							<excludeGroupIds>org.sujavabot.plugin</excludeGroupIds>
+						</configuration>
+					</execution>
+					<execution>
 						<id>copy-plugins</id>
 						<phase>package</phase>
 						<goals>
@@ -61,9 +74,7 @@
 							<outputDirectory>${project.build.directory}/sujavabot/plugins</outputDirectory>
 							<overWriteReleases>true</overWriteReleases>
 							<overWriteSnapshots>true</overWriteSnapshots>
-							<excludeTransitive>true</excludeTransitive>
 							<includeGroupIds>org.sujavabot.plugin</includeGroupIds>
-							<includeClassifiers>nodeps</includeClassifiers>
 							<stripVersion>true</stripVersion>
 							<stripClassifier>true</stripClassifier>
 						</configuration>
