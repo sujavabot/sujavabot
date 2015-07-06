@@ -19,7 +19,7 @@
 		</dependency>
 	</dependencies>
 	<modules>
-		<module>../sujavabot-plugin-jruby</module>
-		<module>../sujavabot-plugin-jython</module>
+		<module>../jruby-sujavabot-plugin</module>
+		<module>../jython-sujavabot-plugin</module>
 	</modules>
 </project>
