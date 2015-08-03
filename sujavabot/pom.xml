@@ -57,22 +57,6 @@
 							<outputDirectory>${project.build.directory}/sujavabot/lib</outputDirectory>
 							<overWriteReleases>true</overWriteReleases>
 							<overWriteSnapshots>true</overWriteSnapshots>
-							<excludeGroupIds>org.sujavabot.plugin</excludeGroupIds>
-						</configuration>
-					</execution>
-					<execution>
-						<id>copy-plugins</id>
-						<phase>package</phase>
-						<goals>
-							<goal>copy-dependencies</goal>
-						</goals>
-						<configuration>
-							<outputDirectory>${project.build.directory}/sujavabot/plugins</outputDirectory>
-							<overWriteReleases>true</overWriteReleases>
-							<overWriteSnapshots>true</overWriteSnapshots>
-							<includeGroupIds>org.sujavabot.plugin</includeGroupIds>
-							<stripVersion>true</stripVersion>
-							<stripClassifier>true</stripClassifier>
 						</configuration>
 					</execution>
 				</executions>
