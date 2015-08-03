@@ -20,7 +20,7 @@
 	</dependencies>
 	<modules>
 		<module>../sujavabot-plugin-jruby</module>
-		<module>../sujavabot-plugin-jython</module>
+		
 		<module>../sujavabot-plugin-markov</module>
 	</modules>
 </project>
