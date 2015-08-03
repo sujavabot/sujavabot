@@ -144,6 +144,8 @@ public class BerkeleyDBMarkov {
 				prefix = prefix.substring(idx + SEP.length());
 			}
 		}
+
+		database.sync();
 	}
 	
 	public String next(List<String> prefixes) throws DatabaseException {
