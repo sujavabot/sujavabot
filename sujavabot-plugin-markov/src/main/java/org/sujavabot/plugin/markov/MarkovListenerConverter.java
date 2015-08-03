@@ -1,10 +1,12 @@
 package org.sujavabot.plugin.markov;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
+import java.util.regex.Pattern;
 
 import org.sujavabot.core.ConfigurationBuilder;
 import org.sujavabot.core.util.Throwables;
@@ -63,6 +65,8 @@ public class MarkovListenerConverter extends AbstractConverter<MarkovListener> {
 		helper.field("learn", Boolean.class, () -> current.isLearn());
 		for(String channel : current.getChannels())
 			helper.field("channel", String.class, () -> channel);
+		for(Pattern p : current.getIgnore())
+			helper.field("ignore", Pattern.class, () -> p);
 	}
 
 	@Override
@@ -75,6 +79,9 @@ public class MarkovListenerConverter extends AbstractConverter<MarkovListener> {
 			Map<String, Object> m = new HashMap<>();
 			Set<String> ch = new TreeSet<>();
 			
+			MarkovListener ml = new MarkovListener();
+			ml.setIgnore(new ArrayList<>());
+			
 			UnmarshalHelper helper = new UnmarshalHelper(x, reader, context);
 
 			helper.field("home", File.class, f -> m.put("home", f));
@@ -83,8 +90,7 @@ public class MarkovListenerConverter extends AbstractConverter<MarkovListener> {
 			helper.field("prefix", String.class, s -> m.put("prefix", s));
 			helper.field("learn", Boolean.class, b -> m.put("learn", b));
 			helper.field("channel", String.class, s -> ch.add(s));
-			
-			MarkovListener ml = new MarkovListener();
+			helper.field("ignore", Pattern.class, p -> ml.getIgnore().add(p));
 			
 			helper.read(ml);
 

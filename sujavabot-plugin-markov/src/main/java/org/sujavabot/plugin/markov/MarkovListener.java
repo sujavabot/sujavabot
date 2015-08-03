@@ -5,6 +5,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
+import java.util.regex.Pattern;
 
 import org.pircbotx.PircBotX;
 import org.pircbotx.hooks.ListenerAdapter;
@@ -18,6 +19,7 @@ public class MarkovListener extends ListenerAdapter<PircBotX> {
 	protected Set<String> channels;
 	protected boolean learn;
 	protected String prefix;
+	protected List<Pattern> ignore;
 	
 	protected List<String> responses = new ArrayList<>();
 	
@@ -43,6 +45,10 @@ public class MarkovListener extends ListenerAdapter<PircBotX> {
 	public void onMessage(MessageEvent<PircBotX> event) throws Exception {
 		if(!channels.contains(event.getChannel().getName()))
 			return;
+		for(Pattern p : ignore) {
+			if(p.matcher(event.getUser().getNick()).matches())
+				return;
+		}
 		String m = event.getMessage();
 		if(m.startsWith(prefix)) {
 			m = m.substring(prefix.length()).trim();
@@ -105,5 +111,13 @@ public class MarkovListener extends ListenerAdapter<PircBotX> {
 
 	public void setPrefix(String prefix) {
 		this.prefix = prefix;
+	}
+	
+	public List<Pattern> getIgnore() {
+		return ignore;
+	}
+	
+	public void setIgnore(List<Pattern> ignore) {
+		this.ignore = ignore;
 	}
 }
