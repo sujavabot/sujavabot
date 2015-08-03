@@ -66,7 +66,7 @@ public class MarkovListenerConverter extends AbstractConverter<MarkovListener> {
 		for(String channel : current.getChannels())
 			helper.field("channel", String.class, () -> channel);
 		for(Pattern p : current.getIgnore())
-			helper.field("ignore", Pattern.class, () -> p);
+			helper.field("ignore", String.class, () -> p.pattern());
 	}
 
 	@Override
@@ -90,7 +90,7 @@ public class MarkovListenerConverter extends AbstractConverter<MarkovListener> {
 			helper.field("prefix", String.class, s -> m.put("prefix", s));
 			helper.field("learn", Boolean.class, b -> m.put("learn", b));
 			helper.field("channel", String.class, s -> ch.add(s));
-			helper.field("ignore", Pattern.class, p -> ml.getIgnore().add(p));
+			helper.field("ignore", String.class, s -> ml.getIgnore().add(Pattern.compile(s)));
 			
 			helper.read(ml);
 
