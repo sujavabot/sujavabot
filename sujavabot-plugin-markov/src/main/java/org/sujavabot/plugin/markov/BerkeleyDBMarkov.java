@@ -126,6 +126,8 @@ public class BerkeleyDBMarkov {
 	}
 	
 	public void consume(List<String> content, int maxlen) throws DatabaseException {
+		if(content.size() == 0)
+			return;
 		content = new ArrayList<>(content);
 		content.add(EOF);
 		for(int i = -maxlen + 1; i < content.size() - 1; i++) {
