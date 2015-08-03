@@ -13,7 +13,7 @@ import org.pircbotx.hooks.events.MessageEvent;
 
 
 public class MarkovListener extends ListenerAdapter<PircBotX> {
-	protected HTableMarkov markov;
+	protected BerkeleyDBMarkov markov;
 	protected int maxlen;
 	protected Set<String> channels;
 	protected boolean learn;
@@ -23,7 +23,7 @@ public class MarkovListener extends ListenerAdapter<PircBotX> {
 	
 	public MarkovListener() {}
 	
-	public HTableMarkov getMarkov() {
+	public BerkeleyDBMarkov getMarkov() {
 		return markov;
 	}
 	
@@ -80,11 +80,10 @@ public class MarkovListener extends ListenerAdapter<PircBotX> {
 			m = m.replaceAll("^\\S+:", "");
 			List<String> content = StringContent.parse(m);
 			markov.consume(content, maxlen);
-			markov.flush();
 		}
 	}
 
-	public void setMarkov(HTableMarkov markov) {
+	public void setMarkov(BerkeleyDBMarkov markov) {
 		this.markov = markov;
 	}
 

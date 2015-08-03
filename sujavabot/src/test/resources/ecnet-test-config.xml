@@ -52,10 +52,10 @@ ARGV.to_s
 		<prefix>!</prefix>
 	</listener>
 	<listener class="org.sujavabot.plugin.markov.MarkovListener">
-		<table>markov-snackybot</table>
-		<hbase.zookeeper.quorum>vps.robinvps.com</hbase.zookeeper.quorum>
+		<home>/home/robin/berkeleydb</home>
+		<name>markov</name>
 		<maxlen>5</maxlen>
-		<learn>false</learn>
+		<learn>true</learn>
 		<channel>#test</channel>
 		<channel>#robin</channel>
 	</listener>
