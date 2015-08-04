@@ -136,7 +136,7 @@ public class BerkeleyDBMarkov {
 			for(String p : prefixes) {
 				prefix += SEP + p;
 			}
-			prefix = prefix.substring(SEP.length());
+			prefix = prefix.substring(SEP.length()).toLowerCase();
 			String suffix = content.get(Math.min(content.size() - 1, i + maxlen));
 			for(;;) {
 				addSuffix(prefix, suffix);
@@ -155,7 +155,7 @@ public class BerkeleyDBMarkov {
 		for(String p : prefixes) {
 			prefix += SEP + p;
 		}
-		prefix = prefix.substring(SEP.length());
+		prefix = prefix.substring(SEP.length()).toLowerCase();
 		
 		Map<String, Double> suffixes = new HashMap<>();
 		for(;;) {
