@@ -54,6 +54,7 @@ public class BerkeleyDBMarkov {
 	
 	private static void setCounter(Database db, byte[] key, long v) throws DatabaseException {
 		DatabaseEntry data = new DatabaseEntry(longToBytes(v, new byte[8], 0));
+		db.delete(null, new DatabaseEntry(key));
 		db.put(null, new DatabaseEntry(key), data);
 	}
 	
