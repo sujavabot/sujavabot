@@ -45,7 +45,7 @@ public abstract class StringContent {
 	}
 
 	public static final Pattern TRAILERS = Pattern.compile(",|\\?|!");
-	public static final Pattern WORD = Pattern.compile("(?i)[a-z\\-_0-9]+(['’][a-z\\-_0-9]+)*['’]?");
+	public static final Pattern WORD = Pattern.compile("(?i)!?[a-z\\-_0-9]+(['’][a-z\\-_0-9]+)*['’]?");
 	public static final Pattern LINK = Pattern.compile("(?i)(https?:|ftp:|www\\.)\\S*");
 	public static final Pattern NUMBER = Pattern.compile("[0-9]+(\\.[0-9]*)?|\\.[0-9]+");
 	public static final Pattern ELLIPSES = Pattern.compile("\\.(\\s*\\.)*");
