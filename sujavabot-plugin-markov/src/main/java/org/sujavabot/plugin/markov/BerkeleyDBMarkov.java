@@ -74,6 +74,7 @@ public class BerkeleyDBMarkov {
 	private static long findPID(Database db, String prefix) throws DatabaseException {
 		Sequence seq = db.openSequence(null, PREFIX_COUNTER, seqc());
 		long size = seq.getStats(statc()).getCurrent();
+		seq.close();
 		DatabaseEntry key = new DatabaseEntry();
 		DatabaseEntry data = new DatabaseEntry();
 		for(int id = 1; id <= size; id++) {
@@ -88,6 +89,7 @@ public class BerkeleyDBMarkov {
 	private static long findSID(Database db, long pid, String suffix) throws DatabaseException {
 		Sequence seq = db.openSequence(null, new DatabaseEntry(counterKey(pid, 0)), seqc());
 		long size = seq.getStats(statc()).getCurrent();
+		seq.close();
 		DatabaseEntry key = new DatabaseEntry();
 		DatabaseEntry data = new DatabaseEntry();
 		for(int id = 1; id <= size; id++) {
@@ -107,6 +109,7 @@ public class BerkeleyDBMarkov {
 		id = seq.get(null, 1);
 		if(id == 0)
 			id = seq.get(null, 1);
+		seq.close();
 		DatabaseEntry key = new DatabaseEntry(stringKey(PREFIX_PID, id));
 		DatabaseEntry data = new DatabaseEntry(prefix.getBytes(UTF8));
 		db.put(null, key, data);
@@ -121,6 +124,7 @@ public class BerkeleyDBMarkov {
 		id = seq.get(null, 1);
 		if(id == 0)
 			id = seq.get(null, 1);
+		seq.close();
 		DatabaseEntry key = new DatabaseEntry(stringKey(pid, id));
 		DatabaseEntry data = new DatabaseEntry(suffix.getBytes(UTF8));
 		db.put(null, key, data);
@@ -129,12 +133,16 @@ public class BerkeleyDBMarkov {
 	
 	private static long getCount(Database db, long pid, long sid) throws DatabaseException {
 		Sequence seq = db.openSequence(null, new DatabaseEntry(counterKey(pid, sid)), seqc());
-		return seq.getStats(statc()).getCurrent();
+		long count = seq.getStats(statc()).getCurrent();
+		seq.close();
+		return count;
 	}
 	
 	private static long incrementCount(Database db, long pid, long sid) throws DatabaseException {
 		Sequence seq = db.openSequence(null, new DatabaseEntry(counterKey(pid, sid)), seqc());
-		return seq.get(null, 1);
+		long count = seq.get(null, 1);
+		seq.close();
+		return count;
 	}
 	
 	private static long increment(Database db, String prefix, String suffix) throws DatabaseException {
