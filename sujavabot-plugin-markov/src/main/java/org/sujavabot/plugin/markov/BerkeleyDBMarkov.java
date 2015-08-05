@@ -60,30 +60,30 @@ public class BerkeleyDBMarkov {
 	
 	private static byte[] counterKey(long pid, long sid) {
 		byte[] key = new byte[COUNTER.length + 16];
-		longToBytes(pid, key, 0);
-		longToBytes(sid, key, 8);
+		longToBytes(pid << 8, key, 0);
+		longToBytes(sid << 8, key, 8);
 		System.arraycopy(COUNTER, 0, key, 16, COUNTER.length);
 		return key;
 	}
 	
 	private static byte[] hashedStringKey(long pid, long sid) {
 		byte[] key = new byte[HASHED_STRING.length + 16];
-		longToBytes(pid, key, 0);
-		longToBytes(sid, key, 8);
+		longToBytes(pid << 8, key, 0);
+		longToBytes(sid << 8, key, 8);
 		System.arraycopy(HASHED_STRING, 0, key, 16, HASHED_STRING.length);
 		return key;
 	}
 	
 	private static byte[] listedStringKey(long pid, long lid) {
 		byte[] key = new byte[LISTED_STRING.length + 16];
-		longToBytes(pid, key, 0);
-		longToBytes(lid, key, 8);
+		longToBytes(pid << 8, key, 0);
+		longToBytes(lid << 8, key, 8);
 		System.arraycopy(LISTED_STRING, 0, key, 16, LISTED_STRING.length);
 		return key;
 	}
 	
 	private static long findPID(Database db, String prefix) throws DatabaseException {
-		long pid = prefix.hashCode() & 0xFFFFFFFFL;
+		long pid = ((long) prefix.hashCode()) << 24;
 		DatabaseEntry data = new DatabaseEntry();
 		for(;;) {
 			if(pid == PREFIX_PID)
@@ -98,7 +98,7 @@ public class BerkeleyDBMarkov {
 	}
 	
 	private static long findSID(Database db, long pid, String suffix) throws DatabaseException {
-		long sid = suffix.hashCode() & 0xFFFFFFFFL;
+		long sid = ((long) suffix.hashCode()) << 24;
 		DatabaseEntry data = new DatabaseEntry();
 		for(;;) {
 			if(sid == COUNT_SID)
@@ -172,7 +172,8 @@ public class BerkeleyDBMarkov {
 		DatabaseEntry data = new DatabaseEntry();
 		for(long lid = 1; lid <= max; lid++) {
 			key.setData(listedStringKey(pid, lid));
-			db.get(null, key, data, null);
+			if(db.get(null, key, data, null) == OperationStatus.NOTFOUND)
+				return counts;
 			String suffix = new String(data.getData(), UTF8);
 			long sid = findSID(db, pid, suffix);
 			counts.put(suffix, getCount(db, pid, sid));
