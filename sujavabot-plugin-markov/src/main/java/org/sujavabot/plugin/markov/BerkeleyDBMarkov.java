@@ -25,18 +25,6 @@ public class BerkeleyDBMarkov {
 	private static final long PREFIX_PID = 0;
 	private static final long COUNT_SID = 0;
 	
-	private static SequenceConfig seqc() {
-		SequenceConfig sc = new SequenceConfig();
-		sc.setAllowCreate(true);
-		sc.setInitialValue(0);
-		sc.setAutoCommitNoSync(true);
-		return sc;
-	}
-	
-	private static StatsConfig statc() {
-		return new StatsConfig();
-	}
-	
 	private static final Charset UTF8 = Charset.forName("UTF-8");
 	
 	private static final String EOF = "";
@@ -55,6 +43,18 @@ public class BerkeleyDBMarkov {
 		for(int i = 0; i < 8; i++)
 			l |= ((b[off + i] & 0xffl) << (8*i));
 		return l;
+	}
+	
+	private static long getCounter(Database db, byte[] key) throws DatabaseException {
+		DatabaseEntry data = new DatabaseEntry();
+		if(db.get(null, new DatabaseEntry(key), data, null) == OperationStatus.NOTFOUND)
+			return 0;
+		return bytesToLong(data.getData(), 0);
+	}
+	
+	private static void setCounter(Database db, byte[] key, long v) throws DatabaseException {
+		DatabaseEntry data = new DatabaseEntry(longToBytes(v, new byte[8], 0));
+		db.put(null, new DatabaseEntry(key), data);
 	}
 	
 	private static byte[] counterKey(long pid, long sid) {
@@ -131,11 +131,9 @@ public class BerkeleyDBMarkov {
 		DatabaseEntry data = new DatabaseEntry(suffix.getBytes(UTF8));
 		db.put(null, key, data);
 		
-		Sequence seq = db.openSequence(null, new DatabaseEntry(counterKey(pid, COUNT_SID)), seqc());
-		long lid = seq.get(null, 1);
-		if(lid == 0)
-			lid = seq.get(null, 1);
-		seq.close();
+		long lid = getCounter(db, counterKey(pid, COUNT_SID));
+		lid++;
+		setCounter(db, counterKey(pid, COUNT_SID), lid);
 		
 		key.setData(listedStringKey(pid, lid));
 		db.put(null, key, data);
@@ -144,18 +142,13 @@ public class BerkeleyDBMarkov {
 	}
 	
 	private static long getCount(Database db, long pid, long sid) throws DatabaseException {
-		Sequence seq = db.openSequence(null, new DatabaseEntry(counterKey(pid, sid)), seqc());
-		long count = seq.getStats(statc()).getCurrent();
-		seq.close();
-		return count;
+		return getCounter(db, counterKey(pid, sid));
 	}
 	
 	private static long incrementCount(Database db, long pid, long sid) throws DatabaseException {
-		Sequence seq = db.openSequence(null, new DatabaseEntry(counterKey(pid, sid)), seqc());
-		long count = seq.get(null, 1);
-		if(count == 0)
-			count = seq.get(null, 1);
-		seq.close();
+		long count = getCount(db, pid, sid);
+		count++;
+		setCounter(db, counterKey(pid, sid), count);
 		return count;
 	}
 	
@@ -172,9 +165,7 @@ public class BerkeleyDBMarkov {
 		
 		Map<String, Long> counts = new HashMap<>();
 		
-		Sequence seq = db.openSequence(null, new DatabaseEntry(counterKey(pid, COUNT_SID)), seqc());
-		long max = seq.getStats(statc()).getCurrent();
-		seq.close();
+		long max = getCounter(db, counterKey(pid, COUNT_SID));
 		
 		DatabaseEntry key = new DatabaseEntry();
 		DatabaseEntry data = new DatabaseEntry();
