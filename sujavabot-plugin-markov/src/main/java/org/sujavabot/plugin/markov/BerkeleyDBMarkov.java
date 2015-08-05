@@ -82,40 +82,40 @@ public class BerkeleyDBMarkov {
 	}
 	
 	private static long findPID(Database db, String prefix) throws DatabaseException {
-		long pid = ((long) prefix.hashCode()) << 24;
+		long pid = Long.reverse(prefix.hashCode()) & -2L;
 		DatabaseEntry data = new DatabaseEntry();
 		for(;;) {
 			if(pid == PREFIX_PID)
-				pid++;
+				pid += 2;
 			DatabaseEntry key = new DatabaseEntry(hashedStringKey(PREFIX_PID, pid));
 			if(db.get(null, key, data, null) == OperationStatus.NOTFOUND)
-				return -pid;
+				return pid + 1;
 			if(prefix.equals(new String(data.getData(), UTF8)))
 				return pid;
-			pid++;
+			pid += 2;
 		}
 	}
 	
 	private static long findSID(Database db, long pid, String suffix) throws DatabaseException {
-		long sid = ((long) suffix.hashCode()) << 24;
+		long sid = Long.reverse(suffix.hashCode()) & -2L;
 		DatabaseEntry data = new DatabaseEntry();
 		for(;;) {
 			if(sid == COUNT_SID)
-				sid++;
+				sid += 2;
 			DatabaseEntry key = new DatabaseEntry(hashedStringKey(pid, sid));
 			if(db.get(null, key, data, null) == OperationStatus.NOTFOUND)
-				return -sid;
+				return sid + 1;
 			if(suffix.equals(new String(data.getData(), UTF8)))
 				return sid;
-			sid++;
+			sid += 2;
 		}
 	}
 	
 	private static long findOrAddPID(Database db, String prefix) throws DatabaseException {
 		long pid = findPID(db, prefix);
-		if(pid >= 0)
+		if((pid & 1) == 0)
 			return pid;
-		pid = -pid;
+		pid = pid - 1;
 		DatabaseEntry key = new DatabaseEntry(hashedStringKey(PREFIX_PID, pid));
 		DatabaseEntry data = new DatabaseEntry(prefix.getBytes(UTF8));
 		db.put(null, key, data);
@@ -124,10 +124,9 @@ public class BerkeleyDBMarkov {
 	
 	private static long findOrAddSID(Database db, long pid, String suffix) throws DatabaseException {
 		long sid = findSID(db, pid, suffix);
-		if(sid >= 0)
+		if((sid & 1) == 0)
 			return sid;
-		
-		sid = -sid;
+		sid = sid - 1;
 		DatabaseEntry key = new DatabaseEntry(hashedStringKey(pid, sid));
 		DatabaseEntry data = new DatabaseEntry(suffix.getBytes(UTF8));
 		db.put(null, key, data);
@@ -168,7 +167,7 @@ public class BerkeleyDBMarkov {
 	
 	private static Map<String, Long> counts(Database db, String prefix) throws DatabaseException {
 		long pid = findPID(db, prefix);
-		if(pid < 0)
+		if((pid & 1) == 1)
 			return Collections.emptyMap();
 		
 		Map<String, Long> counts = new HashMap<>();
