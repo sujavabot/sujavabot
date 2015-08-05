@@ -87,7 +87,7 @@ public class BerkeleyDBMarkov {
 	}
 	
 	private static long findSID(Database db, long pid, String suffix) throws DatabaseException {
-		long sid = ((long) suffix.hashCode()) << 32;
+		long sid = 1;
 		DatabaseEntry data = new DatabaseEntry();
 		for(;;) {
 			DatabaseEntry key = new DatabaseEntry(stringKey(pid, sid));
@@ -148,18 +148,17 @@ public class BerkeleyDBMarkov {
 		
 		Map<String, Long> counts = new HashMap<>();
 		
-		Sequence seq = db.openSequence(null, new DatabaseEntry(counterKey(pid, 0)), seqc());
-		long size = seq.getStats(statc()).getCurrent();
+		long sid = 1;
 		DatabaseEntry key = new DatabaseEntry();
 		DatabaseEntry data = new DatabaseEntry();
-		for(long sid = 1; sid <= size; sid++) {
+		for(;;) {
 			key.setData(stringKey(pid, sid));
-			db.get(null, key, data, null);
+			if(db.get(null, key, data, null) == OperationStatus.NOTFOUND)
+				return counts;
 			String k = new String(data.getData(), UTF8);
 			counts.put(k, getCount(db, pid, sid));
+			sid++;
 		}
-		
-		return counts;
 	}
 	
 	private static double dsum(Iterable<Double> i) {
