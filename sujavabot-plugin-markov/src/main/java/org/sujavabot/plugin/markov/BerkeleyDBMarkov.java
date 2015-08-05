@@ -23,11 +23,16 @@ public class BerkeleyDBMarkov {
 
 	private static final long PREFIX_PID = 0;
 	private static final DatabaseEntry PREFIX_COUNTER = new DatabaseEntry(counterKey(PREFIX_PID, 0));
-	private static final SequenceConfig SEQC = new SequenceConfig();
-	private static final StatsConfig STATC = new StatsConfig();
-	static {
-		SEQC.setAllowCreate(true);
-		SEQC.setInitialValue(0);
+	
+	private static SequenceConfig seqc() {
+		SequenceConfig sc = new SequenceConfig();
+		sc.setAllowCreate(true);
+		sc.setInitialValue(0);
+		return sc;
+	}
+	
+	private static StatsConfig statc() {
+		return new StatsConfig();
 	}
 	
 	private static final Charset UTF8 = Charset.forName("UTF-8");
@@ -67,8 +72,8 @@ public class BerkeleyDBMarkov {
 	}
 	
 	private static long findPID(Database db, String prefix) throws DatabaseException {
-		Sequence seq = db.openSequence(null, PREFIX_COUNTER, SEQC);
-		long size = seq.getStats(STATC).getCurrent();
+		Sequence seq = db.openSequence(null, PREFIX_COUNTER, seqc());
+		long size = seq.getStats(statc()).getCurrent();
 		DatabaseEntry key = new DatabaseEntry();
 		DatabaseEntry data = new DatabaseEntry();
 		for(int id = 1; id <= size; id++) {
@@ -81,8 +86,8 @@ public class BerkeleyDBMarkov {
 	}
 	
 	private static long findSID(Database db, long pid, String suffix) throws DatabaseException {
-		Sequence seq = db.openSequence(null, new DatabaseEntry(counterKey(pid, 0)), SEQC);
-		long size = seq.getStats(STATC).getCurrent();
+		Sequence seq = db.openSequence(null, new DatabaseEntry(counterKey(pid, 0)), seqc());
+		long size = seq.getStats(statc()).getCurrent();
 		DatabaseEntry key = new DatabaseEntry();
 		DatabaseEntry data = new DatabaseEntry();
 		for(int id = 1; id <= size; id++) {
@@ -98,9 +103,11 @@ public class BerkeleyDBMarkov {
 		long id = findPID(db, prefix);
 		if(id >= 0)
 			return id;
-		Sequence seq = db.openSequence(null, PREFIX_COUNTER, SEQC);
+		Sequence seq = db.openSequence(null, PREFIX_COUNTER, seqc());
 		id = seq.get(null, 1);
-		DatabaseEntry key = new DatabaseEntry(stringKey(id, 0));
+		if(id == 0)
+			id = seq.get(null, 1);
+		DatabaseEntry key = new DatabaseEntry(stringKey(PREFIX_PID, id));
 		DatabaseEntry data = new DatabaseEntry(prefix.getBytes(UTF8));
 		db.put(null, key, data);
 		return id;
@@ -110,8 +117,10 @@ public class BerkeleyDBMarkov {
 		long id = findSID(db, pid, suffix);
 		if(id >= 0)
 			return id;
-		Sequence seq = db.openSequence(null, new DatabaseEntry(counterKey(pid, 0)), SEQC);
+		Sequence seq = db.openSequence(null, new DatabaseEntry(counterKey(pid, 0)), seqc());
 		id = seq.get(null, 1);
+		if(id == 0)
+			id = seq.get(null, 1);
 		DatabaseEntry key = new DatabaseEntry(stringKey(pid, id));
 		DatabaseEntry data = new DatabaseEntry(suffix.getBytes(UTF8));
 		db.put(null, key, data);
@@ -119,12 +128,12 @@ public class BerkeleyDBMarkov {
 	}
 	
 	private static long getCount(Database db, long pid, long sid) throws DatabaseException {
-		Sequence seq = db.openSequence(null, new DatabaseEntry(counterKey(pid, sid)), SEQC);
-		return seq.getStats(STATC).getCurrent();
+		Sequence seq = db.openSequence(null, new DatabaseEntry(counterKey(pid, sid)), seqc());
+		return seq.getStats(statc()).getCurrent();
 	}
 	
 	private static long incrementCount(Database db, long pid, long sid) throws DatabaseException {
-		Sequence seq = db.openSequence(null, new DatabaseEntry(counterKey(pid, sid)), SEQC);
+		Sequence seq = db.openSequence(null, new DatabaseEntry(counterKey(pid, sid)), seqc());
 		return seq.get(null, 1);
 	}
 	
@@ -141,8 +150,8 @@ public class BerkeleyDBMarkov {
 		
 		Map<String, Long> counts = new HashMap<>();
 		
-		Sequence seq = db.openSequence(null, new DatabaseEntry(counterKey(pid, 0)), SEQC);
-		long size = seq.getStats(STATC).getCurrent();
+		Sequence seq = db.openSequence(null, new DatabaseEntry(counterKey(pid, 0)), seqc());
+		long size = seq.getStats(statc()).getCurrent();
 		DatabaseEntry key = new DatabaseEntry();
 		DatabaseEntry data = new DatabaseEntry();
 		for(long sid = 1; sid <= size; sid++) {
