@@ -131,6 +131,8 @@ public class BerkeleyDBMarkov {
 	private static long incrementCount(Database db, long pid, long sid) throws DatabaseException {
 		Sequence seq = db.openSequence(null, new DatabaseEntry(counterKey(pid, sid)), seqc());
 		long count = seq.get(null, 1);
+		if(count == 0)
+			count = seq.get(null, 1);
 		seq.close();
 		return count;
 	}
