@@ -51,20 +51,29 @@ public class Learn {
 		}
 		
 		for(InputStream in : inputs) {
-			if(!GraphicsEnvironment.isHeadless())
-				in = new ProgressMonitorInputStream(null, in, in);
-			BufferedReader buf = new BufferedReader(new InputStreamReader(in, "UTF-8"));
+			long total = in.available();
+			long pct = -1;
+			long start = System.currentTimeMillis();
+			BufferedReader buf = new BufferedReader(new InputStreamReader(in, "UTF-8"), 256);
 			for(String line = buf.readLine(); line != null; line = buf.readLine()) {
 				line = line.replaceAll("^\\S+:", "").trim();
 				List<String> words = StringContent.parse(line);
 				if(words.size() == 0)
 					continue;
 				markov.consume(words, maxlen);
-				System.out.println(StringContent.join(words));
+				long read = total - in.available();
+				long rpct = read * 100 / total;
+				if(pct != rpct) {
+					db.sync();
+					long duration = System.currentTimeMillis() - start;
+					System.out.println(String.format("%02d%% (%d bytes, %d bytes per second)", rpct, read, read * 1000 / duration));
+				}
+				pct = rpct;
 			}
 			buf.close();
 		}
 		
+		db.sync();
 		db.close();
 	}
 }
