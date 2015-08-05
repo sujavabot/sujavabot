@@ -29,6 +29,7 @@ public class BerkeleyDBMarkov {
 		SequenceConfig sc = new SequenceConfig();
 		sc.setAllowCreate(true);
 		sc.setInitialValue(0);
+		sc.setAutoCommitNoSync(true);
 		return sc;
 	}
 	
