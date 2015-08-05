@@ -167,7 +167,7 @@ public class BerkeleyDBMarkov {
 	
 	private static Map<String, Long> counts(Database db, String prefix) throws DatabaseException {
 		long pid = findPID(db, prefix);
-		if((pid & 1) == 1)
+		if(pid < 0)
 			return Collections.emptyMap();
 		
 		Map<String, Long> counts = new HashMap<>();
