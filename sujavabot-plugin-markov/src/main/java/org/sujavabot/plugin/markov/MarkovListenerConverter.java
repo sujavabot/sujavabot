@@ -101,6 +101,7 @@ public class MarkovListenerConverter extends AbstractConverter<MarkovListener> {
 			DatabaseConfig dbc = new DatabaseConfig();
 			dbc.setAllowCreate(true);
 			dbc.setDeferredWrite(true);
+			dbc.setReadOnly(!(Boolean) m.getOrDefault("learn", true));
 			Database db = e.openDatabase(null, (String) m.get("name"), dbc);
 			
 			BerkeleyDBMarkov markov = new BerkeleyDBMarkov(db);
