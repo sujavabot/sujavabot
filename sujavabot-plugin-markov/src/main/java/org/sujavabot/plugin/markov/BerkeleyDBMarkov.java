@@ -82,7 +82,7 @@ public class BerkeleyDBMarkov {
 	}
 	
 	private static long findPID(Database db, String prefix) throws DatabaseException {
-		long pid = Long.reverse(prefix.hashCode());
+		long pid = Long.reverseBytes(prefix.hashCode());
 		DatabaseEntry data = new DatabaseEntry();
 		for(;;) {
 			if(pid == PREFIX_PID)
@@ -97,7 +97,7 @@ public class BerkeleyDBMarkov {
 	}
 	
 	private static long findSID(Database db, long pid, String suffix) throws DatabaseException {
-		long sid = Long.reverse(suffix.hashCode());
+		long sid = Long.reverseBytes(suffix.hashCode());
 		DatabaseEntry data = new DatabaseEntry();
 		for(;;) {
 			if(sid == COUNT_SID)
