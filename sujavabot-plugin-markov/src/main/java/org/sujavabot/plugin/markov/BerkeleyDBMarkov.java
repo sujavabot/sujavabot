@@ -19,10 +19,11 @@ import com.sleepycat.je.StatsConfig;
 
 public class BerkeleyDBMarkov {
 	private static final byte[] COUNTER = new byte[] { 0 };
-	private static final byte[] STRING = new byte[] { 1 };
+	private static final byte[] HASHED_STRING = new byte[] { 1 };
+	private static final byte[] LISTED_STRING = new byte[] { 2 };
 
 	private static final long PREFIX_PID = 0;
-	private static final DatabaseEntry PREFIX_COUNTER = new DatabaseEntry(counterKey(PREFIX_PID, 0));
+	private static final long COUNT_SID = 0;
 	
 	private static SequenceConfig seqc() {
 		SequenceConfig sc = new SequenceConfig();
@@ -63,11 +64,19 @@ public class BerkeleyDBMarkov {
 		return key;
 	}
 	
-	private static byte[] stringKey(long pid, long sid) {
-		byte[] key = new byte[STRING.length + 16];
+	private static byte[] hashedStringKey(long pid, long sid) {
+		byte[] key = new byte[HASHED_STRING.length + 16];
 		longToBytes(pid, key, 0);
 		longToBytes(sid, key, 8);
-		System.arraycopy(STRING, 0, key, 16, STRING.length);
+		System.arraycopy(HASHED_STRING, 0, key, 16, HASHED_STRING.length);
+		return key;
+	}
+	
+	private static byte[] listedStringKey(long pid, long lid) {
+		byte[] key = new byte[LISTED_STRING.length + 16];
+		longToBytes(pid, key, 0);
+		longToBytes(lid, key, 8);
+		System.arraycopy(LISTED_STRING, 0, key, 16, LISTED_STRING.length);
 		return key;
 	}
 	
@@ -77,7 +86,7 @@ public class BerkeleyDBMarkov {
 		for(;;) {
 			if(pid == PREFIX_PID)
 				pid++;
-			DatabaseEntry key = new DatabaseEntry(stringKey(PREFIX_PID, pid));
+			DatabaseEntry key = new DatabaseEntry(hashedStringKey(PREFIX_PID, pid));
 			if(db.get(null, key, data, null) == OperationStatus.NOTFOUND)
 				return -pid;
 			if(prefix.equals(new String(data.getData(), UTF8)))
@@ -87,10 +96,12 @@ public class BerkeleyDBMarkov {
 	}
 	
 	private static long findSID(Database db, long pid, String suffix) throws DatabaseException {
-		long sid = 1;
+		long sid = ((long) suffix.hashCode()) << 32;
 		DatabaseEntry data = new DatabaseEntry();
 		for(;;) {
-			DatabaseEntry key = new DatabaseEntry(stringKey(pid, sid));
+			if(sid == COUNT_SID)
+				sid++;
+			DatabaseEntry key = new DatabaseEntry(hashedStringKey(pid, sid));
 			if(db.get(null, key, data, null) == OperationStatus.NOTFOUND)
 				return -sid;
 			if(suffix.equals(new String(data.getData(), UTF8)))
@@ -104,7 +115,7 @@ public class BerkeleyDBMarkov {
 		if(pid >= 0)
 			return pid;
 		pid = -pid;
-		DatabaseEntry key = new DatabaseEntry(stringKey(PREFIX_PID, pid));
+		DatabaseEntry key = new DatabaseEntry(hashedStringKey(PREFIX_PID, pid));
 		DatabaseEntry data = new DatabaseEntry(prefix.getBytes(UTF8));
 		db.put(null, key, data);
 		return pid;
@@ -114,10 +125,21 @@ public class BerkeleyDBMarkov {
 		long sid = findSID(db, pid, suffix);
 		if(sid >= 0)
 			return sid;
+		
 		sid = -sid;
-		DatabaseEntry key = new DatabaseEntry(stringKey(pid, sid));
+		DatabaseEntry key = new DatabaseEntry(hashedStringKey(pid, sid));
 		DatabaseEntry data = new DatabaseEntry(suffix.getBytes(UTF8));
 		db.put(null, key, data);
+		
+		Sequence seq = db.openSequence(null, new DatabaseEntry(counterKey(pid, COUNT_SID)), seqc());
+		long lid = seq.get(null, 1);
+		if(lid == 0)
+			lid = seq.get(null, 1);
+		seq.close();
+		
+		key.setData(listedStringKey(pid, lid));
+		db.put(null, key, data);
+		
 		return sid;
 	}
 	
@@ -150,17 +172,22 @@ public class BerkeleyDBMarkov {
 		
 		Map<String, Long> counts = new HashMap<>();
 		
-		long sid = 1;
+		Sequence seq = db.openSequence(null, new DatabaseEntry(counterKey(pid, COUNT_SID)), seqc());
+		long max = seq.getStats(statc()).getCurrent();
+		seq.close();
+		
 		DatabaseEntry key = new DatabaseEntry();
 		DatabaseEntry data = new DatabaseEntry();
-		for(;;) {
-			key.setData(stringKey(pid, sid));
+		for(long lid = 1; lid <= max; lid++) {
+			key.setData(listedStringKey(pid, lid));
 			if(db.get(null, key, data, null) == OperationStatus.NOTFOUND)
 				return counts;
-			String k = new String(data.getData(), UTF8);
-			counts.put(k, getCount(db, pid, sid));
-			sid++;
+			String suffix = new String(data.getData(), UTF8);
+			long sid = findSID(db, pid, suffix);
+			counts.put(suffix, getCount(db, pid, sid));
 		}
+		
+		return counts;
 	}
 	
 	private static double dsum(Iterable<Double> i) {
