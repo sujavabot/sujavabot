@@ -51,13 +51,14 @@ public class Learn {
 				if(words.size() == 0)
 					continue;
 				markov.consume(words, 5, false);
-				if((++count & 64) == 0)
+				if((++count & 1024) == 0)
 					db.sync();
 				System.out.println(StringContent.join(words));
 			}
 			buf.close();
 		}
 		
+		db.sync();
 		db.close();
 	}
 }
