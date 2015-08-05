@@ -188,7 +188,7 @@ public class BerkeleyDBMarkov {
 		return database;
 	}
 
-	public void consume(List<String> content, int maxlen) throws DatabaseException {
+	public void consume(List<String> content, int maxlen, boolean sync) throws DatabaseException {
 		if(content.size() == 0)
 			return;
 		content = new ArrayList<>(content);
@@ -210,7 +210,8 @@ public class BerkeleyDBMarkov {
 			}
 		}
 
-		database.sync();
+		if(sync)
+			database.sync();
 	}
 	
 	public String next(List<String> prefixes) throws DatabaseException {
