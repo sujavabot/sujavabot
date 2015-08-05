@@ -2,6 +2,7 @@ package org.sujavabot.plugin.markov;
 
 import java.nio.charset.Charset;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -12,59 +13,146 @@ import com.sleepycat.je.DatabaseEntry;
 import com.sleepycat.je.DatabaseException;
 import com.sleepycat.je.LockMode;
 import com.sleepycat.je.OperationStatus;
+import com.sleepycat.je.Sequence;
+import com.sleepycat.je.SequenceConfig;
+import com.sleepycat.je.StatsConfig;
 
 public class BerkeleyDBMarkov {
-	private static final byte[] PREFIX = new byte[] { 0 };
-	private static final byte[] SUFFIX = new byte[] { 1 };
-	private static final byte[] SUFFIX_COUNT = new byte[] { 2 };
+	private static final byte[] COUNTER = new byte[] { 0 };
+	private static final byte[] STRING = new byte[] { 1 };
+
+	private static final long PREFIX_PID = 0;
+	private static final DatabaseEntry PREFIX_COUNTER = new DatabaseEntry(counterKey(PREFIX_PID, 0));
+	private static final SequenceConfig SEQC = new SequenceConfig();
+	private static final StatsConfig STATC = new StatsConfig();
+	static {
+		SEQC.setAllowCreate(true);
+		SEQC.setInitialValue(0);
+	}
 	
 	private static final Charset UTF8 = Charset.forName("UTF-8");
 	
 	private static final String EOF = "";
 	private static final String SEP = " ";
 	
-	private static byte[] prefixKey(String prefix) {
-		byte[] prefixBytes = prefix.getBytes(UTF8);
-		byte[] key = new byte[PREFIX.length + prefixBytes.length];
-		System.arraycopy(PREFIX, 0, key, 0, PREFIX.length);
-		System.arraycopy(prefixBytes, 0, key, PREFIX.length, prefixBytes.length);
-		return key;
-	}
-	
-	private static byte[] longToBytes(long v) {
-		byte[] b = new byte[8];
+	private static byte[] longToBytes(long v, byte[] b, int off) {
 		for(int i = 0; i < 8; i++) {
-			b[i] = (byte) v;
+			b[off + i] = (byte) v;
 			v = (v >>> 8);
 		}
 		return b;
 	}
 	
-	private static long bytesToLong(byte[] b) {
+	private static long bytesToLong(byte[] b, int off) {
 		long l = 0;
 		for(int i = 0; i < 8; i++)
-			l |= ((b[i] & 0xffl) << (8*i));
+			l |= ((b[off + i] & 0xffl) << (8*i));
 		return l;
 	}
 	
-	private static byte[] suffixKey(String prefix, long id) {
-		byte[] prefixBytes = prefix.getBytes(UTF8);
-		byte[] idBytes = longToBytes(id);
-		byte[] key = new byte[SUFFIX.length + prefixBytes.length + idBytes.length];
-		System.arraycopy(SUFFIX, 0, key, 0, SUFFIX.length);
-		System.arraycopy(prefixBytes, 0, key, SUFFIX.length, prefixBytes.length);
-		System.arraycopy(idBytes, 0, key, SUFFIX.length + prefixBytes.length, idBytes.length);
+	private static byte[] counterKey(long pid, long sid) {
+		byte[] key = new byte[COUNTER.length + 16];
+		System.arraycopy(COUNTER, 0, key, 0, COUNTER.length);
+		longToBytes(pid, key, COUNTER.length);
+		longToBytes(sid, key, COUNTER.length + 8);
 		return key;
 	}
 	
-	private static byte[] suffixCountKey(String prefix, long id) {
-		byte[] prefixBytes = prefix.getBytes(UTF8);
-		byte[] idBytes = longToBytes(id);
-		byte[] key = new byte[SUFFIX_COUNT.length + prefixBytes.length + idBytes.length];
-		System.arraycopy(SUFFIX_COUNT, 0, key, 0, SUFFIX_COUNT.length);
-		System.arraycopy(prefixBytes, 0, key, SUFFIX_COUNT.length, prefixBytes.length);
-		System.arraycopy(idBytes, 0, key, SUFFIX_COUNT.length + prefixBytes.length, idBytes.length);
+	private static byte[] stringKey(long pid, long sid) {
+		byte[] key = new byte[STRING.length + 16];
+		System.arraycopy(STRING, 0, key, 0, STRING.length);
+		longToBytes(pid, key, STRING.length);
+		longToBytes(sid, key, STRING.length + 8);
 		return key;
+	}
+	
+	private static long findPID(Database db, String prefix) throws DatabaseException {
+		Sequence seq = db.openSequence(null, PREFIX_COUNTER, SEQC);
+		long size = seq.getStats(STATC).getCurrent();
+		DatabaseEntry key = new DatabaseEntry();
+		DatabaseEntry data = new DatabaseEntry();
+		for(int id = 1; id <= size; id++) {
+			key.setData(stringKey(PREFIX_PID, id));
+			db.get(null, key, data, null);
+			if(prefix.equals(new String(data.getData(), UTF8)))
+				return id;
+		}
+		return -1;
+	}
+	
+	private static long findSID(Database db, long pid, String suffix) throws DatabaseException {
+		Sequence seq = db.openSequence(null, new DatabaseEntry(counterKey(pid, 0)), SEQC);
+		long size = seq.getStats(STATC).getCurrent();
+		DatabaseEntry key = new DatabaseEntry();
+		DatabaseEntry data = new DatabaseEntry();
+		for(int id = 1; id <= size; id++) {
+			key.setData(stringKey(pid, id));
+			db.get(null, key, data, null);
+			if(suffix.equals(new String(data.getData(), UTF8)))
+				return id;
+		}
+		return -1;
+	}
+	
+	private static long findOrAddPID(Database db, String prefix) throws DatabaseException {
+		long id = findPID(db, prefix);
+		if(id >= 0)
+			return id;
+		Sequence seq = db.openSequence(null, PREFIX_COUNTER, SEQC);
+		id = seq.get(null, 1);
+		DatabaseEntry key = new DatabaseEntry(stringKey(id, 0));
+		DatabaseEntry data = new DatabaseEntry(prefix.getBytes(UTF8));
+		db.put(null, key, data);
+		return id;
+	}
+	
+	private static long findOrAddSID(Database db, long pid, String suffix) throws DatabaseException {
+		long id = findSID(db, pid, suffix);
+		if(id >= 0)
+			return id;
+		Sequence seq = db.openSequence(null, new DatabaseEntry(counterKey(pid, 0)), SEQC);
+		id = seq.get(null, 1);
+		DatabaseEntry key = new DatabaseEntry(stringKey(pid, id));
+		DatabaseEntry data = new DatabaseEntry(suffix.getBytes(UTF8));
+		db.put(null, key, data);
+		return id;
+	}
+	
+	private static long getCount(Database db, long pid, long sid) throws DatabaseException {
+		Sequence seq = db.openSequence(null, new DatabaseEntry(counterKey(pid, sid)), SEQC);
+		return seq.getStats(STATC).getCurrent();
+	}
+	
+	private static long incrementCount(Database db, long pid, long sid) throws DatabaseException {
+		Sequence seq = db.openSequence(null, new DatabaseEntry(counterKey(pid, sid)), SEQC);
+		return seq.get(null, 1);
+	}
+	
+	private static long increment(Database db, String prefix, String suffix) throws DatabaseException {
+		long pid = findOrAddPID(db, prefix);
+		long sid = findOrAddSID(db, pid, suffix);
+		return incrementCount(db, pid, sid);
+	}
+	
+	private static Map<String, Long> counts(Database db, String prefix) throws DatabaseException {
+		long pid = findPID(db, prefix);
+		if(pid < 0)
+			return Collections.emptyMap();
+		
+		Map<String, Long> counts = new HashMap<>();
+		
+		Sequence seq = db.openSequence(null, new DatabaseEntry(counterKey(pid, 0)), SEQC);
+		long size = seq.getStats(STATC).getCurrent();
+		DatabaseEntry key = new DatabaseEntry();
+		DatabaseEntry data = new DatabaseEntry();
+		for(long sid = 1; sid <= size; sid++) {
+			key.setData(stringKey(pid, sid));
+			db.get(null, key, data, null);
+			String k = new String(data.getData(), UTF8);
+			counts.put(k, getCount(db, pid, sid));
+		}
+		
+		return counts;
 	}
 	
 	private static double dsum(Iterable<Double> i) {
@@ -91,78 +179,6 @@ public class BerkeleyDBMarkov {
 		return database;
 	}
 
-	private long getSuffixId(String prefix, String suffix) throws DatabaseException {
-		DatabaseEntry key = new DatabaseEntry(prefixKey(prefix));
-		DatabaseEntry data = new DatabaseEntry();
-		if(database.get(null, key, data, null) == OperationStatus.NOTFOUND) {
-			data.setData(longToBytes(0));
-			database.put(null, key, data);
-		}
-		long max = bytesToLong(data.getData());
-		for(long id = 0; id < max; id++) {
-			key.setData(suffixKey(prefix, id));
-			database.get(null, key, data, null);
-			String s = new String(data.getData(), UTF8);
-			if(s.equals(suffix))
-				return id;
-		}
-		key.setData(suffixKey(prefix, max));
-		data.setData(suffix.getBytes(UTF8));
-		database.put(null, key, data);
-		key.setData(suffixCountKey(prefix, max));
-		data.setData(longToBytes(0));
-		database.put(null, key, data);
-		key.setData(prefixKey(prefix));
-		data.setData(longToBytes(max+1));
-		database.put(null, key, data);
-		return max;
-	}
-	
-	private long getNextSuffixId(String prefix) throws DatabaseException {
-		DatabaseEntry key = new DatabaseEntry(prefixKey(prefix));
-		DatabaseEntry data = new DatabaseEntry();
-		if(database.get(null, key, data, null) == OperationStatus.NOTFOUND)
-			return 0;
-		return bytesToLong(data.getData());
-	}
-	
-	private void addSuffix(String prefix, String suffix) throws DatabaseException {
-		long id = getSuffixId(prefix, suffix);
-		DatabaseEntry key = new DatabaseEntry(suffixCountKey(prefix, id));
-		DatabaseEntry data = new DatabaseEntry();
-		database.get(null, key, data, null);
-		long count = bytesToLong(data.getData());
-		data.setData(longToBytes(count + 1));
-		database.put(null, key, data);
-	}
-	
-	private long getSuffixCount(String prefix, String suffix) throws DatabaseException {
-		long id = getSuffixId(prefix, suffix);
-		DatabaseEntry key = new DatabaseEntry(suffixCountKey(prefix, id));
-		DatabaseEntry data = new DatabaseEntry();
-		database.get(null, key, data, null);
-		return bytesToLong(data.getData());
-	}
-	
-	private String getSuffix(String prefix, long id) throws DatabaseException {
-		DatabaseEntry key = new DatabaseEntry(suffixKey(prefix, id));
-		DatabaseEntry data = new DatabaseEntry();
-		if(database.get(null, key, data, null) == OperationStatus.NOTFOUND)
-			return null;
-		return new String(data.getData(), UTF8);
-	}
-	
-	private Map<String, Long> getSuffixes(String prefix) throws DatabaseException {
-		long maxId = getNextSuffixId(prefix);
-		Map<String, Long> suffixes = new HashMap<>();
-		for(long id = 0; id < maxId; id++) {
-			String suffix = getSuffix(prefix, id);
-			long count = getSuffixCount(prefix, suffix);
-			suffixes.put(suffix, count);
-		}
-		return suffixes;
-	}
-	
 	public void consume(List<String> content, int maxlen) throws DatabaseException {
 		if(content.size() == 0)
 			return;
@@ -177,7 +193,7 @@ public class BerkeleyDBMarkov {
 			prefix = prefix.substring(SEP.length()).toLowerCase();
 			String suffix = content.get(Math.min(content.size() - 1, i + maxlen));
 			for(;;) {
-				addSuffix(prefix, suffix);
+				increment(database, prefix, suffix);
 				int idx = prefix.indexOf(SEP);
 				if(idx < 0)
 					break;
@@ -197,7 +213,7 @@ public class BerkeleyDBMarkov {
 		
 		Map<String, Double> suffixes = new HashMap<>();
 		for(;;) {
-			Map<String, Long> psuffixes = getSuffixes(prefix);
+			Map<String, Long> psuffixes = counts(database, prefix);
 			double smax = dsum(suffixes.values());
 			double pmax = lsum(psuffixes.values());
 			if(smax > 0) {
