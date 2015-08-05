@@ -59,63 +59,63 @@ public class BerkeleyDBMarkov {
 	
 	private static byte[] counterKey(long pid, long sid) {
 		byte[] key = new byte[COUNTER.length + 16];
-		longToBytes(pid, key, 0);
-		longToBytes(sid, key, 8);
+		longToBytes(pid << 8, key, 0);
+		longToBytes(sid << 8, key, 8);
 		System.arraycopy(COUNTER, 0, key, 16, COUNTER.length);
 		return key;
 	}
 	
 	private static byte[] hashedStringKey(long pid, long sid) {
 		byte[] key = new byte[HASHED_STRING.length + 16];
-		longToBytes(pid, key, 0);
-		longToBytes(sid, key, 8);
+		longToBytes(pid << 8, key, 0);
+		longToBytes(sid << 8, key, 8);
 		System.arraycopy(HASHED_STRING, 0, key, 16, HASHED_STRING.length);
 		return key;
 	}
 	
 	private static byte[] listedStringKey(long pid, long lid) {
 		byte[] key = new byte[LISTED_STRING.length + 16];
-		longToBytes(pid, key, 0);
-		longToBytes(lid, key, 8);
+		longToBytes(pid << 8, key, 0);
+		longToBytes(lid << 8, key, 8);
 		System.arraycopy(LISTED_STRING, 0, key, 16, LISTED_STRING.length);
 		return key;
 	}
 	
 	private static long findPID(Database db, String prefix) throws DatabaseException {
-		long pid = Long.reverse(prefix.hashCode()) & -2L;
+		long pid = ((long) prefix.hashCode()) << 24;
 		DatabaseEntry data = new DatabaseEntry();
 		for(;;) {
 			if(pid == PREFIX_PID)
-				pid += 2;
+				pid++;
 			DatabaseEntry key = new DatabaseEntry(hashedStringKey(PREFIX_PID, pid));
 			if(db.get(null, key, data, null) == OperationStatus.NOTFOUND)
-				return pid + 1;
+				return -pid;
 			if(prefix.equals(new String(data.getData(), UTF8)))
 				return pid;
-			pid += 2;
+			pid++;
 		}
 	}
 	
 	private static long findSID(Database db, long pid, String suffix) throws DatabaseException {
-		long sid = Long.reverse(suffix.hashCode()) & -2L;
+		long sid = ((long) suffix.hashCode()) << 24;
 		DatabaseEntry data = new DatabaseEntry();
 		for(;;) {
 			if(sid == COUNT_SID)
-				sid += 2;
+				sid++;
 			DatabaseEntry key = new DatabaseEntry(hashedStringKey(pid, sid));
 			if(db.get(null, key, data, null) == OperationStatus.NOTFOUND)
-				return sid + 1;
+				return -sid;
 			if(suffix.equals(new String(data.getData(), UTF8)))
 				return sid;
-			sid += 2;
+			sid++;
 		}
 	}
 	
 	private static long findOrAddPID(Database db, String prefix) throws DatabaseException {
 		long pid = findPID(db, prefix);
-		if((pid & 1) == 0)
+		if(pid >= 0)
 			return pid;
-		pid = pid - 1;
+		pid = -pid;
 		DatabaseEntry key = new DatabaseEntry(hashedStringKey(PREFIX_PID, pid));
 		DatabaseEntry data = new DatabaseEntry(prefix.getBytes(UTF8));
 		db.put(null, key, data);
@@ -124,9 +124,9 @@ public class BerkeleyDBMarkov {
 	
 	private static long findOrAddSID(Database db, long pid, String suffix) throws DatabaseException {
 		long sid = findSID(db, pid, suffix);
-		if((sid & 1) == 0)
+		if(sid >= 0)
 			return sid;
-		sid = sid - 1;
+		sid = -sid;
 		DatabaseEntry key = new DatabaseEntry(hashedStringKey(pid, sid));
 		DatabaseEntry data = new DatabaseEntry(suffix.getBytes(UTF8));
 		db.put(null, key, data);
