@@ -88,7 +88,7 @@ public class MarkovListener extends ListenerAdapter<PircBotX> {
 		} else if(learn) {
 			m = m.replaceAll("^\\S+:", "");
 			List<String> content = StringContent.parse(m);
-			markov.consume(content, maxlen, true);
+			markov.consume(content, maxlen);
 		}
 	}
 

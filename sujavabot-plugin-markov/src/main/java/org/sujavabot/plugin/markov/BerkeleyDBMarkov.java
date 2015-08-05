@@ -28,7 +28,6 @@ public class BerkeleyDBMarkov {
 		SequenceConfig sc = new SequenceConfig();
 		sc.setAllowCreate(true);
 		sc.setInitialValue(0);
-		sc.setAutoCommitNoSync(true);
 		return sc;
 	}
 	
@@ -197,7 +196,7 @@ public class BerkeleyDBMarkov {
 		return database;
 	}
 
-	public void consume(List<String> content, int maxlen, boolean sync) throws DatabaseException {
+	public void consume(List<String> content, int maxlen) throws DatabaseException {
 		if(content.size() == 0)
 			return;
 		content = new ArrayList<>(content);
@@ -219,8 +218,7 @@ public class BerkeleyDBMarkov {
 			}
 		}
 
-		if(sync)
-			database.sync();
+		database.sync();
 	}
 	
 	public String next(List<String> prefixes) throws DatabaseException {

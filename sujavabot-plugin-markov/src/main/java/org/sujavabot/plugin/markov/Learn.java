@@ -42,7 +42,6 @@ public class Learn {
 				inputs[i] = new FileInputStream(args[i]);
 		}
 		
-		long count = 0;
 		for(InputStream in : inputs) {
 			BufferedReader buf = new BufferedReader(new InputStreamReader(in, "UTF-8"));
 			for(String line = buf.readLine(); line != null; line = buf.readLine()) {
@@ -50,15 +49,12 @@ public class Learn {
 				List<String> words = StringContent.parse(line);
 				if(words.size() == 0)
 					continue;
-				markov.consume(words, 5, false);
-				if((++count & 1024) == 0)
-					db.sync();
+				markov.consume(words, 5);
 				System.out.println(StringContent.join(words));
 			}
 			buf.close();
 		}
 		
-		db.sync();
 		db.close();
 	}
 }
