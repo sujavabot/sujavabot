@@ -58,17 +58,17 @@ public class BerkeleyDBMarkov {
 	
 	private static byte[] counterKey(long pid, long sid) {
 		byte[] key = new byte[COUNTER.length + 16];
-		System.arraycopy(COUNTER, 0, key, 0, COUNTER.length);
-		longToBytes(pid, key, COUNTER.length);
-		longToBytes(sid, key, COUNTER.length + 8);
+		longToBytes(pid, key, 0);
+		longToBytes(sid, key, 8);
+		System.arraycopy(COUNTER, 0, key, 16, COUNTER.length);
 		return key;
 	}
 	
 	private static byte[] stringKey(long pid, long sid) {
 		byte[] key = new byte[STRING.length + 16];
-		System.arraycopy(STRING, 0, key, 0, STRING.length);
-		longToBytes(pid, key, STRING.length);
-		longToBytes(sid, key, STRING.length + 8);
+		longToBytes(pid, key, 0);
+		longToBytes(sid, key, 8);
+		System.arraycopy(STRING, 0, key, 16, STRING.length);
 		return key;
 	}
 	
