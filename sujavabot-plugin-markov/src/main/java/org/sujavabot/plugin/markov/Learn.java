@@ -1,5 +1,7 @@
 package org.sujavabot.plugin.markov;
 
+import java.awt.Graphics;
+import java.awt.GraphicsEnvironment;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
@@ -7,6 +9,9 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.Arrays;
 import java.util.List;
+
+import javax.swing.ProgressMonitorInputStream;
+import javax.swing.SwingUtilities;
 
 import com.sleepycat.je.Database;
 import com.sleepycat.je.DatabaseConfig;
@@ -19,6 +24,9 @@ public class Learn {
 		args = Arrays.copyOfRange(args, 1, args.length);
 		
 		String dbName = args[0];
+		args = Arrays.copyOfRange(args, 1, args.length);
+		
+		int maxlen = Integer.parseInt(args[0]);
 		args = Arrays.copyOfRange(args, 1, args.length);
 		
 		envHome.mkdirs();
@@ -43,13 +51,15 @@ public class Learn {
 		}
 		
 		for(InputStream in : inputs) {
+			if(!GraphicsEnvironment.isHeadless())
+				in = new ProgressMonitorInputStream(null, in, in);
 			BufferedReader buf = new BufferedReader(new InputStreamReader(in, "UTF-8"));
 			for(String line = buf.readLine(); line != null; line = buf.readLine()) {
 				line = line.replaceAll("^\\S+:", "").trim();
 				List<String> words = StringContent.parse(line);
 				if(words.size() == 0)
 					continue;
-				markov.consume(words, 5);
+				markov.consume(words, maxlen);
 				System.out.println(StringContent.join(words));
 			}
 			buf.close();
