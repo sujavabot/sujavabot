@@ -61,7 +61,7 @@ public class MarkovListenerConverter extends AbstractConverter<MarkovListener> {
 			throw new RuntimeException(e);
 		}
 		helper.field("maxlen", Integer.class, () -> current.getMaxlen());
-		helper.field("prefix", String.class, () -> current.getPrefix());
+		helper.field("prefix", String.class, () -> current.getPrefix().pattern());
 		helper.field("learn", Boolean.class, () -> current.isLearn());
 		for(String channel : current.getChannels())
 			helper.field("channel", String.class, () -> channel);
@@ -109,7 +109,7 @@ public class MarkovListenerConverter extends AbstractConverter<MarkovListener> {
 			ml.setLearn((Boolean) m.getOrDefault("learn", true));
 			ml.setMarkov(markov);
 			ml.setMaxlen((Integer) m.getOrDefault("maxlen", 5));
-			ml.setPrefix((String) m.getOrDefault("prefix", "@markov "));
+			ml.setPrefix(Pattern.compile((String) m.getOrDefault("prefix", "@markov ")));
 			
 			return ml;
 		} catch(Exception e) {
