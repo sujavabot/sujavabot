@@ -72,63 +72,53 @@ public class BerkeleyDBMarkov {
 	}
 	
 	private static long findPID(Database db, String prefix) throws DatabaseException {
-		Sequence seq = db.openSequence(null, PREFIX_COUNTER, seqc());
-		long size = seq.getStats(statc()).getCurrent();
-		seq.close();
-		DatabaseEntry key = new DatabaseEntry();
+		long pid = ((long) prefix.hashCode()) << 32;
 		DatabaseEntry data = new DatabaseEntry();
-		for(int id = 1; id <= size; id++) {
-			key.setData(stringKey(PREFIX_PID, id));
-			db.get(null, key, data, null);
+		for(;;) {
+			if(pid == PREFIX_PID)
+				pid++;
+			DatabaseEntry key = new DatabaseEntry(stringKey(PREFIX_PID, pid));
+			if(db.get(null, key, data, null) == OperationStatus.NOTFOUND)
+				return -pid;
 			if(prefix.equals(new String(data.getData(), UTF8)))
-				return id;
+				return pid;
+			pid++;
 		}
-		return -1;
 	}
 	
 	private static long findSID(Database db, long pid, String suffix) throws DatabaseException {
-		Sequence seq = db.openSequence(null, new DatabaseEntry(counterKey(pid, 0)), seqc());
-		long size = seq.getStats(statc()).getCurrent();
-		seq.close();
-		DatabaseEntry key = new DatabaseEntry();
+		long sid = ((long) suffix.hashCode()) << 32;
 		DatabaseEntry data = new DatabaseEntry();
-		for(int id = 1; id <= size; id++) {
-			key.setData(stringKey(pid, id));
-			db.get(null, key, data, null);
+		for(;;) {
+			DatabaseEntry key = new DatabaseEntry(stringKey(pid, sid));
+			if(db.get(null, key, data, null) == OperationStatus.NOTFOUND)
+				return -sid;
 			if(suffix.equals(new String(data.getData(), UTF8)))
-				return id;
+				return sid;
+			sid++;
 		}
-		return -1;
 	}
 	
 	private static long findOrAddPID(Database db, String prefix) throws DatabaseException {
-		long id = findPID(db, prefix);
-		if(id >= 0)
-			return id;
-		Sequence seq = db.openSequence(null, PREFIX_COUNTER, seqc());
-		id = seq.get(null, 1);
-		if(id == 0)
-			id = seq.get(null, 1);
-		seq.close();
-		DatabaseEntry key = new DatabaseEntry(stringKey(PREFIX_PID, id));
+		long pid = findPID(db, prefix);
+		if(pid >= 0)
+			return pid;
+		pid = -pid;
+		DatabaseEntry key = new DatabaseEntry(stringKey(PREFIX_PID, pid));
 		DatabaseEntry data = new DatabaseEntry(prefix.getBytes(UTF8));
 		db.put(null, key, data);
-		return id;
+		return pid;
 	}
 	
 	private static long findOrAddSID(Database db, long pid, String suffix) throws DatabaseException {
-		long id = findSID(db, pid, suffix);
-		if(id >= 0)
-			return id;
-		Sequence seq = db.openSequence(null, new DatabaseEntry(counterKey(pid, 0)), seqc());
-		id = seq.get(null, 1);
-		if(id == 0)
-			id = seq.get(null, 1);
-		seq.close();
-		DatabaseEntry key = new DatabaseEntry(stringKey(pid, id));
+		long sid = findSID(db, pid, suffix);
+		if(sid >= 0)
+			return sid;
+		sid = -sid;
+		DatabaseEntry key = new DatabaseEntry(stringKey(pid, sid));
 		DatabaseEntry data = new DatabaseEntry(suffix.getBytes(UTF8));
 		db.put(null, key, data);
-		return id;
+		return sid;
 	}
 	
 	private static long getCount(Database db, long pid, long sid) throws DatabaseException {
