@@ -16,6 +16,7 @@ import com.sleepycat.je.OperationStatus;
 public class BerkeleyDBMarkov {
 	private static final byte[] PREFIX = new byte[] { 0 };
 	private static final byte[] SUFFIX = new byte[] { 1 };
+	private static final byte[] SUFFIX_COUNT = new byte[] { 2 };
 	
 	private static final Charset UTF8 = Charset.forName("UTF-8");
 	
@@ -56,6 +57,16 @@ public class BerkeleyDBMarkov {
 		return key;
 	}
 	
+	private static byte[] suffixCountKey(String prefix, long id) {
+		byte[] prefixBytes = prefix.getBytes(UTF8);
+		byte[] idBytes = longToBytes(id);
+		byte[] key = new byte[SUFFIX_COUNT.length + prefixBytes.length + idBytes.length];
+		System.arraycopy(SUFFIX_COUNT, 0, key, 0, SUFFIX_COUNT.length);
+		System.arraycopy(prefixBytes, 0, key, SUFFIX_COUNT.length, prefixBytes.length);
+		System.arraycopy(idBytes, 0, key, SUFFIX_COUNT.length + prefixBytes.length, idBytes.length);
+		return key;
+	}
+	
 	private static double dsum(Iterable<Double> i) {
 		double v = 0;
 		for(Double l : i)
@@ -80,6 +91,33 @@ public class BerkeleyDBMarkov {
 		return database;
 	}
 
+	private long getSuffixId(String prefix, String suffix) throws DatabaseException {
+		DatabaseEntry key = new DatabaseEntry(prefixKey(prefix));
+		DatabaseEntry data = new DatabaseEntry();
+		if(database.get(null, key, data, null) == OperationStatus.NOTFOUND) {
+			data.setData(longToBytes(0));
+			database.put(null, key, data);
+		}
+		long max = bytesToLong(data.getData());
+		for(long id = 0; id < max; id++) {
+			key.setData(suffixKey(prefix, id));
+			database.get(null, key, data, null);
+			String s = new String(data.getData(), UTF8);
+			if(s.equals(suffix))
+				return id;
+		}
+		key.setData(suffixKey(prefix, max));
+		data.setData(suffix.getBytes(UTF8));
+		database.put(null, key, data);
+		key.setData(suffixCountKey(prefix, max));
+		data.setData(longToBytes(0));
+		database.put(null, key, data);
+		key.setData(prefixKey(prefix));
+		data.setData(longToBytes(max+1));
+		database.put(null, key, data);
+		return max;
+	}
+	
 	private long getNextSuffixId(String prefix) throws DatabaseException {
 		DatabaseEntry key = new DatabaseEntry(prefixKey(prefix));
 		DatabaseEntry data = new DatabaseEntry();
@@ -88,19 +126,22 @@ public class BerkeleyDBMarkov {
 		return bytesToLong(data.getData());
 	}
 	
-	private void setNextSuffixId(String prefix, long id) throws DatabaseException {
-		DatabaseEntry key = new DatabaseEntry(prefixKey(prefix));
-		DatabaseEntry data = new DatabaseEntry(longToBytes(id));
-		database.delete(null, key);
+	private void addSuffix(String prefix, String suffix) throws DatabaseException {
+		long id = getSuffixId(prefix, suffix);
+		DatabaseEntry key = new DatabaseEntry(suffixCountKey(prefix, id));
+		DatabaseEntry data = new DatabaseEntry();
+		database.get(null, key, data, null);
+		long count = bytesToLong(data.getData());
+		data.setData(longToBytes(count + 1));
 		database.put(null, key, data);
 	}
 	
-	private void addSuffix(String prefix, String suffix) throws DatabaseException {
-		long id = getNextSuffixId(prefix);
-		DatabaseEntry key = new DatabaseEntry(suffixKey(prefix, id));
-		DatabaseEntry data = new DatabaseEntry(suffix.getBytes(UTF8));
-		database.put(null, key, data);
-		setNextSuffixId(prefix, id + 1);
+	private long getSuffixCount(String prefix, String suffix) throws DatabaseException {
+		long id = getSuffixId(prefix, suffix);
+		DatabaseEntry key = new DatabaseEntry(suffixCountKey(prefix, id));
+		DatabaseEntry data = new DatabaseEntry();
+		database.get(null, key, data, null);
+		return bytesToLong(data.getData());
 	}
 	
 	private String getSuffix(String prefix, long id) throws DatabaseException {
@@ -116,11 +157,8 @@ public class BerkeleyDBMarkov {
 		Map<String, Long> suffixes = new HashMap<>();
 		for(long id = 0; id < maxId; id++) {
 			String suffix = getSuffix(prefix, id);
-			Long count = suffixes.get(suffix);
-			if(count == null)
-				suffixes.put(suffix, 1L);
-			else
-				suffixes.put(suffix, 1L + count);
+			long count = getSuffixCount(prefix, suffix);
+			suffixes.put(suffix, count);
 		}
 		return suffixes;
 	}
