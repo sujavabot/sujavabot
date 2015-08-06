@@ -63,6 +63,7 @@ public class MarkovListenerConverter extends AbstractConverter<MarkovListener> {
 		helper.field("maxlen", Integer.class, () -> current.getMaxlen());
 		helper.field("prefix", String.class, () -> current.getPrefix().pattern());
 		helper.field("learn", Boolean.class, () -> current.isLearn());
+		helper.field("thesaurus", Boolean.class, () -> current.getMarkov().isThesaurus());
 		for(String channel : current.getChannels())
 			helper.field("channel", String.class, () -> channel);
 		for(Pattern p : current.getIgnore())
@@ -91,6 +92,7 @@ public class MarkovListenerConverter extends AbstractConverter<MarkovListener> {
 			helper.field("learn", Boolean.class, b -> m.put("learn", b));
 			helper.field("channel", String.class, s -> ch.add(s));
 			helper.field("ignore", String.class, s -> ml.getIgnore().add(Pattern.compile(s)));
+			helper.field("thesaurus", Boolean.class, b -> m.put("thesaurus", b));
 			
 			helper.read(ml);
 
@@ -104,6 +106,7 @@ public class MarkovListenerConverter extends AbstractConverter<MarkovListener> {
 			Database db = e.openDatabase(null, (String) m.get("name"), dbc);
 			
 			BerkeleyDBMarkov markov = new BerkeleyDBMarkov(db);
+			markov.setThesaurus((Boolean) m.getOrDefault("thesaurus", false));
 			
 			ml.setChannels(ch);
 			ml.setLearn((Boolean) m.getOrDefault("learn", true));

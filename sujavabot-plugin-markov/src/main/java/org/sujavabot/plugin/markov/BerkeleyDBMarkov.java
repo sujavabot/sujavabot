@@ -2,12 +2,15 @@ package org.sujavabot.plugin.markov;
 
 import java.nio.charset.Charset;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import com.robinkirkman.thesaurus.Thesaurus;
 import com.sleepycat.je.Database;
 import com.sleepycat.je.DatabaseEntry;
 import com.sleepycat.je.DatabaseException;
@@ -196,7 +199,27 @@ public class BerkeleyDBMarkov {
 		return v;
 	}
 	
+	private static Collection<List<String>> permute(List<String> words) {
+		if(words.size() == 0)
+			return Collections.emptyList();
+		Collection<List<String>> follow = permute(words.subList(1, words.size()));
+		Collection<String> synonyms = Thesaurus.getInstance().get(words.get(0));
+		if(synonyms == null)
+			synonyms = Arrays.asList(words.get(0));
+		Collection<List<String>> ret = new ArrayList<>();
+		for(String s : synonyms) {
+			for(List<String> f : follow) {
+				List<String> p = new ArrayList<>(f);
+				p.add(0, s);
+				ret.add(p);
+			}
+		}
+		return ret;
+	}
+	
 	protected Database database;
+	
+	protected boolean thesaurus;
 	
 	public BerkeleyDBMarkov(Database database) {
 		this.database = database;
@@ -230,13 +253,59 @@ public class BerkeleyDBMarkov {
 	}
 	
 	public String next(List<String> prefixes) throws DatabaseException {
+		if(!thesaurus)
+			return lnext(prefixes);
+		
+		Map<String, Double> suffixes = new HashMap<>();
+		Collection<List<String>> pp = permute(prefixes);
+		for(List<String> p : pp) {
+			String prefix = "";
+			for(String pre : p) {
+				prefix += SEP + pre;
+			}
+			prefix = prefix.substring(SEP.length()).toLowerCase();
+			
+			Map<String, Double> s = suffixes(prefix);
+			for(String key : s.keySet()) {
+				if(suffixes.containsKey(key))
+					suffixes.put(key, suffixes.get(key) + s.get(key));
+				else
+					suffixes.put(key, s.get(key));
+			}
+		}
+
+		double smax = dsum(suffixes.values());
+		double v = smax * Math.random();
+		for(Entry<String, Double> e : suffixes.entrySet()) {
+			if(v < e.getValue())
+				return EOF.equals(e.getKey()) ? null : e.getKey();
+			v -= e.getValue();
+		}
+		return null;
+	}
+	
+	public String lnext(List<String> prefixes) throws DatabaseException {
 		String prefix = "";
 		for(String p : prefixes) {
 			prefix += SEP + p;
 		}
 		prefix = prefix.substring(SEP.length()).toLowerCase();
 		
+		Map<String, Double> suffixes = suffixes(prefix);
+
+		double smax = dsum(suffixes.values());
+		double v = smax * Math.random();
+		for(Entry<String, Double> e : suffixes.entrySet()) {
+			if(v < e.getValue())
+				return EOF.equals(e.getKey()) ? null : e.getKey();
+			v -= e.getValue();
+		}
+		return null;
+	}
+
+	public Map<String, Double> suffixes(String prefix) throws DatabaseException {
 		Map<String, Double> suffixes = new HashMap<>();
+
 		for(;;) {
 			Map<String, Long> psuffixes = counts(database, prefix);
 			double smax = dsum(suffixes.values());
@@ -258,13 +327,14 @@ public class BerkeleyDBMarkov {
 			prefix = prefix.substring(idx + SEP.length());
 		}
 		
-		double smax = dsum(suffixes.values());
-		double v = smax * Math.random();
-		for(Entry<String, Double> e : suffixes.entrySet()) {
-			if(v < e.getValue())
-				return EOF.equals(e.getKey()) ? null : e.getKey();
-			v -= e.getValue();
-		}
-		return null;
+		return suffixes;
+	}
+
+	public boolean isThesaurus() {
+		return thesaurus;
+	}
+
+	public void setThesaurus(boolean thesaurus) {
+		this.thesaurus = thesaurus;
 	}
 }
