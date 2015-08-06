@@ -266,11 +266,15 @@ public class BerkeleyDBMarkov {
 			prefix = prefix.substring(SEP.length()).toLowerCase();
 			
 			Map<String, Double> s = suffixes(prefix);
+			
+			double s1 = dsum(suffixes.values());
+			double s2 = dsum(s.values());
+			
 			for(String key : s.keySet()) {
 				if(suffixes.containsKey(key))
-					suffixes.put(key, suffixes.get(key) + s.get(key));
+					suffixes.put(key, (suffixes.get(key) + s.get(key)) / (s1 + s2));
 				else
-					suffixes.put(key, s.get(key));
+					suffixes.put(key, s.get(key) / (s1 + s2));
 			}
 		}
 
