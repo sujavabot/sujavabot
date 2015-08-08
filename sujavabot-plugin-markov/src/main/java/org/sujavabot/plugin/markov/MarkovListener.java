@@ -12,6 +12,7 @@ import org.pircbotx.PircBotX;
 import org.pircbotx.hooks.ListenerAdapter;
 import org.pircbotx.hooks.events.JoinEvent;
 import org.pircbotx.hooks.events.MessageEvent;
+import org.sujavabot.core.SujavaBot;
 
 
 public class MarkovListener extends ListenerAdapter<PircBotX> {
@@ -50,7 +51,11 @@ public class MarkovListener extends ListenerAdapter<PircBotX> {
 			if(p.matcher(event.getUser().getNick()).matches())
 				return;
 		}
-		String m = event.getUser().getNick() + " is";
+		String m;
+		if(((SujavaBot) event.getBot()).isVerified(event.getUser()))
+			m = event.getUser().getNick() + " is";
+		else
+			m = "fucking unidentified " + event.getUser().getNick() + " is";
 		List<String> prefix = StringContent.parse(m);
 		MarkovIterator mi = new MarkovIterator(markov, maxlen, prefix);
 		List<String> ml = mi.toList();
