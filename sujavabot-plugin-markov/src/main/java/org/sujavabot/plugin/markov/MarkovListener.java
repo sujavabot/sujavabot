@@ -2,6 +2,7 @@ package org.sujavabot.plugin.markov;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
@@ -129,6 +130,11 @@ public class MarkovListener extends ListenerAdapter<PircBotX> {
 		} else if(learn) {
 			m = m.replaceAll("^\\S+:", "");
 			List<String> content = StringContent.parse(m);
+			Iterator<String> ci = content.iterator();
+			while(ci.hasNext()) {
+				if(StringContent.LINK.matcher(ci.next()).matches())
+					ci.remove();
+			}
 			markov.consume(content, maxlen);
 			markov.getDatabase().sync();
 		}
