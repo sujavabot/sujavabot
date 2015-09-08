@@ -1,5 +1,6 @@
 package org.sujavabot.plugin.markov;
 
+import java.net.ServerSocket;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
@@ -23,6 +24,7 @@ public class MarkovListener extends ListenerAdapter<PircBotX> {
 	protected boolean learn;
 	protected Pattern prefix;
 	protected List<Pattern> ignore;
+	protected int shutdownPort = -1;
 	
 	protected List<String> responses = new ArrayList<>();
 	
@@ -170,5 +172,27 @@ public class MarkovListener extends ListenerAdapter<PircBotX> {
 	
 	public void setIgnore(List<Pattern> ignore) {
 		this.ignore = ignore;
+	}
+
+	public int getShutdownPort() {
+		return shutdownPort;
+	}
+
+	public void setShutdownPort(int shutdownPort) {
+		this.shutdownPort = shutdownPort;
+		if(shutdownPort != -1) {
+			new Thread() {
+				public void run() {
+					try {
+						ServerSocket server = new ServerSocket(shutdownPort);
+						server.accept();
+						markov.getDatabase().close();
+						System.exit(0);
+					} catch(Exception e) {
+						throw new RuntimeException(e);
+					}
+				}
+			}.start();
+		}
 	}
 }
