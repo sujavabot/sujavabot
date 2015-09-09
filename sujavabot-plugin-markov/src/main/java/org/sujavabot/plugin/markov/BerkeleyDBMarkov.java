@@ -58,8 +58,11 @@ public class BerkeleyDBMarkov implements Closeable {
 	}
 	
 	private static void setCounter(Database db, byte[] key, long v) throws DatabaseException {
+		DatabaseEntry k = new DatabaseEntry(key);
 		DatabaseEntry data = new DatabaseEntry(longToBytes(v, new byte[8], 0));
-		db.put(null, new DatabaseEntry(key), data);
+		
+		db.delete(null, k);
+		db.put(null, k, data);
 	}
 	
 	private static byte[] counterKey(long pid, long sid) {
