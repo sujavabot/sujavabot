@@ -41,7 +41,7 @@ public class Learn {
 		dbc.setDeferredWrite(true);
 		Database db = e.openDatabase(null, dbName, dbc);
 		
-		BerkeleyDBMarkov markov = new BerkeleyDBMarkov(db);
+		BerkeleyDBMarkov markov = new BerkeleyDBMarkov(e, db);
 		
 		InputStream[] inputs = new InputStream[] { System.in };
 		if(args.length > 0) {

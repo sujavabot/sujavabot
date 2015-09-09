@@ -186,7 +186,7 @@ public class MarkovListener extends ListenerAdapter<PircBotX> {
 					try {
 						ServerSocket server = new ServerSocket(shutdownPort);
 						server.accept();
-						markov.getDatabase().close();
+						markov.close();
 						System.exit(0);
 					} catch(Exception e) {
 						throw new RuntimeException(e);

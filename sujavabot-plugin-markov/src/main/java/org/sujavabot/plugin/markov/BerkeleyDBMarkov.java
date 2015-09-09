@@ -1,5 +1,7 @@
 package org.sujavabot.plugin.markov;
 
+import java.io.Closeable;
+import java.io.IOException;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -13,13 +15,14 @@ import java.util.Map.Entry;
 import com.sleepycat.je.Database;
 import com.sleepycat.je.DatabaseEntry;
 import com.sleepycat.je.DatabaseException;
+import com.sleepycat.je.Environment;
 import com.sleepycat.je.LockMode;
 import com.sleepycat.je.OperationStatus;
 import com.sleepycat.je.Sequence;
 import com.sleepycat.je.SequenceConfig;
 import com.sleepycat.je.StatsConfig;
 
-public class BerkeleyDBMarkov {
+public class BerkeleyDBMarkov implements Closeable {
 	private static final byte[] COUNTER = new byte[] { 0 };
 	private static final byte[] HASHED_STRING = new byte[] { 1 };
 	private static final byte[] LISTED_STRING = new byte[] { 2 };
@@ -56,7 +59,6 @@ public class BerkeleyDBMarkov {
 	
 	private static void setCounter(Database db, byte[] key, long v) throws DatabaseException {
 		DatabaseEntry data = new DatabaseEntry(longToBytes(v, new byte[8], 0));
-		db.delete(null, new DatabaseEntry(key));
 		db.put(null, new DatabaseEntry(key), data);
 	}
 	
@@ -198,10 +200,16 @@ public class BerkeleyDBMarkov {
 		return v;
 	}
 	
+	protected Environment environment;
 	protected Database database;
 	
-	public BerkeleyDBMarkov(Database database) {
+	public BerkeleyDBMarkov(Environment environment, Database database) {
+		this.environment = environment;
 		this.database = database;
+	}
+	
+	public Environment getEnvironment() {
+		return environment;
 	}
 	
 	public Database getDatabase() {
@@ -275,5 +283,11 @@ public class BerkeleyDBMarkov {
 		}
 		
 		return suffixes;
+	}
+
+	@Override
+	public void close() throws IOException {
+		database.close();
+		environment.close();
 	}
 }
