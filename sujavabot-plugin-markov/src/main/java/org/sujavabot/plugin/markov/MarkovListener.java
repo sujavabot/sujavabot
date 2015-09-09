@@ -28,6 +28,8 @@ public class MarkovListener extends ListenerAdapter<PircBotX> {
 	
 	protected List<String> responses = new ArrayList<>();
 	
+	protected Set<String> firstJoined = new TreeSet<>();
+	
 	public MarkovListener() {}
 	
 	public BerkeleyDBMarkov getMarkov() {
@@ -50,6 +52,10 @@ public class MarkovListener extends ListenerAdapter<PircBotX> {
 	public void onJoin(JoinEvent<PircBotX> event) throws Exception {
 		if(!channels.contains(event.getChannel().getName()))
 			return;
+		if(event.getUser().getNick().equals(event.getBot().getNick())) {
+			if(firstJoined.add(event.getChannel().getName()))
+				return;
+		}
 		for(Pattern p : ignore) {
 			if(p.matcher(event.getUser().getNick()).matches())
 				return;
