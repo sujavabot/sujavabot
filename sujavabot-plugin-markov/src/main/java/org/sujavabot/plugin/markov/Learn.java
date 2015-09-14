@@ -1,7 +1,5 @@
 package org.sujavabot.plugin.markov;
 
-import java.awt.Graphics;
-import java.awt.GraphicsEnvironment;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
@@ -9,9 +7,6 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.Arrays;
 import java.util.List;
-
-import javax.swing.ProgressMonitorInputStream;
-import javax.swing.SwingUtilities;
 
 import com.sleepycat.je.Database;
 import com.sleepycat.je.DatabaseConfig;
@@ -73,7 +68,6 @@ public class Learn {
 			buf.close();
 		}
 		
-		db.sync();
-		db.close();
+		markov.close();
 	}
 }

@@ -4,8 +4,6 @@ import java.io.Closeable;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -16,11 +14,7 @@ import com.sleepycat.je.Database;
 import com.sleepycat.je.DatabaseEntry;
 import com.sleepycat.je.DatabaseException;
 import com.sleepycat.je.Environment;
-import com.sleepycat.je.LockMode;
 import com.sleepycat.je.OperationStatus;
-import com.sleepycat.je.Sequence;
-import com.sleepycat.je.SequenceConfig;
-import com.sleepycat.je.StatsConfig;
 
 public class BerkeleyDBMarkov implements Closeable {
 	private static final byte[] COUNTER = new byte[] { 0 };

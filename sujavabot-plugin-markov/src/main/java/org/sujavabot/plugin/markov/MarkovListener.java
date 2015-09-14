@@ -5,13 +5,11 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
-import java.util.TreeSet;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.pircbotx.PircBotX;
 import org.pircbotx.hooks.ListenerAdapter;
-import org.pircbotx.hooks.events.JoinEvent;
 import org.pircbotx.hooks.events.MessageEvent;
 
 
@@ -139,6 +137,7 @@ public class MarkovListener extends ListenerAdapter<PircBotX> {
 					try {
 						ServerSocket server = new ServerSocket(shutdownPort);
 						server.accept();
+						server.close();
 						markov.close();
 						System.exit(0);
 					} catch(Exception e) {
