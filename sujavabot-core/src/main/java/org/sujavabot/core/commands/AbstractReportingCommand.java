@@ -44,6 +44,10 @@ public abstract class AbstractReportingCommand implements Command {
 	}
 	
 	@Override
+	public void init(SujavaBot bot) {
+	}
+	
+	@Override
 	public void report(SujavaBot bot, Event<?> cause, String result) {
 		if(result.isEmpty())
 			return;

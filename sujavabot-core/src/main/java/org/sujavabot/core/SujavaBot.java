@@ -245,6 +245,15 @@ public class SujavaBot extends PircBotX {
 				pi.remove();
 			}
 		}
+
+		// initialize all the commands
+		Set<Command> commands = new HashSet<>();
+		for(AuthorizedGroup group : authorizedGroups)
+			commands.addAll(group.getAllCommands().values());
+		for(AuthorizedUser user : authorizedUsers)
+			commands.addAll(user.getAllCommands().values());
+		for(Command c : commands)
+			c.init(this);
 	}
 	
 	public static class UnverifyListener extends ListenerAdapter<PircBotX> {
