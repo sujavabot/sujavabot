@@ -139,6 +139,8 @@ public class MarkovListener extends ListenerAdapter<PircBotX> {
 					responses.remove(0);
 				if(Collections.frequency(responses, r) < 3)
 					event.getChannel().send().message(event.getUser().getNick() + ": " + r);
+			} else {
+				event.getChannel().send().message(event.getUser().getNick() + ": i have nothing to say to that");
 			}
 		} else if(learn) {
 			m = m.replaceAll("^\\S+:", "");
