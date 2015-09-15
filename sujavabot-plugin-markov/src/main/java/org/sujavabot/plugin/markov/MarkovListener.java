@@ -112,20 +112,12 @@ public class MarkovListener extends ListenerAdapter<PircBotX> {
 			m = m.substring(pm.end()).trim();
 			m = m.replaceAll("\\?+$", "");
 			List<String> prefix = StringContent.parse(m);
-			if(prefix.size() == 0)
-				return;
 			MarkovIterator mi = new MarkovIterator(markov, maxlen, prefix);
 			List<String> ml = mi.toList();
-			if(ml.get(ml.size()-1).isEmpty())
-				ml.remove(ml.size()-1);
 			ml.subList(0, prefix.size()).clear();
 			for(int i = 0; i < 10 && ml.size() == 0; i++) {
 				ml = new MarkovIterator(markov, maxlen, prefix).toList();
 				ml.subList(0, prefix.size()).clear();
-				if(ml.size() > 0 && ml.get(ml.size()-1).isEmpty())
-					ml.remove(ml.size()-1);
-				if(ml.size() == 0)
-					ml = prefix;
 			}
 			if(ml.size() == 0)
 				ml = Arrays.asList("i have nothing to say to that");
@@ -142,8 +134,6 @@ public class MarkovListener extends ListenerAdapter<PircBotX> {
 					ml.subList(i, j-3).clear();
 				}
 			}
-			while(ml.size() > 0 && !ml.get(0).matches(".*\\w.*"))
-				ml.remove(0);
 			String r = StringContent.join(ml);
 			event.getChannel().send().message(event.getUser().getNick() + ": " + r);
 		} else if(learn) {
