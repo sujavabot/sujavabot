@@ -124,7 +124,11 @@ public class MarkovListener extends ListenerAdapter<PircBotX> {
 				ml.subList(0, prefix.size()).clear();
 				if(ml.get(ml.size()-1).isEmpty())
 					ml.remove(ml.size()-1);
+				if(ml.size() == 0)
+					ml = prefix;
 			}
+			if(ml.size() == 0)
+				ml = Arrays.asList("i have nothing to say to that");
 			for(int i = ml.size() - 3; i >= 0; i--) {
 				int j = i+3;
 				List<String> sub = ml.subList(i, j);
