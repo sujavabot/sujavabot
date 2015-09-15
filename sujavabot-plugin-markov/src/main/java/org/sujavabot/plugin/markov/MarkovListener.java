@@ -132,16 +132,8 @@ public class MarkovListener extends ListenerAdapter<PircBotX> {
 			}
 			while(ml.size() > 0 && !ml.get(0).matches(".*\\w.*"))
 				ml.remove(0);
-			if(ml.size() > 0) {
-				String r = StringContent.join(ml);
-				responses.add(r);
-				while(responses.size() > 3)	
-					responses.remove(0);
-				if(Collections.frequency(responses, r) < 3)
-					event.getChannel().send().message(event.getUser().getNick() + ": " + r);
-			} else {
-				event.getChannel().send().message(event.getUser().getNick() + ": i have nothing to say to that");
-			}
+			String r = StringContent.join(ml);
+			event.getChannel().send().message(event.getUser().getNick() + ": " + r);
 		} else if(learn) {
 			m = m.replaceAll("^\\S+:", "");
 			List<String> content = StringContent.parse(m);
