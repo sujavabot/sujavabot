@@ -122,7 +122,7 @@ public class MarkovListener extends ListenerAdapter<PircBotX> {
 			for(int i = 0; i < 10 && ml.size() == prefix.size(); i++) {
 				ml = new MarkovIterator(markov, maxlen, prefix).toList();
 				ml.subList(0, prefix.size()).clear();
-				if(ml.get(ml.size()-1).isEmpty())
+				if(ml.size() > 0 && ml.get(ml.size()-1).isEmpty())
 					ml.remove(ml.size()-1);
 				if(ml.size() == 0)
 					ml = prefix;
