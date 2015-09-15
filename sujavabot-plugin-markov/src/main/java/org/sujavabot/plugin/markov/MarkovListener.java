@@ -69,8 +69,12 @@ public class MarkovListener extends ListenerAdapter<PircBotX> {
 		List<String> prefix = StringContent.parse(m);
 		MarkovIterator mi = new MarkovIterator(markov, maxlen, prefix);
 		List<String> ml = mi.toList();
+		if(ml.get(ml.size()-1).isEmpty())
+			ml.remove(ml.size()-1);
 		while(ml.size() == prefix.size()) {
 			ml = new MarkovIterator(markov, maxlen, prefix).toList();
+			if(ml.get(ml.size()-1).isEmpty())
+				ml.remove(ml.size()-1);
 		}
 		for(int i = ml.size() - 3; i >= 0; i--) {
 			int j = i+3;
