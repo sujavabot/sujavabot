@@ -71,7 +71,7 @@ public class MarkovListener extends ListenerAdapter<PircBotX> {
 		List<String> ml = mi.toList();
 		if(ml.get(ml.size()-1).isEmpty())
 			ml.remove(ml.size()-1);
-		while(ml.size() == prefix.size()) {
+		for(int i = 0; i < 10 && ml.size() == prefix.size(); i++) {
 			ml = new MarkovIterator(markov, maxlen, prefix).toList();
 			if(ml.get(ml.size()-1).isEmpty())
 				ml.remove(ml.size()-1);
@@ -118,7 +118,7 @@ public class MarkovListener extends ListenerAdapter<PircBotX> {
 			List<String> ml = mi.toList();
 			if(ml.get(ml.size()-1).isEmpty())
 				ml.remove(ml.size()-1);
-			while(ml.size() == prefix.size()) {
+			for(int i = 0; i < 10 && ml.size() == prefix.size(); i++) {
 				ml = new MarkovIterator(markov, maxlen, prefix).toList();
 				if(ml.get(ml.size()-1).isEmpty())
 					ml.remove(ml.size()-1);
