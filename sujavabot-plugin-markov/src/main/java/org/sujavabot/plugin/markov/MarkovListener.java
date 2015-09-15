@@ -2,6 +2,7 @@ package org.sujavabot.plugin.markov;
 
 import java.net.ServerSocket;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
@@ -64,7 +65,10 @@ public class MarkovListener extends ListenerAdapter<PircBotX> {
 			for(int i = 0; i < 10 && ml.size() == prefix.size(); i++) {
 				ml = new MarkovIterator(markov, maxlen, prefix).toList();
 			}
-			ml.subList(0, prefix.size()).clear();
+			if(ml.size() > prefix.size())
+				ml.subList(0, prefix.size()).clear();
+			else
+				ml = Arrays.asList("i have nothing to say to that");
 			for(int i = ml.size() - 3; i >= 0; i--) {
 				int j = i+3;
 				List<String> sub = ml.subList(i, j);
