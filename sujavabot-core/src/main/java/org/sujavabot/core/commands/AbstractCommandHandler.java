@@ -86,7 +86,8 @@ public abstract class AbstractCommandHandler implements CommandHandler {
 		}
 		Command reporter = get(cause, args[0]);
 		String result = reporter.invoke(bot, cause, Arrays.asList(args));
-		reporter.report(bot, cause, result);
+		if(result != null)
+			reporter.report(bot, cause, result);
 	}
 	
 	public String invoke(Event<?> cause, Object[] cmd) {
