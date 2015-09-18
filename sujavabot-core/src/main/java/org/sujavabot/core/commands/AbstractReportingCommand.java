@@ -49,7 +49,7 @@ public abstract class AbstractReportingCommand implements Command {
 	
 	@Override
 	public void report(SujavaBot bot, Event<?> cause, String result) {
-		if(result.isEmpty())
+		if(result == null)
 			return;
 		if(cause instanceof MessageEvent<?>) {
 			MessageEvent<?> m = (MessageEvent<?>) cause;
