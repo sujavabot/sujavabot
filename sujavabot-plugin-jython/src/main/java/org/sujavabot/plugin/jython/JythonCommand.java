@@ -1,47 +1,52 @@
-package org.sujavabot.plugin.jruby;
+package org.sujavabot.plugin.jython;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileReader;
+import java.io.InputStream;
 import java.io.OutputStreamWriter;
 import java.io.Reader;
 import java.io.Writer;
 import java.nio.charset.Charset;
 import java.util.List;
 
-import org.jruby.embed.LocalContextScope;
-import org.jruby.embed.ScriptingContainer;
 import org.pircbotx.hooks.Event;
+import org.python.core.PyList;
+import org.python.core.PySystemState;
+import org.python.util.PythonInterpreter;
 import org.sujavabot.core.SujavaBot;
 import org.sujavabot.core.commands.AbstractReportingCommand;
 import org.sujavabot.core.xml.ConverterHelpers.MarshalHelper;
 import org.sujavabot.core.xml.ConverterHelpers.UnmarshalHelper;
 import org.sujavabot.core.xml.HelperConvertable;
 
-public class JRubyCommand extends AbstractReportingCommand implements HelperConvertable<JRubyCommand> {
+public class JythonCommand extends AbstractReportingCommand implements HelperConvertable<JythonCommand> {
 	protected String source;
 	protected File file;
 
 	@Override
 	public String invoke(SujavaBot bot, Event<?> cause, List<String> args) {
 		try {
-			ScriptingContainer container = new ScriptingContainer(LocalContextScope.THREADSAFE);
-			container.setArgv(args.toArray(new String[args.size()]));
-
+			PySystemState state = new PySystemState();
+			state.argv = new PyList(args);
+			PythonInterpreter interp = new PythonInterpreter(null, state);
+			
 			ByteArrayOutputStream bytes = new ByteArrayOutputStream();
 			Writer out = new OutputStreamWriter(bytes, Charset.forName("UTF-8"));
-			container.setOutput(out);
+			interp.setOut(out);
 			
 			if(source != null)
-				container.runScriptlet(source);
+				interp.exec(source);
 			else {
-				Reader in = new FileReader(file);
+				InputStream in = new FileInputStream(file);
 				try {
-					container.runScriptlet(in, file.getPath());
+					interp.execfile(in);
 				} finally {
 					in.close();
 				}
 			}
+			
 			return new String(bytes.toByteArray(), Charset.forName("UTF-8"));
 		} catch(Exception e) {
 			throw new RuntimeException(e);
@@ -49,7 +54,7 @@ public class JRubyCommand extends AbstractReportingCommand implements HelperConv
 	}
 
 	@Override
-	public void configure(MarshalHelper helper, JRubyCommand defaults) {
+	public void configure(MarshalHelper helper, JythonCommand defaults) {
 		if(source != null)
 			helper.field("source", String.class, () -> source);
 		if(file != null)
