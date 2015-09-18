@@ -12,7 +12,7 @@ public class JRubyPluginConverterTest {
 		Plugin plugin = (Plugin) XStreams.configure(new XStream()).fromXML(JRubyPluginConverterTest.class.getResource("jruby-plugin-inline.xml"));
 		System.out.println(plugin);
 		System.out.println(plugin.getName());
-		plugin.initializePlugin();
+		plugin.load(null);
 		System.out.println(plugin.getName());
 	}
 
@@ -21,7 +21,7 @@ public class JRubyPluginConverterTest {
 		Plugin plugin = (Plugin) XStreams.configure(new XStream()).fromXML(JRubyPluginConverterTest.class.getResource("jruby-plugin-file.xml"));
 		System.out.println(plugin);
 		System.out.println(plugin.getName());
-		plugin.initializePlugin();
+		plugin.load(null);
 		System.out.println(plugin.getName());
 	}
 }

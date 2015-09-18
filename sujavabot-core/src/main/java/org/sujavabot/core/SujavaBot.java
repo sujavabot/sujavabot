@@ -218,7 +218,7 @@ public class SujavaBot extends PircBotX {
 		return configFile;
 	}
 
-	public void initializePlugins() {
+	public void configurePlugins() {
 		Iterator<Entry<File, Plugin>> pi = plugins.entrySet().iterator();
 
 		while(pi.hasNext()) {
@@ -227,9 +227,8 @@ public class SujavaBot extends PircBotX {
 			try {
 				plugin = (Plugin) XStreams.configure(new XStream()).fromXML(e.getKey());
 				e.setValue(plugin);
-				plugin.initializePlugin();
 			} catch(Exception ex) {
-				LOG.error("Unable to initialize plugin {} ({}), removing from plugins list. {}", e.getKey(), plugin, ex);
+				LOG.error("Unable to configure plugin {} ({}), removing from plugins list. {}", e.getKey(), plugin, ex);
 				pi.remove();
 			}
 		}
@@ -241,9 +240,9 @@ public class SujavaBot extends PircBotX {
 		while(pi.hasNext()) {
 			Plugin p = pi.next();
 			try {
-				p.initializeBot(this);
+				p.load(this);
 			} catch(Exception e) {
-				LOG.error("Unable to initialize plugin {} ({}), removing from plugins list. {}", p.getName(), p, e);
+				LOG.error("Unable to load plugin {} ({}), removing from plugins list. {}", p.getName(), p, e);
 				pi.remove();
 			}
 		}
