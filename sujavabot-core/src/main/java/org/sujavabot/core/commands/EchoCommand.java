@@ -2,7 +2,6 @@ package org.sujavabot.core.commands;
 
 import java.util.List;
 
-import org.pircbotx.User;
 import org.pircbotx.hooks.Event;
 import org.sujavabot.core.SujavaBot;
 
