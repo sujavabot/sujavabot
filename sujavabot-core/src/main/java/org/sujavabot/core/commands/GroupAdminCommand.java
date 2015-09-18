@@ -24,7 +24,7 @@ public class GroupAdminCommand extends AbstractReportingCommand {
 			if(help || args.size() != 2)
 				return "group list: list the group names";
 			StringBuilder sb = new StringBuilder();
-			for(AuthorizedGroup group : bot.getAuthorizedGroups()) {
+			for(AuthorizedGroup group : bot.getAuthorizedGroups().values()) {
 				if(sb.length() > 0)
 					sb.append(" ");
 				sb.append(group.getName());
@@ -35,7 +35,7 @@ public class GroupAdminCommand extends AbstractReportingCommand {
 			if(help || args.size() != 3)
 				return "group info <name>: show group info";
 			String name = args.get(2);
-			AuthorizedGroup group = bot.getAuthorizedGroup(name);
+			AuthorizedGroup group = bot.getAuthorizedGroups().get(name);
 			if(group == null)
 				return "group " + name + " does not exist";
 			List<String> commands = new ArrayList<>();
@@ -59,16 +59,16 @@ public class GroupAdminCommand extends AbstractReportingCommand {
 			if(help || args.size() != 3)
 				return "group create <name>: create a group";
 			String name = args.get(2);
-			if(bot.getAuthorizedGroup(name) != null)
+			if(bot.getAuthorizedGroups().get(name) != null)
 				return "group " + name + " already exists";
 			AuthorizedGroup group = new AuthorizedGroup(name);
-			AuthorizedGroup root = bot.getAuthorizedGroup("root");
+			AuthorizedGroup root = bot.getAuthorizedGroups().get("root");
 			if(root != null) {
 				if(caller == null || !caller.isOwnerOf(root))
 					return "permission denied";
 				group.getParents().add(root);
 			}
-			bot.getAuthorizedGroups().add(group);
+			bot.getAuthorizedGroups().put(group.getName(), group);
 			return "group created";
 		}
 		if("delete".equals(args.get(1))) {
@@ -77,9 +77,9 @@ public class GroupAdminCommand extends AbstractReportingCommand {
 			String name = args.get(2);
 			if("root".equals(name))
 				return "cannot delete root group";
-			if(bot.getAuthorizedGroup(name) == null)
+			if(bot.getAuthorizedGroups().get(name) == null)
 				return "group " + name + " does not exist";
-			AuthorizedGroup group = bot.getAuthorizedGroup(name);
+			AuthorizedGroup group = bot.getAuthorizedGroups().get(name);
 			if(caller == null || !caller.isOwnerOf(group))
 				return "permission denied";
 			bot.getAuthorizedGroups().remove(group);
@@ -89,13 +89,13 @@ public class GroupAdminCommand extends AbstractReportingCommand {
 			if(help || args.size() != 4)
 				return "group set_name <old_name> <new_name>";
 			String oldName = args.get(2);
-			AuthorizedGroup group = bot.getAuthorizedGroup(oldName);
+			AuthorizedGroup group = bot.getAuthorizedGroups().get(oldName);
 			if(group == null)
 				return "group with old name " + oldName + " does not exist";
 			if(caller == null || !caller.isOwnerOf(group))
 				return "permission denied";
 			String newName = args.get(3);
-			if(bot.getAuthorizedGroup(newName) != null)
+			if(bot.getAuthorizedGroups().get(newName) != null)
 				return "group with new name " + newName + " already exists";
 			group.setName(newName);
 			return "group updated";
@@ -103,12 +103,12 @@ public class GroupAdminCommand extends AbstractReportingCommand {
 		if("add_user".equals(args.get(1))) {
 			if(help || args.size() != 4)
 				return "group add_user <group> <user>";
-			AuthorizedGroup group = bot.getAuthorizedGroup(args.get(2));
+			AuthorizedGroup group = bot.getAuthorizedGroups().get(args.get(2));
 			if(group == null)
 				return "group does not exist";
 			if(caller == null || !caller.isOwnerOf(group))
 				return "permission denied";
-			AuthorizedUser user = bot.getAuthorizedUser(args.get(3));
+			AuthorizedUser user = bot.getAuthorizedUsers().get(args.get(3));
 			if(user == null)
 				return "user does not exist";
 			if(user.getGroups().contains(group))
@@ -119,12 +119,12 @@ public class GroupAdminCommand extends AbstractReportingCommand {
 		if("remove_user".equals(args.get(1))) {
 			if(help || args.size() != 4)
 				return "group remove_user <group> <user>";
-			AuthorizedGroup group = bot.getAuthorizedGroup(args.get(2));
+			AuthorizedGroup group = bot.getAuthorizedGroups().get(args.get(2));
 			if(group == null)
 				return "group does not exist";
 			if(caller == null || !caller.isOwnerOf(group))
 				return "permission denied";
-			AuthorizedUser user = bot.getAuthorizedUser(args.get(3));
+			AuthorizedUser user = bot.getAuthorizedUsers().get(args.get(3));
 			if(user == null)
 				return "user does not exist";
 			if(!user.getGroups().contains(group))
@@ -135,12 +135,12 @@ public class GroupAdminCommand extends AbstractReportingCommand {
 		if("add_parent".equals(args.get(1))) {
 			if(help || args.size() != 4)
 				return "group add_parent <child> <parent>";
-			AuthorizedGroup child = bot.getAuthorizedGroup(args.get(2));
+			AuthorizedGroup child = bot.getAuthorizedGroups().get(args.get(2));
 			if(child == null)
 				return "child does not exist";
 			if(caller == null || !caller.isOwnerOf(child))
 				return "permission denied";
-			AuthorizedGroup parent = bot.getAuthorizedGroup(args.get(3));
+			AuthorizedGroup parent = bot.getAuthorizedGroups().get(args.get(3));
 			if(parent == null)
 				return "parent does not exist";
 			if(child.getParents().contains(parent))
@@ -151,12 +151,12 @@ public class GroupAdminCommand extends AbstractReportingCommand {
 		if("remove_parent".equals(args.get(1))) {
 			if(help || args.size() != 4)
 				return "group remove_parent <child> <parent>";
-			AuthorizedGroup child = bot.getAuthorizedGroup(args.get(2));
+			AuthorizedGroup child = bot.getAuthorizedGroups().get(args.get(2));
 			if(child == null)
 				return "child does not exist";
 			if(caller == null || !caller.isOwnerOf(child))
 				return "permission denied";
-			AuthorizedGroup parent = bot.getAuthorizedGroup(args.get(3));
+			AuthorizedGroup parent = bot.getAuthorizedGroups().get(args.get(3));
 			if(parent == null)
 				return "parent does not exist";
 			if(!child.getParents().contains(parent))
@@ -167,7 +167,7 @@ public class GroupAdminCommand extends AbstractReportingCommand {
 		if("add_alias".equals(args.get(1))) {
 			if(help || args.size() != 5)
 				return "group add_alias <group> <name> <command>";
-			AuthorizedGroup group = bot.getAuthorizedGroup(args.get(2));
+			AuthorizedGroup group = bot.getAuthorizedGroups().get(args.get(2));
 			if(group == null)
 				return "group does not exist";
 			if(caller == null || !caller.isOwnerOf(group))
@@ -180,7 +180,7 @@ public class GroupAdminCommand extends AbstractReportingCommand {
 		if("remove_alias".equals(args.get(1))) {
 			if(help || args.size() != 4)
 				return "group remove_alias <group> <name>";
-			AuthorizedGroup group = bot.getAuthorizedGroup(args.get(2));
+			AuthorizedGroup group = bot.getAuthorizedGroups().get(args.get(2));
 			if(group == null)
 				return "group does not exist";
 			if(caller == null || !caller.isOwnerOf(group))

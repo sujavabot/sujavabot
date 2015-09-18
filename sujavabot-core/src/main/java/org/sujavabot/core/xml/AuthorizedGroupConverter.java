@@ -31,9 +31,8 @@ public class AuthorizedGroupConverter extends AbstractConverter<AuthorizedGroup>
 		helper.field("name", String.class, s -> current.setName(s));
 		helper.field("parent", String.class, s -> {
 			ConfigurationBuilder builder = (ConfigurationBuilder) helper.getContext().get(ConfigurationBuilder.class);
-			for(AuthorizedGroup g : builder.getGroups())
-				if(s.equals(g.getName()))
-					current.getParents().add(g);
+			if(builder.getGroups().containsKey(s))
+				current.getParents().add(builder.getGroups().get(s));
 		});
 		helper.field("commands", CommandsMap.class, m -> current.getCommands().getCommands().putAll(m));
 	}

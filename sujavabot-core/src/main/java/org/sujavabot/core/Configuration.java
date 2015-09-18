@@ -2,23 +2,24 @@ package org.sujavabot.core;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
-
+import java.util.Map;
 import org.pircbotx.PircBotX;
 
 public class Configuration extends org.pircbotx.Configuration<PircBotX> {
 	
 	protected File configFile;
 	protected List<File> pluginConfigs = new ArrayList<>();
-	protected List<AuthorizedGroup> groups = new ArrayList<>();
-	protected List<AuthorizedUser> users = new ArrayList<>();
+	protected Map<String, AuthorizedGroup> groups = new LinkedHashMap<>();
+	protected Map<String, AuthorizedUser> users = new LinkedHashMap<>();
 
 	public Configuration(File configFile, ConfigurationBuilder builder) {
 		super(builder);
 		this.configFile = configFile;
 		pluginConfigs.addAll(builder.getPluginConfigs());
-		groups.addAll(builder.getGroups());
-		users.addAll(builder.getUsers());
+		groups.putAll(builder.getGroups());
+		users.putAll(builder.getUsers());
 	}
 
 	public List<File> getPluginConfigs() {
@@ -29,11 +30,11 @@ public class Configuration extends org.pircbotx.Configuration<PircBotX> {
 		return configFile;
 	}
 	
-	public List<AuthorizedGroup> getGroups() {
+	public Map<String, AuthorizedGroup> getGroups() {
 		return groups;
 	}
 	
-	public List<AuthorizedUser> getUsers() {
+	public Map<String, AuthorizedUser> getUsers() {
 		return users;
 	}
 	

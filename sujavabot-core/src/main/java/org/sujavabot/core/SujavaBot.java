@@ -6,12 +6,10 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
@@ -42,8 +40,8 @@ public class SujavaBot extends PircBotX {
 
 	protected Map<File, Plugin> plugins = new LinkedHashMap<>();
 	
-	protected List<AuthorizedGroup> authorizedGroups = new ArrayList<>();
-	protected List<AuthorizedUser> authorizedUsers = new ArrayList<>();
+	protected Map<String, AuthorizedGroup> authorizedGroups = new LinkedHashMap<>();
+	protected Map<String, AuthorizedUser> authorizedUsers = new LinkedHashMap<>();
 	
 	protected CommandHandler commands;
 	
@@ -57,8 +55,8 @@ public class SujavaBot extends PircBotX {
 			plugins.put(pluginConfig, null);
 		}
 		commands = new DefaultCommandHandler(this);
-		authorizedGroups.addAll(configuration.getGroups());
-		authorizedUsers.addAll(configuration.getUsers());
+		authorizedGroups.putAll(configuration.getGroups());
+		authorizedUsers.putAll(configuration.getUsers());
 		
 	}
 
@@ -71,46 +69,30 @@ public class SujavaBot extends PircBotX {
 	}
 	
 	public CommandHandler getRootCommands() {
-		return getAuthorizedGroup("root").getCommands();
+		return getAuthorizedGroups().get("@root").getCommands();
 	}
 
-	public List<AuthorizedUser> getAuthorizedUsers() {
+	public Map<String, AuthorizedUser> getAuthorizedUsers() {
 		return authorizedUsers;
 	}
 	
-	public List<AuthorizedGroup> getAuthorizedGroups() {
+	public Map<String, AuthorizedGroup> getAuthorizedGroups() {
 		return authorizedGroups;
-	}
-	
-	public AuthorizedGroup getAuthorizedGroup(String name) {
-		for(AuthorizedGroup g : authorizedGroups)
-			if(name.equals(g.getName()))
-				return g;
-		return null;
 	}
 	
 	public AuthorizedUser getAuthorizedUser(User user) {
 		if(user == null)
 			return null;
-		AuthorizedUser found = null;
-		for(AuthorizedUser u : authorizedUsers) {
+		for(AuthorizedUser u : authorizedUsers.values()) {
 			if(u.getNick().matcher(user.getNick()).matches()) {
 				if(!isVerified(user)) {
 					LOG.info("nick {} not verified", user.getNick());
-					return getAuthorizedUser("nobody");
+					return getAuthorizedUsers().get("@nobody");
 				}
-				found = u;
+				return u;
 			}
 		}
-		return found;
-	}
-	
-	public AuthorizedUser getAuthorizedUser(String name) {
-		for(AuthorizedUser u : authorizedUsers) {
-			if(name.equals(u.getName()))
-				return u;
-		}
-		return null;
+		return getAuthorizedUsers().get("@nobody");
 	}
 	
 	public boolean isVerified(User user) {
@@ -249,9 +231,9 @@ public class SujavaBot extends PircBotX {
 
 		// initialize all the commands
 		Set<Command> commands = new HashSet<>();
-		for(AuthorizedGroup group : authorizedGroups)
+		for(AuthorizedGroup group : authorizedGroups.values())
 			commands.addAll(group.getAllCommands().values());
-		for(AuthorizedUser user : authorizedUsers)
+		for(AuthorizedUser user : authorizedUsers.values())
 			commands.addAll(user.getAllCommands().values());
 		for(Command c : commands)
 			c.init(this);
