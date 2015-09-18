@@ -9,11 +9,6 @@ import org.sujavabot.core.SujavaBot;
 public class EchoCommand extends AbstractReportingCommand {
 	
 	@Override
-	protected String prefix(User user, String result) {
-		return result;
-	}
-	
-	@Override
 	public String invoke(SujavaBot bot, Event<?> cause, List<String> args) {
 		StringBuilder sb = new StringBuilder();
 		String sep = "";

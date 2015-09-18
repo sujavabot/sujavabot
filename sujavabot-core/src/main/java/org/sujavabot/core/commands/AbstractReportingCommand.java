@@ -27,10 +27,6 @@ public abstract class AbstractReportingCommand implements Command {
 	}
 	
 
-	protected String prefix(User user, String result) {
-		return user.getNick() + ": " + result;
-	}
-	
 	protected void reportMessage(SujavaBot bot, MessageEvent<?> cause, String result) {
 		cause.getChannel().send().message(bot.buffer(cause.getChannel(), cause.getUser(), result));
 	}
@@ -53,13 +49,13 @@ public abstract class AbstractReportingCommand implements Command {
 			return;
 		if(cause instanceof MessageEvent<?>) {
 			MessageEvent<?> m = (MessageEvent<?>) cause;
-			reportMessage(bot, m, prefix(m.getUser(), result));
+			reportMessage(bot, m, result);
 		} else if(cause instanceof ActionEvent<?>) {
 			ActionEvent<?> a = (ActionEvent<?>) cause;
-			reportAction(bot, a, prefix(a.getUser(), result));
+			reportAction(bot, a, result);
 		} else if(cause instanceof PrivateMessageEvent<?>) {
 			PrivateMessageEvent<?> p = (PrivateMessageEvent<?>) cause;
-			reportPrivateMessage(bot, p, prefix(p.getUser(), result));
+			reportPrivateMessage(bot, p, result);
 		}
 	}
 

@@ -158,6 +158,7 @@ public class SujavaBot extends PircBotX {
 			outputBuffers.put(channel, Collections.synchronizedMap(new WeakHashMap<>()));
 		Map<User, String> channelBuffer = outputBuffers.get(channel);
 		channelBuffer.remove(user);
+		result = user.getNick() + ": " + result;
 		if(result.length() > getConfiguration().getMaxLineLength()) {
 			int stop = getConfiguration().getMaxLineLength() - " (!more)".length();
 			channelBuffer.put(user, result.substring(stop));
@@ -173,6 +174,7 @@ public class SujavaBot extends PircBotX {
 		String result = channelBuffer.remove(user);
 		if(result == null)
 			return null;
+		result = user.getNick() + ": " + result;
 		if(result.length() > getConfiguration().getMaxLineLength()) {
 			int stop = getConfiguration().getMaxLineLength() - " (!more)".length();
 			channelBuffer.put(user, result.substring(stop));
