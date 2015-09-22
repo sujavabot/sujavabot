@@ -6,10 +6,10 @@ class TestFilePlugin
     "file"
   end
 
-  def initializePlugin()
+  def load(bot)
   end
 
-  def initializeBot(bot)
+  def unload(bot)
   end
   
 end

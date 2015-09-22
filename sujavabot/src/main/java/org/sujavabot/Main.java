@@ -36,7 +36,7 @@ public class Main {
 		ConfigurationBuilder builder = (ConfigurationBuilder) x.fromXML(cin);
 		Configuration config = builder.buildConfiguration(configFile);
 		SujavaBot bot = new SujavaBot(config);
-		bot.initializePlugins();
+		bot.configurePlugins();
 		bot.initializeBot();
 		bot.startBot();
 	}

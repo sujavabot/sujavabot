@@ -142,13 +142,13 @@ public class ConfigurationBuilderConverter extends AbstractConverter<Configurati
 		for(File pluginConfig : current.getPluginConfigs())
 			helper.field("plugin", File.class, () -> pluginConfig);
 		
-		List<AuthorizedGroup> groups = new ArrayList<>(current.getGroups());
+		List<AuthorizedGroup> groups = new ArrayList<>(current.getGroups().values());
 		Collections.sort(groups, AuthorizedGroup.GROUP_ORDER);
 		
 		for(AuthorizedGroup group : groups)
 			helper.field("group", AuthorizedGroup.class, () -> group);
 		
-		for(AuthorizedUser user : current.getUsers())
+		for(AuthorizedUser user : current.getUsers().values())
 			helper.field("user", AuthorizedUser.class, () -> user);
 		
 		for(Listener<?> l : current.getListenerManager().getListeners()) {
@@ -256,11 +256,11 @@ public class ConfigurationBuilderConverter extends AbstractConverter<Configurati
 		});
 		
 		helper.field("group", AuthorizedGroup.class, g -> {
-			current.getGroups().add(g);
+			current.getGroups().put(g.getName(), g);
 		});
 		
 		helper.field("user", AuthorizedUser.class, u -> {
-			current.getUsers().add(u);
+			current.getUsers().put(u.getName(), u);
 		});
 		
 		helper.field("listener", l -> current.addListener((Listener) l));

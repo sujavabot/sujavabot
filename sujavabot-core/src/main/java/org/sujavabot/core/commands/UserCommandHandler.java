@@ -26,7 +26,7 @@ public class UserCommandHandler extends AbstractCommandHandler {
 		Channel channel = getChannel(cause);
 		SujavaBot bot = (SujavaBot) cause.getBot();
 		if(channel != null) {
-			AuthorizedGroup cgroup = bot.getAuthorizedGroup(channel.getName());
+			AuthorizedGroup cgroup = bot.getAuthorizedGroups().get(channel.getName());
 			if(cgroup != null) {
 				Command c = cgroup.getCommands().get(cause, name);
 				if(c != null)
@@ -34,7 +34,7 @@ public class UserCommandHandler extends AbstractCommandHandler {
 			}
 			User user = getUser(cause);
 			if(user != null) {
-				AuthorizedGroup cugroup = bot.getAuthorizedGroup(channel.getName() + ":" + user.getNick());
+				AuthorizedGroup cugroup = bot.getAuthorizedGroups().get(channel.getName() + ":" + user.getNick());
 				if(cugroup != null) {
 					Command c = cugroup.getCommands().get(cause, name);
 					if(c != null)
@@ -43,7 +43,7 @@ public class UserCommandHandler extends AbstractCommandHandler {
 			}
 		}
 		if(!"@nobody".equals(user.getName())) {
-			AuthorizedUser nobody = bot.getAuthorizedUser("@nobody");
+			AuthorizedUser nobody = bot.getAuthorizedUsers().get("@nobody");
 			if(nobody != null) {
 				Command c = nobody.getCommands().get(cause, name);
 				if(c != null)
