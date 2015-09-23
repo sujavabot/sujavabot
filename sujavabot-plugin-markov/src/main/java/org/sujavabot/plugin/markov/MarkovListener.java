@@ -13,7 +13,9 @@ import java.util.regex.Pattern;
 
 import org.pircbotx.PircBotX;
 import org.pircbotx.hooks.ListenerAdapter;
+import org.pircbotx.hooks.events.JoinEvent;
 import org.pircbotx.hooks.events.MessageEvent;
+import org.sujavabot.core.SujavaBot;
 
 
 public class MarkovListener extends ListenerAdapter<PircBotX> {
@@ -45,6 +47,54 @@ public class MarkovListener extends ListenerAdapter<PircBotX> {
 	
 	public boolean isLearn() {
 		return learn;
+	}
+	
+	@Override
+	public void onJoin(JoinEvent<PircBotX> event) throws Exception {
+		if(!channels.contains(event.getChannel().getName()))
+			return;
+		if(event.getUser().getNick().equals(event.getBot().getNick())) {
+			if(firstJoined.add(event.getChannel().getName()))
+				return;
+		}
+		for(Pattern p : ignore) {
+			if(p.matcher(event.getUser().getNick()).matches())
+				return;
+		}
+		String m;
+		if(((SujavaBot) event.getBot()).isVerified(event.getUser()))
+			m = event.getUser().getNick() + " is";
+		else
+			m = "fucking unidentified " + event.getUser().getNick() + " is";
+		List<String> prefix = StringContent.parse(m);
+		MarkovIterator mi = new MarkovIterator(markov, maxlen, prefix);
+		List<String> ml = mi.toList();
+		if(ml.get(ml.size()-1).isEmpty())
+			ml.remove(ml.size()-1);
+		for(int i = 0; i < 10 && ml.size() == prefix.size(); i++) {
+			ml = new MarkovIterator(markov, maxlen, prefix).toList();
+			if(ml.get(ml.size()-1).isEmpty())
+				ml.remove(ml.size()-1);
+		}
+		for(int i = ml.size() - 3; i >= 0; i--) {
+			int j = i+3;
+			List<String> sub = ml.subList(i, j);
+			if(Collections.frequency(sub, sub.get(0)) == j - i) {
+				while(i >= 0 && Collections.frequency(sub, sub.get(0)) == j - i) { 
+					i--;
+					if(i >= 0)
+						sub = ml.subList(i, j);
+				}
+				i++;
+				ml.subList(i, j-3).clear();
+			}
+		}
+		while(ml.size() > 0 && !ml.get(0).matches(".*\\w.*"))
+			ml.remove(0);
+		if(ml.size() > 0) {
+			String r = StringContent.join(ml);
+			event.getChannel().send().message(r);
+		}
 	}
 	
 	@Override
