@@ -26,7 +26,6 @@ public class BerkeleyDBMarkov implements Closeable, Markov {
 	
 	private static final Charset UTF8 = Charset.forName("UTF-8");
 	
-	private static final String EOF = "";
 	private static final String SEP = " ";
 	
 	private static byte[] longToBytes(long v, byte[] b, int off) {
@@ -231,7 +230,8 @@ public class BerkeleyDBMarkov implements Closeable, Markov {
 		if(content.size() == 0)
 			return;
 		content = new ArrayList<>(content);
-		content.add(EOF);
+		content.add(0, SOT);
+		content.add(EOT);
 		for(int i = -maxlen + 1; i < content.size() - 1; i++) {
 			List<String> prefixes = content.subList(Math.max(0, i), Math.min(content.size()-1, i + maxlen));
 			String prefix = "";
@@ -268,7 +268,7 @@ public class BerkeleyDBMarkov implements Closeable, Markov {
 		double v = smax * Math.random();
 		for(Entry<String, Double> e : suffixes.entrySet()) {
 			if(v < e.getValue())
-				return EOF.equals(e.getKey()) ? null : e.getKey();
+				return EOT.equals(e.getKey()) ? null : e.getKey();
 			v -= e.getValue();
 		}
 		return null;
