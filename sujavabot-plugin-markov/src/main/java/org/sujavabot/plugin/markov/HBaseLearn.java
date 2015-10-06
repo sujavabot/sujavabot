@@ -4,9 +4,11 @@ import java.io.BufferedReader;
 import java.io.FileInputStream;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.util.Arrays;
 import java.util.List;
 
 import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.Options;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.HBaseConfiguration;
 import org.apache.hadoop.hbase.TableName;
@@ -15,12 +17,18 @@ import org.apache.hadoop.hbase.client.Connection;
 import org.apache.hadoop.hbase.client.ConnectionFactory;
 import org.apache.hadoop.hbase.client.Table;
 import org.apache.hadoop.util.GenericOptionsParser;
+import org.apache.log4j.xml.DOMConfigurator;
 
 public class HBaseLearn {
 	public static void main(String[] args) throws Exception {
+		DOMConfigurator.configure(HBaseLearn.class.getClassLoader().getResource("org/sujavabot/core/log4j.xml"));
+		
 		Configuration conf = HBaseConfiguration.create();
-		CommandLine cli = new GenericOptionsParser(conf, args).getCommandLine();
-		args = cli.getArgs();
+		GenericOptionsParser parser = new GenericOptionsParser(conf, args);
+		conf = parser.getConfiguration();
+		args = parser.getRemainingArgs();
+		
+		System.out.println(Arrays.asList(args));
 		
 		TableName name = TableName.valueOf(conf.get("table"));
 		Long duration = null;
