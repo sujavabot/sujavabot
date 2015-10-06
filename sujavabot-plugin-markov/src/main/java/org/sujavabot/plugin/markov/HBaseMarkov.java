@@ -56,8 +56,8 @@ public class HBaseMarkov implements Markov {
 		return v;
 	}
 	
-	protected Table table;
-	protected Long duration;
+	private Table table;
+	private Long duration;
 	
 	public HBaseMarkov(Table table) {
 		this.table = table;
