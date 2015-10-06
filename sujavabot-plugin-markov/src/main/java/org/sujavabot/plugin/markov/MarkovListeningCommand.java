@@ -74,7 +74,7 @@ public class MarkovListeningCommand extends AbstractReportingCommand {
 		return StringContent.join(ml);
 	}
 
-	public BerkeleyDBMarkov getMarkov() {
+	public Markov getMarkov() {
 		return markov;
 	}
 

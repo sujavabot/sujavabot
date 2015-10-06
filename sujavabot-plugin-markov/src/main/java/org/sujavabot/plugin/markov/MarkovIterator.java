@@ -6,17 +6,16 @@ import java.util.List;
 import java.util.NoSuchElementException;
 
 import com.google.common.base.Optional;
-import com.sleepycat.je.DatabaseException;
 
 public class MarkovIterator implements Iterator<String> {
 	protected List<String> prefix = new ArrayList<>();
-	protected BerkeleyDBMarkov markov;
+	protected Markov markov;
 	protected int maxlen;
 
 	protected List<String> init;
 	protected Optional<String> next;
 
-	public MarkovIterator(BerkeleyDBMarkov markov, int maxlen, List<String> prefix) {
+	public MarkovIterator(Markov markov, int maxlen, List<String> prefix) {
 		this.markov = markov;
 		this.maxlen = maxlen;
 		this.prefix.addAll(prefix);
@@ -44,7 +43,7 @@ public class MarkovIterator implements Iterator<String> {
 				String n;
 				try {
 					n = markov.next(prefix);
-				} catch (DatabaseException e) {
+				} catch (Exception e) {
 					throw new RuntimeException(e);
 				}
 				next = (n == null ? Optional.<String>absent() : Optional.fromNullable(n));
