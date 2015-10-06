@@ -73,6 +73,11 @@ public class MarkovListener extends ListenerAdapter<PircBotX> {
 				while(ml.size() > 0 && ml.get(0).matches("\\W+"))
 					ml.remove(0);
 			}
+			if(ml.size() == 0) {
+				ml = new MarkovIterator(markov, maxlen, Arrays.asList(Markov.SOT)).toList();
+				while(ml.size() > 0 && ml.get(0).matches("\\W+"))
+					ml.remove(0);
+			}
 			if(ml.size() == 0)
 				ml = Arrays.asList("i have nothing to say to that");
 			for(int i = ml.size() - 3; i >= 0; i--) {
