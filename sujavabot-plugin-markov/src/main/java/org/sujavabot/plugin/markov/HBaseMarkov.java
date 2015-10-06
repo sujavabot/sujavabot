@@ -56,13 +56,37 @@ public class HBaseMarkov implements Markov {
 		return v;
 	}
 	
+	private Configuration conf;
 	private Table table;
 	private Long duration;
 	
-	public HBaseMarkov(Table table) {
-		this.table = table;
+	public HBaseMarkov() {
 	}
 
+	public Configuration getConf() {
+		return conf;
+	}
+	
+	public Table getTable() {
+		return table;
+	}
+	
+	public Long getDuration() {
+		return duration;
+	}
+	
+	public void setConf(Configuration conf) {
+		this.conf = conf;
+	}
+	
+	public void setTable(Table table) {
+		this.table = table;
+	}
+	
+	public void setDuration(Long duration) {
+		this.duration = duration;
+	}
+	
 	@Override
 	public void consume(List<String> content, int maxlen) throws Exception {
 		content = new ArrayList<>(content);
