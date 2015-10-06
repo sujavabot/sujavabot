@@ -198,6 +198,7 @@ public class BerkeleyDBMarkov implements Closeable, Markov {
 	
 	protected Environment environment;
 	protected Database database;
+	protected boolean nosync;
 	
 	public BerkeleyDBMarkov() {}
 	
@@ -214,12 +215,20 @@ public class BerkeleyDBMarkov implements Closeable, Markov {
 		return database;
 	}
 	
+	public boolean isNosync() {
+		return nosync;
+	}
+	
 	public void setDatabase(Database database) {
 		this.database = database;
 	}
 	
 	public void setEnvironment(Environment environment) {
 		this.environment = environment;
+	}
+	
+	public void setNosync(boolean nosync) {
+		this.nosync = nosync;
 	}
 
 	/* (non-Javadoc)
@@ -248,7 +257,8 @@ public class BerkeleyDBMarkov implements Closeable, Markov {
 				prefix = prefix.substring(idx + SEP.length());
 			}
 		}
-		database.sync();
+		if(!nosync)
+			database.sync();
 	}
 	
 	/* (non-Javadoc)
