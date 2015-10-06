@@ -23,8 +23,6 @@ import org.apache.hadoop.hbase.util.Bytes;
 
 public class HBaseMarkov implements Markov {
 	private static final byte[] SUFFIX = Bytes.toBytes("suffix");
-	public static final String SOT = "\0";
-	public static final String EOT = "\0";
 	
 	public static void createTable(Configuration conf, TableName name) throws IOException {
 		Connection cxn = ConnectionFactory.createConnection(conf);
