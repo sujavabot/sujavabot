@@ -16,7 +16,7 @@ import com.sleepycat.je.DatabaseException;
 import com.sleepycat.je.Environment;
 import com.sleepycat.je.OperationStatus;
 
-public class BerkeleyDBMarkov implements Closeable {
+public class BerkeleyDBMarkov implements Closeable, Markov {
 	private static final byte[] COUNTER = new byte[] { 0 };
 	private static final byte[] HASHED_STRING = new byte[] { 1 };
 	private static final byte[] LISTED_STRING = new byte[] { 2 };
@@ -213,6 +213,10 @@ public class BerkeleyDBMarkov implements Closeable {
 		return database;
 	}
 
+	/* (non-Javadoc)
+	 * @see org.sujavabot.plugin.markov.Markov#consume(java.util.List, int)
+	 */
+	@Override
 	public void consume(List<String> content, int maxlen) throws DatabaseException {
 		if(content.size() == 0)
 			return;
@@ -236,6 +240,10 @@ public class BerkeleyDBMarkov implements Closeable {
 		}
 	}
 	
+	/* (non-Javadoc)
+	 * @see org.sujavabot.plugin.markov.Markov#next(java.util.List)
+	 */
+	@Override
 	public String next(List<String> prefixes) throws DatabaseException {
 		String prefix = "";
 		for(String p : prefixes) {
@@ -282,6 +290,9 @@ public class BerkeleyDBMarkov implements Closeable {
 		return suffixes;
 	}
 
+	/* (non-Javadoc)
+	 * @see org.sujavabot.plugin.markov.Markov#close()
+	 */
 	@Override
 	public void close() throws IOException {
 		database.close();
