@@ -9,15 +9,6 @@
 		<relativePath>../sujavabot-plugin-parent</relativePath>
 	</parent>
 
-	<repositories>
-		<repository>
-			<id>oracleReleases</id>
-			<name>Oracle Released Java Packages</name>
-			<url>http://download.oracle.com/maven</url>
-			<layout>default</layout>
-		</repository>
-	</repositories>
-
 	<dependencies>
 		<dependency>
 			<groupId>org.apache.hbase</groupId>
