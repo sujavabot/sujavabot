@@ -11,6 +11,7 @@ import java.util.regex.Pattern;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.HConstants;
 import org.apache.hadoop.hbase.TableName;
+import org.apache.hadoop.hbase.client.Admin;
 import org.apache.hadoop.hbase.client.Connection;
 import org.apache.hadoop.hbase.client.ConnectionFactory;
 import org.apache.hadoop.hbase.client.Table;
@@ -80,6 +81,13 @@ public class HBaseMarkovConverter extends AbstractConverter<HBaseMarkov> {
 			if(conf.get("duration") != null)
 				ml.setDuration(conf.getLong("duration", 0));
 			Connection cxn = ConnectionFactory.createConnection(conf);
+			Admin admin = cxn.getAdmin();
+			try {
+				if(!admin.tableExists(name))
+					HBaseMarkov.createTable(conf, name);
+			} finally {
+				admin.close();
+			}
 			Table table = cxn.getTable(name);
 			ml.setTable(table);
 			
