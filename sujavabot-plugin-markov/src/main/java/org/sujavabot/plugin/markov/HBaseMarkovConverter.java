@@ -64,8 +64,6 @@ public class HBaseMarkovConverter extends AbstractConverter<HBaseMarkov> {
 	@Override
 	public Object unmarshal(HierarchicalStreamReader reader, UnmarshallingContext context) {
 		try {
-			Map<String, Object> m = new HashMap<>();
-			
 			HBaseMarkov ml = new HBaseMarkov();
 			Configuration conf = new Configuration();
 			
