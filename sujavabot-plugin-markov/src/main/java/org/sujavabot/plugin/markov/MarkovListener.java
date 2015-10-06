@@ -17,7 +17,7 @@ import org.pircbotx.hooks.events.MessageEvent;
 
 
 public class MarkovListener extends ListenerAdapter<PircBotX> {
-	protected BerkeleyDBMarkov markov;
+	protected Markov markov;
 	protected int maxlen;
 	protected Set<String> channels;
 	protected boolean learn;
@@ -31,7 +31,7 @@ public class MarkovListener extends ListenerAdapter<PircBotX> {
 	
 	public MarkovListener() {}
 	
-	public BerkeleyDBMarkov getMarkov() {
+	public Markov getMarkov() {
 		return markov;
 	}
 	
@@ -95,11 +95,10 @@ public class MarkovListener extends ListenerAdapter<PircBotX> {
 					ci.remove();
 			}
 			markov.consume(content, maxlen);
-			markov.getDatabase().sync();
 		}
 	}
 
-	public void setMarkov(BerkeleyDBMarkov markov) {
+	public void setMarkov(Markov markov) {
 		this.markov = markov;
 	}
 
