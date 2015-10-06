@@ -98,7 +98,7 @@ public class HBaseMarkov implements Markov {
 			for(int j = 0; j < maxlen; j++) {
 				List<String> prefix = content.subList(Math.max(0, i-j), i+1);
 				String suffix = content.get(i+1);
-				byte[] row = Bytes.toBytes(StringContent.join(prefix));
+				byte[] row = Bytes.toBytes(StringContent.join(prefix).toUpperCase());
 				byte[] qual = Bytes.toBytes(suffix);
 				Increment inc = new Increment(row);
 				inc.addColumn(SUFFIX, qual, 1);
@@ -128,7 +128,7 @@ public class HBaseMarkov implements Markov {
 		prefix = new ArrayList<>(prefix);
 		Map<String, Double> suffixes = new TreeMap<>();
 		while(prefix.size() > 0) {
-			Map<String, Long> counts = counts(StringContent.join(prefix));
+			Map<String, Long> counts = counts(StringContent.join(prefix).toUpperCase());
 			double smax = dsum(suffixes.values());
 			double pmax = lsum(counts.values());
 			if(smax > 0) {
