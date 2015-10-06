@@ -43,7 +43,7 @@ public class JRubyPlugin implements Plugin {
 	}
 
 	@Override
-	public void initializePlugin() throws Exception {
+	public void load(SujavaBot bot) throws Exception {
 		ScriptEngine engine = new JRubyEngineFactory().getScriptEngine();
 		if(file == null) {
 			plugin = (Plugin) engine.eval(source);
@@ -55,11 +55,12 @@ public class JRubyPlugin implements Plugin {
 				r.close();
 			}
 		}
-		plugin.initializePlugin();
+		plugin.load(bot);
 	}
-
+	
 	@Override
-	public void initializeBot(SujavaBot bot) throws Exception {
-		plugin.initializeBot(bot);
+	public void unload(SujavaBot bot) throws Exception {
+		plugin.unload(bot);
 	}
+	
 }

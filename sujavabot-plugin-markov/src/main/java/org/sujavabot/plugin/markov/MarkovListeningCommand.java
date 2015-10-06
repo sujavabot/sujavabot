@@ -3,7 +3,6 @@ package org.sujavabot.plugin.markov;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.pircbotx.PircBotX;
@@ -75,7 +74,7 @@ public class MarkovListeningCommand extends AbstractReportingCommand {
 		return StringContent.join(ml);
 	}
 
-	public BerkeleyDBMarkov getMarkov() {
+	public Markov getMarkov() {
 		return markov;
 	}
 

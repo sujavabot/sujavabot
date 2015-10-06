@@ -15,7 +15,7 @@ public class MoreBufferCommand extends AbstractReportingCommand {
 			MessageEvent<?> m = (MessageEvent<?>) cause;
 			more = bot.continueBuffer(m.getChannel(), m.getUser());
 		}
-		return more == null ? "" : more;
+		return more;
 	}
 
 }
