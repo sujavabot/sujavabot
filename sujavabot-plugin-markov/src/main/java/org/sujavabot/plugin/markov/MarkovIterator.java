@@ -6,7 +6,6 @@ import java.util.List;
 import java.util.NoSuchElementException;
 
 import com.google.common.base.Optional;
-import com.sleepycat.je.DatabaseException;
 
 public class MarkovIterator implements Iterator<String> {
 	protected List<String> prefix = new ArrayList<>();
