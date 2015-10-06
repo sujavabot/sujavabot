@@ -23,7 +23,8 @@ import org.apache.hadoop.hbase.util.Bytes;
 
 public class HBaseMarkov implements Markov {
 	private static final byte[] SUFFIX = Bytes.toBytes("suffix");
-	private static final String EOF = "\0";
+	public static final String SOT = "\0";
+	public static final String EOT = "\0";
 	
 	public static void createTable(Configuration conf, TableName name) throws IOException {
 		Connection cxn = ConnectionFactory.createConnection(conf);
@@ -90,7 +91,8 @@ public class HBaseMarkov implements Markov {
 	@Override
 	public void consume(List<String> content, int maxlen) throws Exception {
 		content = new ArrayList<>(content);
-		content.add(EOF);
+		content.add(0, SOT);
+		content.add(EOT);
 		long startTS = System.currentTimeMillis();
 		long stopTS = (duration != null ? startTS + duration : Long.MAX_VALUE);
 		List<Increment> incs = new ArrayList<>();
@@ -148,7 +150,7 @@ public class HBaseMarkov implements Markov {
 		double v = smax * Math.random();
 		for(Entry<String, Double> e : suffixes.entrySet()) {
 			if(v < e.getValue())
-				return EOF.equals(e.getKey()) ? null : e.getKey();
+				return EOT.equals(e.getKey()) ? null : e.getKey();
 			v -= e.getValue();
 		}
 		return null;
