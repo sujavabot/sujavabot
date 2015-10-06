@@ -13,7 +13,7 @@ import com.sleepycat.je.DatabaseConfig;
 import com.sleepycat.je.Environment;
 import com.sleepycat.je.EnvironmentConfig;
 
-public class Learn {
+public class BerkeleyDBLearn {
 	public static void main(String[] args) throws Exception {
 		File envHome = new File(args[0]);
 		args = Arrays.copyOfRange(args, 1, args.length);
