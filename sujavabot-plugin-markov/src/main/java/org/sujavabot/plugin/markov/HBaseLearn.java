@@ -13,6 +13,7 @@ import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.Admin;
 import org.apache.hadoop.hbase.client.Connection;
 import org.apache.hadoop.hbase.client.ConnectionFactory;
+import org.apache.hadoop.hbase.client.HTable;
 import org.apache.hadoop.hbase.client.Table;
 import org.apache.hadoop.util.GenericOptionsParser;
 import org.apache.log4j.xml.DOMConfigurator;
@@ -44,13 +45,15 @@ public class HBaseLearn {
 			} finally {
 				admin.close();
 			}
-			Table table = cxn.getTable(name);
+			
+			HTable table = new HTable(name, cxn);
+			table.setAutoFlush(false, false);
+			table.setWriteBufferSize(1024*1024);
 			
 			HBaseMarkov markov = new HBaseMarkov();
 			markov.setConf(conf);
 			markov.setDuration(duration);
 			markov.setTable(table);
-			markov.setNosync(true);
 
 			InputStream[] inputs = new InputStream[] { System.in };
 			if(args.length > 0) {
