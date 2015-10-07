@@ -110,33 +110,33 @@ public class HBaseMarkov implements Markov {
 		table.batch(incs, new Object[incs.size()]);
 	}
 
-	private Map<String, Long> counts(String prefix) throws IOException {
+	private Map<byte[], Long> counts(String prefix) throws IOException {
 		byte[] row = Bytes.toBytes(prefix);
 		Get get = new Get(row);
 		get.addFamily(SUFFIX);
 		Result result = table.get(get);
 		if(result.isEmpty())
 			return Collections.emptyMap();
-		Map<String, Long> counts = new TreeMap<>();
+		Map<byte[], Long> counts = new TreeMap<>(Bytes.BYTES_COMPARATOR);
 		for(Entry<byte[], byte[]> suffix : result.getFamilyMap(SUFFIX).entrySet())
-			counts.put(Bytes.toString(suffix.getKey()), Bytes.toLong(suffix.getValue()));
+			counts.put(suffix.getKey(), Bytes.toLong(suffix.getValue()));
 		return counts;
 	}
 	
 	@Override
 	public String next(List<String> prefix) throws Exception {
 		prefix = new ArrayList<>(prefix);
-		Map<String, Double> suffixes = new TreeMap<>();
+		Map<byte[], Double> suffixes = new TreeMap<>(Bytes.BYTES_COMPARATOR);
 		while(prefix.size() > 0) {
-			Map<String, Long> counts = counts(StringContent.join(prefix).toUpperCase());
+			Map<byte[], Long> counts = counts(StringContent.join(prefix).toUpperCase());
 			double smax = dsum(suffixes.values());
 			double pmax = lsum(counts.values());
 			if(smax > 0) {
 				double mult = 5 * pmax / smax;
-				for(Entry<String, Double> e : suffixes.entrySet())
+				for(Entry<byte[], Double> e : suffixes.entrySet())
 					e.setValue(mult * e.getValue());
 			}
-			for(Entry<String, Long> e : counts.entrySet()) {
+			for(Entry<byte[], Long> e : counts.entrySet()) {
 				Double v = suffixes.get(e.getKey());
 				if(v == null)
 					v = 0.;
@@ -146,9 +146,11 @@ public class HBaseMarkov implements Markov {
 		}
 		double smax = dsum(suffixes.values());
 		double v = smax * Math.random();
-		for(Entry<String, Double> e : suffixes.entrySet()) {
-			if(v < e.getValue())
-				return EOT.equals(e.getKey()) ? null : e.getKey();
+		for(Entry<byte[], Double> e : suffixes.entrySet()) {
+			if(v < e.getValue()) {
+				String sfx = Bytes.toHex(e.getKey());
+				return EOT.equals(sfx) ? null : sfx;
+			}
 			v -= e.getValue();
 		}
 		return null;
