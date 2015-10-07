@@ -166,7 +166,7 @@ public class HBaseMarkov implements Markov {
 		double v = smax * Math.random();
 		for(Entry<byte[], Double> e : suffixes.entrySet()) {
 			if(v < e.getValue()) {
-				String sfx = Bytes.toHex(e.getKey());
+				String sfx = Bytes.toString(e.getKey());
 				return EOT.equals(sfx) ? null : sfx;
 			}
 			v -= e.getValue();
