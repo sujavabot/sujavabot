@@ -156,9 +156,23 @@ public class HBaseMarkov implements Markov {
 	@Override
 	public String next(List<String> prefix) throws Exception {
 		prefix = new ArrayList<>(prefix);
-		Map<byte[], Double> suffixes = new TreeMap<>(Bytes.BYTES_COMPARATOR);
+
+		List<Get> gets = new ArrayList<>();
 		while(prefix.size() > 0) {
-			Map<byte[], Long> counts = counts(StringContent.join(prefix).toUpperCase());
+			byte[] row = Bytes.toBytes(StringContent.join(prefix).toUpperCase());
+			Get get = new Get(row);
+			get.addFamily(SUFFIX);
+			gets.add(get);
+			prefix.remove(0);
+		}
+		
+		Map<byte[], Double> suffixes = new TreeMap<>(Bytes.BYTES_COMPARATOR);
+		for(Result result : table.get(gets)) {
+			Map<byte[], Long> counts = new TreeMap<>(Bytes.BYTES_COMPARATOR);
+			if(!result.isEmpty()) {
+				for(Entry<byte[], byte[]> suffix : result.getFamilyMap(SUFFIX).entrySet())
+					counts.put(suffix.getKey(), Bytes.toLong(suffix.getValue()));
+			}
 			double smax = dsum(suffixes.values());
 			double pmax = lsum(counts.values());
 			if(smax > 0) {
@@ -172,8 +186,8 @@ public class HBaseMarkov implements Markov {
 					v = 0.;
 				suffixes.put(e.getKey(), v + (double) (long) e.getValue());
 			}
-			prefix.remove(0);
 		}
+		
 		double smax = dsum(suffixes.values());
 		double v = smax * Math.random();
 		for(Entry<byte[], Double> e : suffixes.entrySet()) {
