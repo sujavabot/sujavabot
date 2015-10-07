@@ -205,12 +205,13 @@ public class BerkeleyDBMarkov implements Closeable, Markov {
 		return v;
 	}
 	
-	protected Environment environment;
-	protected Database db;
-	protected boolean nosync;
+	private Environment environment;
+	private Database db;
+	private boolean nosync;
+	private double prefixPower = 5;
 	
-	protected Map<String, Long> pids = new WeakHashMap<>();
-	protected Map<String, Long> sids = new WeakHashMap<>();
+	private transient Map<String, Long> pids = new WeakHashMap<>();
+	private transient Map<String, Long> sids = new WeakHashMap<>();
 	
 	public BerkeleyDBMarkov() {}
 	
@@ -304,7 +305,7 @@ public class BerkeleyDBMarkov implements Closeable, Markov {
 			double smax = dsum(suffixes.values());
 			double pmax = lsum(psuffixes.values());
 			if(smax > 0) {
-				double mult = 5 * pmax / smax;
+				double mult = prefixPower * pmax / smax;
 				for(Entry<String, Double> e : suffixes.entrySet())
 					e.setValue(mult * e.getValue());
 			}
@@ -330,5 +331,13 @@ public class BerkeleyDBMarkov implements Closeable, Markov {
 	public void close() throws IOException {
 		db.close();
 		environment.close();
+	}
+
+	public double getPrefixPower() {
+		return prefixPower;
+	}
+
+	public void setPrefixPower(double prefixPower) {
+		this.prefixPower = prefixPower;
 	}
 }

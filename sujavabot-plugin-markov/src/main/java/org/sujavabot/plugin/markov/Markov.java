@@ -12,5 +12,8 @@ public interface Markov {
 	public String next(List<String> prefix) throws Exception;
 
 	public void close() throws IOException;
+	
+	public double getPrefixPower();
+	public void setPrefixPower(double prefixPower);
 
 }

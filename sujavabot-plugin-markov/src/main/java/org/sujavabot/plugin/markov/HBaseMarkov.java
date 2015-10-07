@@ -59,6 +59,8 @@ public class HBaseMarkov implements Markov {
 	private Table table;
 	private Long duration;
 	private boolean nosync;
+	private double prefixPower = 5;
+	
 	private transient List<Increment> rows = new ArrayList<>(); 
 	
 	public HBaseMarkov() {
@@ -80,6 +82,11 @@ public class HBaseMarkov implements Markov {
 		return nosync;
 	}
 	
+	@Override
+	public double getPrefixPower() {
+		return prefixPower;
+	}
+	
 	public void setConf(Configuration conf) {
 		this.conf = conf;
 	}
@@ -94,6 +101,11 @@ public class HBaseMarkov implements Markov {
 	
 	public void setNosync(boolean nosync) {
 		this.nosync = nosync;
+	}
+	
+	@Override
+	public void setPrefixPower(double prefixPower) {
+		this.prefixPower = prefixPower;
 	}
 	
 	@Override
@@ -150,7 +162,7 @@ public class HBaseMarkov implements Markov {
 			double smax = dsum(suffixes.values());
 			double pmax = lsum(counts.values());
 			if(smax > 0) {
-				double mult = 5 * pmax / smax;
+				double mult = prefixPower * pmax / smax;
 				for(Entry<byte[], Double> e : suffixes.entrySet())
 					e.setValue(mult * e.getValue());
 			}
