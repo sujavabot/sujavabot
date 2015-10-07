@@ -7,8 +7,6 @@ import java.io.InputStreamReader;
 import java.util.Arrays;
 import java.util.List;
 
-import org.apache.commons.cli.CommandLine;
-import org.apache.commons.cli.Options;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.HBaseConfiguration;
 import org.apache.hadoop.hbase.TableName;
@@ -52,6 +50,7 @@ public class HBaseLearn {
 			markov.setConf(conf);
 			markov.setDuration(duration);
 			markov.setTable(table);
+			markov.setNosync(true);
 
 			InputStream[] inputs = new InputStream[] { System.in };
 			if(args.length > 0) {
@@ -74,6 +73,7 @@ public class HBaseLearn {
 					long read = total - in.available();
 					long rpct = read * 100 / total;
 					if(pct != rpct) {
+						markov.sync();
 						long dur = System.currentTimeMillis() - start;
 						System.out.println(String.format("%02d%% (%d bytes, %d bytes per second)", rpct, read, read * 1000 / dur));
 					}
@@ -81,7 +81,7 @@ public class HBaseLearn {
 				}
 				buf.close();
 			}
-			
+			markov.sync();
 			markov.close();
 		} finally {
 			cxn.close();

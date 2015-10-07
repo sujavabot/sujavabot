@@ -58,6 +58,8 @@ public class HBaseMarkov implements Markov {
 	private Configuration conf;
 	private Table table;
 	private Long duration;
+	private boolean nosync;
+	private transient List<Increment> rows = new ArrayList<>(); 
 	
 	public HBaseMarkov() {
 	}
@@ -74,6 +76,10 @@ public class HBaseMarkov implements Markov {
 		return duration;
 	}
 	
+	public boolean isNosync() {
+		return nosync;
+	}
+	
 	public void setConf(Configuration conf) {
 		this.conf = conf;
 	}
@@ -84,6 +90,10 @@ public class HBaseMarkov implements Markov {
 	
 	public void setDuration(Long duration) {
 		this.duration = duration;
+	}
+	
+	public void setNosync(boolean nosync) {
+		this.nosync = nosync;
 	}
 	
 	@Override
@@ -107,9 +117,17 @@ public class HBaseMarkov implements Markov {
 				incs.add(inc);
 			}
 		}
-		table.batch(incs, new Object[incs.size()]);
+		if(!nosync)
+			table.batch(incs, new Object[incs.size()]);
+		else
+			rows.addAll(incs);
 	}
 
+	public void sync() throws IOException, InterruptedException {
+		table.batch(rows, new Object[rows.size()]);
+		rows.clear();
+	}
+	
 	private Map<byte[], Long> counts(String prefix) throws IOException {
 		byte[] row = Bytes.toBytes(prefix);
 		Get get = new Get(row);
