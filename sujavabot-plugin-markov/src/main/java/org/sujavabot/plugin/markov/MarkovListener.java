@@ -182,7 +182,8 @@ public class MarkovListener extends ListenerAdapter<PircBotX> {
 				if(StringContent.LINK.matcher(ci.next()).matches())
 					ci.remove();
 			}
-			markov.consume(event.getUser().getNick(), content, maxlen);
+			if(content.size() > 0)
+				markov.consume(event.getUser().getNick(), content, maxlen);
 		}
 	}
 
