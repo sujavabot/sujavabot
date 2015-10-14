@@ -43,9 +43,9 @@ public abstract class StringContent {
 	}
 
 	public static final Pattern TRAILERS = Pattern.compile(",|\\?|!");
-	public static final Pattern WORD = Pattern.compile("(?i)(?<!(\\s|^))[a-z\\-_0-9]+(['’][a-z\\-_0-9]+)*['’]?");
-	public static final Pattern LINK = Pattern.compile("(?i)(?<!(\\s|^))(https?:|ftp:|www\\.)\\S*");
-	public static final Pattern NUMBER = Pattern.compile("(?<!(\\s|^))\\$?[0-9]+(\\.[0-9]*)?|\\.[0-9]+");
+	public static final Pattern WORD = Pattern.compile("(?i)(\\s+|^)[a-z\\-_0-9]+(['’][a-z\\-_0-9]+)*['’]?");
+	public static final Pattern LINK = Pattern.compile("(?i)(\\s+|^)(https?:|ftp:|www\\.)\\S*");
+	public static final Pattern NUMBER = Pattern.compile("(\\s+|^)\\$?[0-9]+(\\.[0-9]*)?|\\.[0-9]+");
 	public static final Pattern ELLIPSES = Pattern.compile("\\.(\\s*\\.)*");
 
 	public static final Pattern TOKEN = any(
@@ -79,7 +79,7 @@ public abstract class StringContent {
 				for(String t : p.split("\\s+"))
 					tokens.add(t);
 			}
-			tokens.add(m.group());
+			tokens.add(m.group().trim());
 			i = m.end();
 		}
 		String p = s.substring(i).trim();
