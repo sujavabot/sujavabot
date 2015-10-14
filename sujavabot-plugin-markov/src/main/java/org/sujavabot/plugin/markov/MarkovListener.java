@@ -96,7 +96,7 @@ public class MarkovListener extends ListenerAdapter<PircBotX> {
 			for(int i = 0; i < 10 && ml.size() == prefix.size(); i++) {
 				ml = new MarkovIterator(context, markov, maxlen, prefix).toList();
 			}
-			if(ml.size() == 0) {
+			if(ml.size() == prefix.size()) {
 				ml = new MarkovIterator(context, markov, maxlen, Arrays.asList(Markov.SOT)).toList();
 				ml.remove(0); // remove SOT
 			}
