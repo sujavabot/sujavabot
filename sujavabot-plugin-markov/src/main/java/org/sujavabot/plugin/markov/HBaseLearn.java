@@ -47,13 +47,13 @@ public class HBaseLearn {
 			}
 			
 			HTable table = new HTable(name, cxn);
-			table.setAutoFlush(false, false);
-			table.setWriteBufferSize(1024*1024);
+			table.setAutoFlush(true, false);
 			
 			HBaseMarkov markov = new HBaseMarkov();
 			markov.setConf(conf);
 			markov.setDuration(duration);
 			markov.setTable(table);
+			markov.setNosync(true);
 
 			InputStream[] inputs = new InputStream[] { System.in };
 			if(args.length > 0) {
