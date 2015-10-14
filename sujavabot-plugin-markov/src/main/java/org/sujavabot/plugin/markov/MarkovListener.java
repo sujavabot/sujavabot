@@ -68,7 +68,21 @@ public class MarkovListener extends ListenerAdapter<PircBotX> {
 			matcher = e.getKey().matcher(m);
 			if(matcher.find()) {
 				found = true;
-				context = e.getValue();
+				String v = e.getValue();
+				if(v != null) {
+					Matcher cm = Pattern.compile("\\$\\d+").matcher(v);
+					int prev = 0;
+					context = "";
+					while(cm.find()) {
+						context += v.substring(prev, cm.start());
+						int i = Integer.parseInt(cm.group().substring(1));
+						String mg = matcher.group(i);
+						if(mg != null)
+							context += mg;
+						prev = cm.end();
+					}
+					context += v.substring(prev);
+				}
 				break;
 			}
 		}
