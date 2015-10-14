@@ -37,6 +37,7 @@ public class BerkeleyDBLearn {
 		Database db = e.openDatabase(null, dbName, dbc);
 		
 		BerkeleyDBMarkov markov = new BerkeleyDBMarkov(e, db);
+		markov.setNosync(true);
 		
 		InputStream[] inputs = new InputStream[] { System.in };
 		if(args.length > 0) {
