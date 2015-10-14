@@ -6,9 +6,11 @@ import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.WeakHashMap;
 
 import com.sleepycat.je.Database;
 import com.sleepycat.je.DatabaseEntry;
@@ -28,7 +30,7 @@ public class BerkeleyDBMarkov implements Closeable, Markov {
 	
 	private static final String SEP = " ";
 	
-	private static byte[] longToBytes(long v, byte[] b, int off) {
+	private byte[] longToBytes(long v, byte[] b, int off) {
 		for(int i = 0; i < 8; i++) {
 			b[off + i] = (byte) v;
 			v = (v >>> 8);
@@ -36,21 +38,21 @@ public class BerkeleyDBMarkov implements Closeable, Markov {
 		return b;
 	}
 	
-	private static long bytesToLong(byte[] b, int off) {
+	private long bytesToLong(byte[] b, int off) {
 		long l = 0;
 		for(int i = 0; i < 8; i++)
 			l |= ((b[off + i] & 0xffl) << (8*i));
 		return l;
 	}
 	
-	private static long getCounter(Database db, byte[] key) throws DatabaseException {
+	private long getCounter(byte[] key) throws DatabaseException {
 		DatabaseEntry data = new DatabaseEntry();
 		if(db.get(null, new DatabaseEntry(key), data, null) == OperationStatus.NOTFOUND)
 			return 0;
 		return bytesToLong(data.getData(), 0);
 	}
 	
-	private static void setCounter(Database db, byte[] key, long v) throws DatabaseException {
+	private void setCounter(byte[] key, long v) throws DatabaseException {
 		DatabaseEntry k = new DatabaseEntry(key);
 		DatabaseEntry data = new DatabaseEntry(longToBytes(v, new byte[8], 0));
 		
@@ -58,7 +60,7 @@ public class BerkeleyDBMarkov implements Closeable, Markov {
 		db.put(null, k, data);
 	}
 	
-	private static byte[] counterKey(long pid, long sid) {
+	private byte[] counterKey(long pid, long sid) {
 		byte[] key = new byte[COUNTER.length + 16];
 		longToBytes(pid << 8, key, 0);
 		longToBytes(sid << 8, key, 8);
@@ -66,7 +68,7 @@ public class BerkeleyDBMarkov implements Closeable, Markov {
 		return key;
 	}
 	
-	private static byte[] hashedStringKey(long pid, long sid) {
+	private byte[] hashedStringKey(long pid, long sid) {
 		byte[] key = new byte[HASHED_STRING.length + 16];
 		longToBytes(pid << 8, key, 0);
 		longToBytes(sid << 8, key, 8);
@@ -74,7 +76,7 @@ public class BerkeleyDBMarkov implements Closeable, Markov {
 		return key;
 	}
 	
-	private static byte[] listedStringKey(long pid, long lid) {
+	private byte[] listedStringKey(long pid, long lid) {
 		byte[] key = new byte[LISTED_STRING.length + 16];
 		longToBytes(pid << 8, key, 0);
 		longToBytes(lid << 8, key, 8);
@@ -82,8 +84,11 @@ public class BerkeleyDBMarkov implements Closeable, Markov {
 		return key;
 	}
 	
-	private static long findPID(Database db, String prefix) throws DatabaseException {
-		long pid = (prefix.hashCode() & 0xFFFFFFFFL) << 24;
+	private long findPID(String prefix) throws DatabaseException {
+		Long pid = pids.get(prefix);
+		if(pid != null)
+			return pid;
+		pid = (prefix.hashCode() & 0xFFFFFFFFL) << 24;
 		DatabaseEntry data = new DatabaseEntry();
 		for(;;) {
 			if(pid == PREFIX_PID)
@@ -97,8 +102,11 @@ public class BerkeleyDBMarkov implements Closeable, Markov {
 		}
 	}
 	
-	private static long findSID(Database db, long pid, String suffix) throws DatabaseException {
-		long sid = (suffix.hashCode() & 0xFFFFFFFFL) << 24;
+	private long findSID(long pid, String suffix) throws DatabaseException {
+		Long sid = sids.get(suffix);
+		if(sid != null)
+			return sid;
+		sid = (suffix.hashCode() & 0xFFFFFFFFL) << 24;
 		DatabaseEntry data = new DatabaseEntry();
 		for(;;) {
 			if(sid == COUNT_SID)
@@ -112,29 +120,31 @@ public class BerkeleyDBMarkov implements Closeable, Markov {
 		}
 	}
 	
-	private static long findOrAddPID(Database db, String prefix) throws DatabaseException {
-		long pid = findPID(db, prefix);
+	private long findOrAddPID(String prefix) throws DatabaseException {
+		long pid = findPID(prefix);
 		if(pid >= 0)
 			return pid;
 		pid = -pid;
+		pids.put(prefix, pid);
 		DatabaseEntry key = new DatabaseEntry(hashedStringKey(PREFIX_PID, pid));
 		DatabaseEntry data = new DatabaseEntry(prefix.getBytes(UTF8));
 		db.put(null, key, data);
 		return pid;
 	}
 	
-	private static long findOrAddSID(Database db, long pid, String suffix) throws DatabaseException {
-		long sid = findSID(db, pid, suffix);
+	private long findOrAddSID(long pid, String suffix) throws DatabaseException {
+		long sid = findSID(pid, suffix);
 		if(sid >= 0)
 			return sid;
 		sid = -sid;
+		sids.put(suffix, sid);
 		DatabaseEntry key = new DatabaseEntry(hashedStringKey(pid, sid));
 		DatabaseEntry data = new DatabaseEntry(suffix.getBytes(UTF8));
 		db.put(null, key, data);
 		
-		long lid = getCounter(db, counterKey(pid, COUNT_SID));
+		long lid = getCounter(counterKey(pid, COUNT_SID));
 		lid++;
-		setCounter(db, counterKey(pid, COUNT_SID), lid);
+		setCounter(counterKey(pid, COUNT_SID), lid);
 		
 		key.setData(listedStringKey(pid, lid));
 		db.put(null, key, data);
@@ -142,31 +152,31 @@ public class BerkeleyDBMarkov implements Closeable, Markov {
 		return sid;
 	}
 	
-	private static long getCount(Database db, long pid, long sid) throws DatabaseException {
-		return getCounter(db, counterKey(pid, sid));
+	private long getCount(long pid, long sid) throws DatabaseException {
+		return getCounter(counterKey(pid, sid));
 	}
 	
-	private static long incrementCount(Database db, long pid, long sid) throws DatabaseException {
-		long count = getCount(db, pid, sid);
+	private long incrementCount(long pid, long sid) throws DatabaseException {
+		long count = getCount(pid, sid);
 		count++;
-		setCounter(db, counterKey(pid, sid), count);
+		setCounter(counterKey(pid, sid), count);
 		return count;
 	}
 	
-	private static long increment(Database db, String prefix, String suffix) throws DatabaseException {
-		long pid = findOrAddPID(db, prefix);
-		long sid = findOrAddSID(db, pid, suffix);
-		return incrementCount(db, pid, sid);
+	private long increment(String prefix, String suffix) throws DatabaseException {
+		long pid = findOrAddPID(prefix);
+		long sid = findOrAddSID(pid, suffix);
+		return incrementCount(pid, sid);
 	}
 	
-	private static Map<String, Long> counts(Database db, String prefix) throws DatabaseException {
-		long pid = findPID(db, prefix);
+	private Map<String, Long> counts(String prefix) throws DatabaseException {
+		long pid = findPID(prefix);
 		if(pid < 0)
 			return Collections.emptyMap();
 		
 		Map<String, Long> counts = new HashMap<>();
 		
-		long max = getCounter(db, counterKey(pid, COUNT_SID));
+		long max = getCounter(counterKey(pid, COUNT_SID));
 		
 		DatabaseEntry key = new DatabaseEntry();
 		DatabaseEntry data = new DatabaseEntry();
@@ -175,36 +185,40 @@ public class BerkeleyDBMarkov implements Closeable, Markov {
 			if(db.get(null, key, data, null) == OperationStatus.NOTFOUND)
 				return counts;
 			String suffix = new String(data.getData(), UTF8);
-			long sid = findSID(db, pid, suffix);
-			counts.put(suffix, getCount(db, pid, sid));
+			long sid = findSID(pid, suffix);
+			counts.put(suffix, getCount(pid, sid));
 		}
 		
 		return counts;
 	}
 	
-	private static double dsum(Iterable<Double> i) {
+	private double dsum(Iterable<Double> i) {
 		double v = 0;
 		for(Double l : i)
 			v += l;
 		return v;
 	}
 	
-	private static long lsum(Iterable<Long> i) {
+	private long lsum(Iterable<Long> i) {
 		long v = 0;
 		for(Long l : i)
 			v += l;
 		return v;
 	}
 	
-	protected Environment environment;
-	protected Database database;
-	protected boolean nosync;
+	private Environment environment;
+	private Database db;
+	private boolean nosync;
+	private double prefixPower = 5;
+	
+	private transient Map<String, Long> pids = new WeakHashMap<>();
+	private transient Map<String, Long> sids = new WeakHashMap<>();
 	
 	public BerkeleyDBMarkov() {}
 	
 	public BerkeleyDBMarkov(Environment environment, Database database) {
 		this.environment = environment;
-		this.database = database;
+		this.db = database;
 	}
 	
 	public Environment getEnvironment() {
@@ -212,7 +226,7 @@ public class BerkeleyDBMarkov implements Closeable, Markov {
 	}
 	
 	public Database getDatabase() {
-		return database;
+		return db;
 	}
 	
 	public boolean isNosync() {
@@ -220,7 +234,7 @@ public class BerkeleyDBMarkov implements Closeable, Markov {
 	}
 	
 	public void setDatabase(Database database) {
-		this.database = database;
+		this.db = database;
 	}
 	
 	public void setEnvironment(Environment environment) {
@@ -235,7 +249,7 @@ public class BerkeleyDBMarkov implements Closeable, Markov {
 	 * @see org.sujavabot.plugin.markov.Markov#consume(java.util.List, int)
 	 */
 	@Override
-	public void consume(List<String> content, int maxlen) throws DatabaseException {
+	public void consume(String context, List<String> content, int maxlen) throws DatabaseException {
 		if(content.size() == 0)
 			return;
 		content = new ArrayList<>(content);
@@ -248,9 +262,9 @@ public class BerkeleyDBMarkov implements Closeable, Markov {
 				prefix += SEP + p;
 			}
 			prefix = prefix.substring(SEP.length()).toLowerCase();
-			String suffix = content.get(Math.min(content.size() - 1, i + maxlen));
+			String suffix = content.get(Math.min(content.size() - 1, i + maxlen)) + " " + context;
 			for(;;) {
-				increment(database, prefix, suffix);
+				increment(prefix, suffix);
 				int idx = prefix.indexOf(SEP);
 				if(idx < 0)
 					break;
@@ -258,14 +272,14 @@ public class BerkeleyDBMarkov implements Closeable, Markov {
 			}
 		}
 		if(!nosync)
-			database.sync();
+			db.sync();
 	}
 	
 	/* (non-Javadoc)
 	 * @see org.sujavabot.plugin.markov.Markov#next(java.util.List)
 	 */
 	@Override
-	public String next(List<String> prefixes) throws DatabaseException {
+	public String next(String context, List<String> prefixes) throws DatabaseException {
 		String prefix = "";
 		for(String p : prefixes) {
 			prefix += SEP + p;
@@ -273,6 +287,23 @@ public class BerkeleyDBMarkov implements Closeable, Markov {
 		prefix = prefix.substring(SEP.length()).toLowerCase();
 		
 		Map<String, Double> suffixes = suffixes(prefix);
+		
+		if(context != null) {
+			Iterator<String> ki = suffixes.keySet().iterator();
+			while(ki.hasNext()) {
+				if(!ki.next().endsWith(" " + context))
+					ki.remove();
+			}
+		}
+
+		Map<String, Double> s = new HashMap<>();
+		for(Entry<String, Double> e : suffixes.entrySet()) {
+			String[] f = e.getKey().split(" ", 2);
+			if(!s.containsKey(f[0]))
+				s.put(f[0], 0.);
+			s.put(f[0], s.get(f[0]) + e.getValue());
+		}
+		suffixes = s;
 
 		double smax = dsum(suffixes.values());
 		double v = smax * Math.random();
@@ -288,11 +319,11 @@ public class BerkeleyDBMarkov implements Closeable, Markov {
 		Map<String, Double> suffixes = new HashMap<>();
 
 		for(;;) {
-			Map<String, Long> psuffixes = counts(database, prefix);
+			Map<String, Long> psuffixes = counts(prefix);
 			double smax = dsum(suffixes.values());
 			double pmax = lsum(psuffixes.values());
 			if(smax > 0) {
-				double mult = 5 * pmax / smax;
+				double mult = prefixPower * pmax / smax;
 				for(Entry<String, Double> e : suffixes.entrySet())
 					e.setValue(mult * e.getValue());
 			}
@@ -316,7 +347,15 @@ public class BerkeleyDBMarkov implements Closeable, Markov {
 	 */
 	@Override
 	public void close() throws IOException {
-		database.close();
+		db.close();
 		environment.close();
+	}
+
+	public double getPrefixPower() {
+		return prefixPower;
+	}
+
+	public void setPrefixPower(double prefixPower) {
+		this.prefixPower = prefixPower;
 	}
 }

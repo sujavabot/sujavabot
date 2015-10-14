@@ -2,7 +2,6 @@ package org.sujavabot.plugin.markov;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -58,6 +57,10 @@ public class HBaseMarkov implements Markov {
 	private Configuration conf;
 	private Table table;
 	private Long duration;
+	private boolean nosync;
+	private double prefixPower = 5;
+	
+	private transient List<Increment> rows = new ArrayList<>(); 
 	
 	public HBaseMarkov() {
 	}
@@ -74,6 +77,15 @@ public class HBaseMarkov implements Markov {
 		return duration;
 	}
 	
+	public boolean isNosync() {
+		return nosync;
+	}
+	
+	@Override
+	public double getPrefixPower() {
+		return prefixPower;
+	}
+	
 	public void setConf(Configuration conf) {
 		this.conf = conf;
 	}
@@ -86,8 +98,17 @@ public class HBaseMarkov implements Markov {
 		this.duration = duration;
 	}
 	
+	public void setNosync(boolean nosync) {
+		this.nosync = nosync;
+	}
+	
 	@Override
-	public void consume(List<String> content, int maxlen) throws Exception {
+	public void setPrefixPower(double prefixPower) {
+		this.prefixPower = prefixPower;
+	}
+	
+	@Override
+	public void consume(String context, List<String> content, int maxlen) throws Exception {
 		content = new ArrayList<>(content);
 		content.add(0, SOT);
 		content.add(EOT);
@@ -99,7 +120,7 @@ public class HBaseMarkov implements Markov {
 				List<String> prefix = content.subList(Math.max(0, i-j), i+1);
 				String suffix = content.get(i+1);
 				byte[] row = Bytes.toBytes(StringContent.join(prefix).toUpperCase());
-				byte[] qual = Bytes.toBytes(suffix);
+				byte[] qual = Bytes.toBytes(suffix + " " + context);
 				Increment inc = new Increment(row);
 				inc.addColumn(SUFFIX, qual, 1);
 				if(duration != null)
@@ -107,48 +128,66 @@ public class HBaseMarkov implements Markov {
 				incs.add(inc);
 			}
 		}
-		table.batch(incs, new Object[incs.size()]);
+		if(!nosync)
+			table.batch(incs, new Object[incs.size()]);
+		else
+			rows.addAll(incs);
 	}
 
-	private Map<String, Long> counts(String prefix) throws IOException {
-		byte[] row = Bytes.toBytes(prefix);
-		Get get = new Get(row);
-		get.addFamily(SUFFIX);
-		Result result = table.get(get);
-		if(result.isEmpty())
-			return Collections.emptyMap();
-		Map<String, Long> counts = new TreeMap<>();
-		for(Entry<byte[], byte[]> suffix : result.getFamilyMap(SUFFIX).entrySet())
-			counts.put(Bytes.toString(suffix.getKey()), Bytes.toLong(suffix.getValue()));
-		return counts;
+	public void sync() throws IOException, InterruptedException {
+		table.batch(rows, new Object[rows.size()]);
+		rows.clear();
 	}
 	
 	@Override
-	public String next(List<String> prefix) throws Exception {
+	public String next(String context, List<String> prefix) throws Exception {
 		prefix = new ArrayList<>(prefix);
-		Map<String, Double> suffixes = new TreeMap<>();
+
+		List<Get> gets = new ArrayList<>();
 		while(prefix.size() > 0) {
-			Map<String, Long> counts = counts(StringContent.join(prefix).toUpperCase());
+			byte[] row = Bytes.toBytes(StringContent.join(prefix).toUpperCase());
+			Get get = new Get(row);
+			get.addFamily(SUFFIX);
+			gets.add(get);
+			prefix.remove(0);
+		}
+		
+		Map<byte[], Double> suffixes = new TreeMap<>(Bytes.BYTES_COMPARATOR);
+		for(Result result : table.get(gets)) {
+			Map<byte[], Long> counts = new TreeMap<>(Bytes.BYTES_COMPARATOR);
+			if(!result.isEmpty()) {
+				for(Entry<byte[], byte[]> suffix : result.getFamilyMap(SUFFIX).entrySet()) {
+					String[] f = Bytes.toString(suffix.getKey()).split(" ", 2);
+					if(context != null && (f.length == 1 || !context.equals(f[1])))
+						continue;
+					byte[] s = Bytes.toBytes(f[0]);
+					if(!counts.containsKey(s))
+						counts.put(s, 0L);
+					counts.put(s, counts.get(s) + Bytes.toLong(suffix.getValue()));
+				}
+			}
 			double smax = dsum(suffixes.values());
 			double pmax = lsum(counts.values());
 			if(smax > 0) {
-				double mult = 5 * pmax / smax;
-				for(Entry<String, Double> e : suffixes.entrySet())
+				double mult = prefixPower * pmax / smax;
+				for(Entry<byte[], Double> e : suffixes.entrySet())
 					e.setValue(mult * e.getValue());
 			}
-			for(Entry<String, Long> e : counts.entrySet()) {
+			for(Entry<byte[], Long> e : counts.entrySet()) {
 				Double v = suffixes.get(e.getKey());
 				if(v == null)
 					v = 0.;
 				suffixes.put(e.getKey(), v + (double) (long) e.getValue());
 			}
-			prefix.remove(0);
 		}
+		
 		double smax = dsum(suffixes.values());
 		double v = smax * Math.random();
-		for(Entry<String, Double> e : suffixes.entrySet()) {
-			if(v < e.getValue())
-				return EOT.equals(e.getKey()) ? null : e.getKey();
+		for(Entry<byte[], Double> e : suffixes.entrySet()) {
+			if(v < e.getValue()) {
+				String sfx = Bytes.toString(e.getKey());
+				return EOT.equals(sfx) ? null : sfx;
+			}
 			v -= e.getValue();
 		}
 		return null;

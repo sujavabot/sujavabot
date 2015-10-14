@@ -3,6 +3,7 @@ package org.sujavabot.plugin.markov;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.regex.Pattern;
@@ -40,6 +41,7 @@ public class MarkovListenerConverter extends AbstractConverter<MarkovListener> {
 	protected void configure(MarkovListener current, MarshalHelper helper, MarkovListener defaults) {
 		Markov m = current.getMarkov();
 		helper.field("markov", () -> m);
+		helper.field("prefix-power", Double.class, () -> m.getPrefixPower());
 		helper.field("maxlen", Integer.class, () -> current.getMaxlen());
 		helper.field("prefix", String.class, () -> current.getPrefix().pattern());
 		helper.field("learn", Boolean.class, () -> current.isLearn());
@@ -48,6 +50,15 @@ public class MarkovListenerConverter extends AbstractConverter<MarkovListener> {
 		for(Pattern p : current.getIgnore())
 			helper.field("ignore", String.class, () -> p.pattern());
 		helper.field("shutdown-port", Integer.class, () -> current.getShutdownPort());
+		for(Entry<Pattern, String> e : current.getContexts().entrySet()) {
+			if(e.getKey().equals(current.getPrefix()))
+				continue;
+			helper.handler("context", (h) -> {
+				h.getWriter().addAttribute("pattern", e.getKey().pattern());
+				if(e.getValue() != null)
+					h.getWriter().addAttribute("context", e.getValue());
+			});
+		}
 	}
 
 	@Override
@@ -66,6 +77,7 @@ public class MarkovListenerConverter extends AbstractConverter<MarkovListener> {
 			UnmarshalHelper helper = new UnmarshalHelper(x, reader, context);
 
 			helper.field("markov", (o) -> m.put("markov", o));
+			helper.field("prefix-power", Double.class, (d) -> m.put("prefix-power", d));
 			helper.field("maxlen", Integer.class, i -> m.put("maxlen", i));
 			helper.field("prefix", String.class, s -> m.put("prefix", s));
 			helper.field("learn", Boolean.class, b -> m.put("learn", b));
@@ -74,9 +86,16 @@ public class MarkovListenerConverter extends AbstractConverter<MarkovListener> {
 			helper.field("thesaurus", Boolean.class, b -> m.put("thesaurus", b));
 			helper.field("shutdown-port", Integer.class, i -> m.put("shutdown-port", i));
 			
+			helper.handler("context", (o, h) -> {
+				Pattern p = Pattern.compile(h.getReader().getAttribute("pattern"));
+				String c = h.getReader().getAttribute("context");
+				ml.getContexts().put(p, c);
+			});
+			
 			helper.read(ml);
 
 			Markov markov = (Markov) m.get("markov");
+			markov.setPrefixPower((Double) m.getOrDefault("prefix-power", 5.));
 			
 			ml.setChannels(ch);
 			ml.setLearn((Boolean) m.getOrDefault("learn", true));

@@ -7,10 +7,13 @@ public interface Markov {
 	public static final String SOT = "\u0001";
 	public static final String EOT = "\u0002";
 
-	public void consume(List<String> content, int maxlen) throws Exception;
+	public void consume(String context, List<String> content, int maxlen) throws Exception;
 
-	public String next(List<String> prefix) throws Exception;
+	public String next(String context, List<String> prefix) throws Exception;
 
 	public void close() throws IOException;
+	
+	public double getPrefixPower();
+	public void setPrefixPower(double prefixPower);
 
 }
