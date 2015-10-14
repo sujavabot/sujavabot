@@ -87,8 +87,8 @@ public class MarkovListener extends ListenerAdapter<PircBotX> {
 			}
 		}
 		if(found) {
-//			m = m.substring(prefix.length()).trim();
-			m = m.substring(matcher.end()).trim();
+			if(matcher.start() > 0)
+				m = m.substring(matcher.end()).trim();
 			m = m.replaceAll("\\?+$", "");
 			List<String> prefix = StringContent.parse(m);
 			MarkovIterator mi = new MarkovIterator(context, markov, maxlen, prefix);
