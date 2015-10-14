@@ -93,17 +93,11 @@ public class MarkovListener extends ListenerAdapter<PircBotX> {
 			List<String> prefix = StringContent.parse(m);
 			MarkovIterator mi = new MarkovIterator(context, markov, maxlen, prefix);
 			List<String> ml = mi.toList();
-			while(ml.size() > 0 && ml.get(prefix.size()).matches("\\W+"))
-				ml.remove(0);
 			for(int i = 0; i < 10 && ml.size() == prefix.size(); i++) {
 				ml = new MarkovIterator(context, markov, maxlen, prefix).toList();
-				while(ml.size() > 0 && ml.get(0).matches("\\W+"))
-					ml.remove(0);
 			}
 			if(ml.size() == 0) {
 				ml = new MarkovIterator(context, markov, maxlen, Arrays.asList(Markov.SOT)).toList();
-				while(ml.size() > 0 && ml.get(0).matches("\\W+"))
-					ml.remove(0);
 			}
 			if(ml.size() == 0)
 				ml = Arrays.asList("i have nothing to say to that");
