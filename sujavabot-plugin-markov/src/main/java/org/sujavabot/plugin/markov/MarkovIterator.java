@@ -8,6 +8,7 @@ import java.util.NoSuchElementException;
 import com.google.common.base.Optional;
 
 public class MarkovIterator implements Iterator<String> {
+	protected String context;
 	protected List<String> prefix = new ArrayList<>();
 	protected Markov markov;
 	protected int maxlen;
@@ -15,7 +16,8 @@ public class MarkovIterator implements Iterator<String> {
 	protected List<String> init;
 	protected Optional<String> next;
 
-	public MarkovIterator(Markov markov, int maxlen, List<String> prefix) {
+	public MarkovIterator(String context, Markov markov, int maxlen, List<String> prefix) {
+		this.context = context;
 		this.markov = markov;
 		this.maxlen = maxlen;
 		this.prefix.addAll(prefix);
@@ -42,7 +44,7 @@ public class MarkovIterator implements Iterator<String> {
 			} else {
 				String n;
 				try {
-					n = markov.next(prefix);
+					n = markov.next(context, prefix);
 				} catch (Exception e) {
 					throw new RuntimeException(e);
 				}
