@@ -98,6 +98,7 @@ public class MarkovListener extends ListenerAdapter<PircBotX> {
 			}
 			if(ml.size() == 0) {
 				ml = new MarkovIterator(context, markov, maxlen, Arrays.asList(Markov.SOT)).toList();
+				ml.remove(0); // remove SOT
 			}
 			if(ml.size() == 0)
 				ml = Arrays.asList("i have nothing to say to that");
