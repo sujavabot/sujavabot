@@ -5,7 +5,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.regex.Matcher;
@@ -24,6 +27,8 @@ public class MarkovListener extends ListenerAdapter<PircBotX> {
 	protected Pattern prefix;
 	protected List<Pattern> ignore;
 	protected int shutdownPort = -1;
+	
+	protected Map<Pattern, String> contexts = new LinkedHashMap<>();
 	
 	protected List<String> responses = new ArrayList<>();
 	
@@ -56,25 +61,35 @@ public class MarkovListener extends ListenerAdapter<PircBotX> {
 				return;
 		}
 		String m = event.getMessage();
-		Matcher pm = prefix.matcher(m);
-		if(pm.find()) {
+		String context = null;
+		boolean found = false;
+		Matcher matcher = null;
+		for(Entry<Pattern, String> e : contexts.entrySet()) {
+			matcher = e.getKey().matcher(m);
+			if(matcher.find()) {
+				found = true;
+				context = e.getValue();
+				break;
+			}
+		}
+		if(found) {
 //			m = m.substring(prefix.length()).trim();
-			m = m.substring(pm.end()).trim();
+			m = m.substring(matcher.end()).trim();
 			m = m.replaceAll("\\?+$", "");
 			List<String> prefix = StringContent.parse(m);
-			MarkovIterator mi = new MarkovIterator(null, markov, maxlen, prefix);
+			MarkovIterator mi = new MarkovIterator(context, markov, maxlen, prefix);
 			List<String> ml = mi.toList();
 			ml.subList(0, prefix.size()).clear();
 			while(ml.size() > 0 && ml.get(0).matches("\\W+"))
 				ml.remove(0);
 			for(int i = 0; i < 10 && ml.size() == 0; i++) {
-				ml = new MarkovIterator(null, markov, maxlen, prefix).toList();
+				ml = new MarkovIterator(context, markov, maxlen, prefix).toList();
 				ml.subList(0, prefix.size()).clear();
 				while(ml.size() > 0 && ml.get(0).matches("\\W+"))
 					ml.remove(0);
 			}
 			if(ml.size() == 0) {
-				ml = new MarkovIterator(null, markov, maxlen, Arrays.asList(Markov.SOT)).toList();
+				ml = new MarkovIterator(context, markov, maxlen, Arrays.asList(Markov.SOT)).toList();
 				while(ml.size() > 0 && ml.get(0).matches("\\W+"))
 					ml.remove(0);
 			}
@@ -129,6 +144,7 @@ public class MarkovListener extends ListenerAdapter<PircBotX> {
 
 	public void setPrefix(Pattern prefix) {
 		this.prefix = prefix;
+		contexts.put(prefix, null);
 	}
 	
 	public List<Pattern> getIgnore() {
@@ -160,5 +176,13 @@ public class MarkovListener extends ListenerAdapter<PircBotX> {
 				}
 			}.start();
 		}
+	}
+
+	public Map<Pattern, String> getContexts() {
+		return contexts;
+	}
+
+	public void setContexts(Map<Pattern, String> contexts) {
+		this.contexts = contexts;
 	}
 }
