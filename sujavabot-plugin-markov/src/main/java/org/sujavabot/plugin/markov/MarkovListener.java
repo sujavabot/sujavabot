@@ -62,19 +62,19 @@ public class MarkovListener extends ListenerAdapter<PircBotX> {
 			m = m.substring(pm.end()).trim();
 			m = m.replaceAll("\\?+$", "");
 			List<String> prefix = StringContent.parse(m);
-			MarkovIterator mi = new MarkovIterator(markov, maxlen, prefix);
+			MarkovIterator mi = new MarkovIterator(null, markov, maxlen, prefix);
 			List<String> ml = mi.toList();
 			ml.subList(0, prefix.size()).clear();
 			while(ml.size() > 0 && ml.get(0).matches("\\W+"))
 				ml.remove(0);
 			for(int i = 0; i < 10 && ml.size() == 0; i++) {
-				ml = new MarkovIterator(markov, maxlen, prefix).toList();
+				ml = new MarkovIterator(null, markov, maxlen, prefix).toList();
 				ml.subList(0, prefix.size()).clear();
 				while(ml.size() > 0 && ml.get(0).matches("\\W+"))
 					ml.remove(0);
 			}
 			if(ml.size() == 0) {
-				ml = new MarkovIterator(markov, maxlen, Arrays.asList(Markov.SOT)).toList();
+				ml = new MarkovIterator(null, markov, maxlen, Arrays.asList(Markov.SOT)).toList();
 				while(ml.size() > 0 && ml.get(0).matches("\\W+"))
 					ml.remove(0);
 			}
@@ -103,7 +103,7 @@ public class MarkovListener extends ListenerAdapter<PircBotX> {
 				if(StringContent.LINK.matcher(ci.next()).matches())
 					ci.remove();
 			}
-			markov.consume(content, maxlen);
+			markov.consume(event.getUser().getNick(), content, maxlen);
 		}
 	}
 
