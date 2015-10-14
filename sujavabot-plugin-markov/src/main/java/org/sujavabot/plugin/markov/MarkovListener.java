@@ -72,12 +72,12 @@ public class MarkovListener extends ListenerAdapter<PircBotX> {
 		else
 			m = "fucking unidentified " + event.getUser().getNick() + " is";
 		List<String> prefix = StringContent.parse(m);
-		MarkovIterator mi = new MarkovIterator(markov, maxlen, prefix);
+		MarkovIterator mi = new MarkovIterator(null, markov, maxlen, prefix);
 		List<String> ml = mi.toList();
 		if(ml.get(ml.size()-1).isEmpty())
 			ml.remove(ml.size()-1);
 		for(int i = 0; i < 10 && ml.size() == prefix.size(); i++) {
-			ml = new MarkovIterator(markov, maxlen, prefix).toList();
+			ml = new MarkovIterator(null, markov, maxlen, prefix).toList();
 			if(ml.get(ml.size()-1).isEmpty())
 				ml.remove(ml.size()-1);
 		}
