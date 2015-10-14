@@ -43,17 +43,17 @@ public abstract class StringContent {
 	}
 
 	public static final Pattern TRAILERS = Pattern.compile(",|\\?|!");
-	public static final Pattern WORD = Pattern.compile("(?i)!?[a-z\\-_0-9]+(['’][a-z\\-_0-9]+)*['’]?");
-	public static final Pattern LINK = Pattern.compile("(?i)(https?:|ftp:|www\\.)\\S*");
-	public static final Pattern NUMBER = Pattern.compile("[0-9]+(\\.[0-9]*)?|\\.[0-9]+");
+	public static final Pattern WORD = Pattern.compile("(?i)(?<!(\\s|^))[a-z\\-_0-9]+(['’][a-z\\-_0-9]+)*['’]?");
+	public static final Pattern LINK = Pattern.compile("(?i)(?<!(\\s|^))(https?:|ftp:|www\\.)\\S*");
+	public static final Pattern NUMBER = Pattern.compile("(?<!(\\s|^))\\$?[0-9]+(\\.[0-9]*)?|\\.[0-9]+");
 	public static final Pattern ELLIPSES = Pattern.compile("\\.(\\s*\\.)*");
 
 	public static final Pattern TOKEN = any(
 			LINK,
 			NUMBER,
 			WORD,
-			TRAILERS,
-			ELLIPSES
+			ELLIPSES,
+			TRAILERS
 			);
 
 	private static Pattern any(Pattern... patterns) {
@@ -70,35 +70,24 @@ public abstract class StringContent {
 	}
 
 	public static List<String> parse(String s) {
-		return parse(new CharSubSequence(s.toCharArray(), 0, s.length()));
-	}
-
-	private static List<String> parse(CharSequence s) {
-		int len = -1;
-		int start = 0;
-		int end = 0;
+		List<String> tokens = new ArrayList<>();
+		int i = 0;
 		Matcher m = TOKEN.matcher(s);
-		String longest = null;
 		while(m.find()) {
-			String g = m.group();
-			if(g.length() > len) {
-				longest = g;
-				len = longest.length();
-				start = m.start();
-				end = m.end();
+			String p = s.substring(i, m.start()).trim();
+			if(!p.isEmpty()) {
+				for(String t : p.split("\\s+"))
+					tokens.add(t);
 			}
+			tokens.add(m.group());
+			i = m.end();
 		}
-		if(len == -1)
-			return Collections.emptyList();
-		List<String> p = new ArrayList<>();
-		if(start > 0)
-			p.addAll(parse(s.subSequence(0, start)));
-		if(ELLIPSES.matcher(longest).matches())
-			longest = longest.replaceAll("[^\\.]", "");
-		p.add(longest);
-		if(end < s.length())
-			p.addAll(parse(s.subSequence(end, s.length())));
-		return p;
+		String p = s.substring(i).trim();
+		if(!p.isEmpty()) {
+			for(String t : p.split("\\s+"))
+				tokens.add(t);
+		}
+		return tokens;
 	}
 
 	public static String join(List<String> chain) {
