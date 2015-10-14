@@ -6,6 +6,7 @@ import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -248,7 +249,7 @@ public class BerkeleyDBMarkov implements Closeable, Markov {
 	 * @see org.sujavabot.plugin.markov.Markov#consume(java.util.List, int)
 	 */
 	@Override
-	public void consume(List<String> content, int maxlen) throws DatabaseException {
+	public void consume(String context, List<String> content, int maxlen) throws DatabaseException {
 		if(content.size() == 0)
 			return;
 		content = new ArrayList<>(content);
@@ -261,7 +262,7 @@ public class BerkeleyDBMarkov implements Closeable, Markov {
 				prefix += SEP + p;
 			}
 			prefix = prefix.substring(SEP.length()).toLowerCase();
-			String suffix = content.get(Math.min(content.size() - 1, i + maxlen));
+			String suffix = content.get(Math.min(content.size() - 1, i + maxlen)) + " " + context;
 			for(;;) {
 				increment(prefix, suffix);
 				int idx = prefix.indexOf(SEP);
@@ -278,7 +279,7 @@ public class BerkeleyDBMarkov implements Closeable, Markov {
 	 * @see org.sujavabot.plugin.markov.Markov#next(java.util.List)
 	 */
 	@Override
-	public String next(List<String> prefixes) throws DatabaseException {
+	public String next(String context, List<String> prefixes) throws DatabaseException {
 		String prefix = "";
 		for(String p : prefixes) {
 			prefix += SEP + p;
@@ -286,6 +287,23 @@ public class BerkeleyDBMarkov implements Closeable, Markov {
 		prefix = prefix.substring(SEP.length()).toLowerCase();
 		
 		Map<String, Double> suffixes = suffixes(prefix);
+		
+		if(context != null) {
+			Iterator<String> ki = suffixes.keySet().iterator();
+			while(ki.hasNext()) {
+				if(!ki.next().endsWith(" " + context))
+					ki.remove();
+			}
+		}
+
+		Map<String, Double> s = new HashMap<>();
+		for(Entry<String, Double> e : suffixes.entrySet()) {
+			String[] f = e.getKey().split(" ", 2);
+			if(!s.containsKey(f[0]))
+				s.put(f[0], 0.);
+			s.put(f[0], s.get(f[0]) + e.getValue());
+		}
+		suffixes = s;
 
 		double smax = dsum(suffixes.values());
 		double v = smax * Math.random();

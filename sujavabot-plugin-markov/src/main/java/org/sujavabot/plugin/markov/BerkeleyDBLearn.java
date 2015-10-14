@@ -24,6 +24,9 @@ public class BerkeleyDBLearn {
 		int maxlen = Integer.parseInt(args[0]);
 		args = Arrays.copyOfRange(args, 1, args.length);
 		
+		String context = args[0];
+		args = Arrays.copyOfRange(args, 1, args.length);
+		
 		envHome.mkdirs();
 
 		EnvironmentConfig ec = new EnvironmentConfig();
@@ -56,7 +59,7 @@ public class BerkeleyDBLearn {
 				List<String> words = StringContent.parse(line);
 				if(words.size() == 0)
 					continue;
-				markov.consume(words, maxlen);
+				markov.consume(context, words, maxlen);
 				long read = total - in.available();
 				long rpct = read * 100 / total;
 				if(pct != rpct) {

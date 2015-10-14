@@ -4,7 +4,6 @@ import java.io.BufferedReader;
 import java.io.FileInputStream;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.util.Arrays;
 import java.util.List;
 
 import org.apache.hadoop.conf.Configuration;
@@ -14,7 +13,6 @@ import org.apache.hadoop.hbase.client.Admin;
 import org.apache.hadoop.hbase.client.Connection;
 import org.apache.hadoop.hbase.client.ConnectionFactory;
 import org.apache.hadoop.hbase.client.HTable;
-import org.apache.hadoop.hbase.client.Table;
 import org.apache.hadoop.util.GenericOptionsParser;
 import org.apache.log4j.xml.DOMConfigurator;
 
@@ -27,13 +25,15 @@ public class HBaseLearn {
 		conf = parser.getConfiguration();
 		args = parser.getRemainingArgs();
 		
-		System.out.println(Arrays.asList(args));
-		
 		TableName name = TableName.valueOf(conf.get("table"));
 		Long duration = null;
 		if(conf.get("duration") != null)
 			duration = conf.getLong("duration", 0);
 
+		String context = conf.get("context");
+		if(context == null)
+			throw new IllegalArgumentException("must supply -Dcontext=");
+		
 		int maxlen = conf.getInt("maxlen", 5);
 
 		Connection cxn = ConnectionFactory.createConnection(conf);
@@ -46,14 +46,15 @@ public class HBaseLearn {
 				admin.close();
 			}
 			
+			@SuppressWarnings("deprecation")
 			HTable table = new HTable(name, cxn);
-			table.setAutoFlush(false, false);
-			table.setWriteBufferSize(1024*1024);
+			table.setAutoFlush(true, false);
 			
 			HBaseMarkov markov = new HBaseMarkov();
 			markov.setConf(conf);
 			markov.setDuration(duration);
 			markov.setTable(table);
+			markov.setNosync(true);
 
 			InputStream[] inputs = new InputStream[] { System.in };
 			if(args.length > 0) {
@@ -72,7 +73,7 @@ public class HBaseLearn {
 					List<String> words = StringContent.parse(line);
 					if(words.size() == 0)
 						continue;
-					markov.consume(words, maxlen);
+					markov.consume(context, words, maxlen);
 					long read = total - in.available();
 					long rpct = read * 100 / total;
 					if(pct != rpct) {

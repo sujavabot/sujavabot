@@ -3,6 +3,7 @@ package org.sujavabot.plugin.markov;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.regex.Pattern;
@@ -49,6 +50,15 @@ public class MarkovListenerConverter extends AbstractConverter<MarkovListener> {
 		for(Pattern p : current.getIgnore())
 			helper.field("ignore", String.class, () -> p.pattern());
 		helper.field("shutdown-port", Integer.class, () -> current.getShutdownPort());
+		for(Entry<Pattern, String> e : current.getContexts().entrySet()) {
+			if(e.getKey().equals(current.getPrefix()))
+				continue;
+			helper.handler("context", (h) -> {
+				h.getWriter().addAttribute("pattern", e.getKey().pattern());
+				if(e.getValue() != null)
+					h.getWriter().addAttribute("context", e.getValue());
+			});
+		}
 	}
 
 	@Override
@@ -75,6 +85,12 @@ public class MarkovListenerConverter extends AbstractConverter<MarkovListener> {
 			helper.field("ignore", String.class, s -> ml.getIgnore().add(Pattern.compile(s)));
 			helper.field("thesaurus", Boolean.class, b -> m.put("thesaurus", b));
 			helper.field("shutdown-port", Integer.class, i -> m.put("shutdown-port", i));
+			
+			helper.handler("context", (o, h) -> {
+				Pattern p = Pattern.compile(h.getReader().getAttribute("pattern"));
+				String c = h.getReader().getAttribute("context");
+				ml.getContexts().put(p, c);
+			});
 			
 			helper.read(ml);
 
