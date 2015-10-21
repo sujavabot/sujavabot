@@ -7,6 +7,7 @@ import org.apache.hadoop.hbase.client.Admin;
 import org.apache.hadoop.hbase.client.Connection;
 import org.apache.hadoop.hbase.client.ConnectionFactory;
 import org.apache.hadoop.hbase.client.Table;
+import org.apache.hadoop.hbase.util.Bytes;
 import org.sujavabot.core.util.Throwables;
 import org.sujavabot.core.xml.AbstractConverter;
 import org.sujavabot.core.xml.ConverterHelpers.MarshalHelper;
@@ -39,6 +40,7 @@ public class HBaseMarkovConverter extends AbstractConverter<HBaseMarkov> {
 	@Override
 	protected void configure(HBaseMarkov current, MarshalHelper helper, HBaseMarkov defaults) {
 		helper.field("table", String.class, () -> current.getTable().getName().getNameAsString());
+		helper.field("family", String.class, () -> Bytes.toString(current.getFamily()));
 		if(current.getDuration() != null)
 			helper.field("duration", Long.class, () -> current.getDuration());
 		helper.field(HConstants.ZOOKEEPER_QUORUM, String.class, () -> current.getConf().get(HConstants.ZOOKEEPER_QUORUM));
@@ -63,6 +65,8 @@ public class HBaseMarkovConverter extends AbstractConverter<HBaseMarkov> {
 			TableName name = TableName.valueOf(conf.get("table"));
 			
 			ml.setConf(conf);
+			if(conf.get("family") != null)
+				ml.setFamily(Bytes.toBytes(conf.get("family")));
 			if(conf.get("duration") != null)
 				ml.setDuration(conf.getLong("duration", 0));
 			Connection cxn = ConnectionFactory.createConnection(conf);
