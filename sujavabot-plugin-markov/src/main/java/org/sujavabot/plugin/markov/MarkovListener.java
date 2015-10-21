@@ -21,6 +21,7 @@ import org.pircbotx.hooks.events.MessageEvent;
 
 public class MarkovListener extends ListenerAdapter<PircBotX> {
 	protected Markov markov;
+	protected Markov inverseMarkov;
 	protected int maxlen;
 	protected Set<String> channels;
 	protected boolean learn;
@@ -199,5 +200,13 @@ public class MarkovListener extends ListenerAdapter<PircBotX> {
 
 	public void setContexts(Map<Pattern, String> contexts) {
 		this.contexts = contexts;
+	}
+
+	public Markov getInverseMarkov() {
+		return inverseMarkov;
+	}
+
+	public void setInverseMarkov(Markov inverseMarkov) {
+		this.inverseMarkov = inverseMarkov;
 	}
 }
