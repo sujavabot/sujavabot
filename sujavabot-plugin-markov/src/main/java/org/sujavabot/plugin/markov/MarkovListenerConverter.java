@@ -40,7 +40,10 @@ public class MarkovListenerConverter extends AbstractConverter<MarkovListener> {
 	@Override
 	protected void configure(MarkovListener current, MarshalHelper helper, MarkovListener defaults) {
 		Markov m = current.getMarkov();
+		Markov im = current.getInverseMarkov();
 		helper.field("markov", () -> m);
+		if(im != null)
+			helper.field("inverse-markov", () -> im);
 		helper.field("prefix-power", Double.class, () -> m.getPrefixPower());
 		helper.field("maxlen", Integer.class, () -> current.getMaxlen());
 		helper.field("prefix", String.class, () -> current.getPrefix().pattern());
@@ -77,6 +80,7 @@ public class MarkovListenerConverter extends AbstractConverter<MarkovListener> {
 			UnmarshalHelper helper = new UnmarshalHelper(x, reader, context);
 
 			helper.field("markov", (o) -> m.put("markov", o));
+			helper.field("inverse-markov", (o) -> m.put("inverse-markov", o));
 			helper.field("prefix-power", Double.class, (d) -> m.put("prefix-power", d));
 			helper.field("maxlen", Integer.class, i -> m.put("maxlen", i));
 			helper.field("prefix", String.class, s -> m.put("prefix", s));
@@ -96,10 +100,13 @@ public class MarkovListenerConverter extends AbstractConverter<MarkovListener> {
 
 			Markov markov = (Markov) m.get("markov");
 			markov.setPrefixPower((Double) m.getOrDefault("prefix-power", 5.));
+			Markov im = (Markov) m.get("inverse-markov");
+			im.setPrefixPower(markov.getPrefixPower());
 			
 			ml.setChannels(ch);
 			ml.setLearn((Boolean) m.getOrDefault("learn", true));
 			ml.setMarkov(markov);
+			ml.setInverseMarkov(im);
 			ml.setMaxlen((Integer) m.getOrDefault("maxlen", 5));
 			ml.setPrefix(Pattern.compile((String) m.getOrDefault("prefix", "@markov ")));
 			

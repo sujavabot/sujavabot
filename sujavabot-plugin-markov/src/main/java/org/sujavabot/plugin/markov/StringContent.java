@@ -76,16 +76,22 @@ public abstract class StringContent {
 		while(m.find()) {
 			String p = s.substring(i, m.start()).trim();
 			if(!p.isEmpty()) {
-				for(String t : p.split("\\s+"))
-					tokens.add(t);
+				for(String t : p.split("\\s+")) {
+					t = t.replaceAll("[\"'`]", "");
+					if(!t.isEmpty())
+						tokens.add(t);
+				}
 			}
 			tokens.add(m.group().trim());
 			i = m.end();
 		}
 		String p = s.substring(i).trim();
 		if(!p.isEmpty()) {
-			for(String t : p.split("\\s+"))
-				tokens.add(t);
+			for(String t : p.split("\\s+")) {
+				t = t.replaceAll("[\"'`]", "");
+				if(!t.isEmpty())
+					tokens.add(t);
+			}
 		}
 		return tokens;
 	}
