@@ -21,6 +21,7 @@ import org.pircbotx.hooks.events.MessageEvent;
 
 public class MarkovListener extends ListenerAdapter<PircBotX> {
 	protected Markov markov;
+	protected Markov inverseMarkov;
 	protected int maxlen;
 	protected Set<String> channels;
 	protected boolean learn;
@@ -98,14 +99,15 @@ public class MarkovListener extends ListenerAdapter<PircBotX> {
 				ml.remove(0);
 			for(int i = 0; i < 10 && ml.size() == 0; i++) {
 				ml = new MarkovIterator(context, markov, maxlen, prefix).toList();
-				ml.subList(0, prefix.size()).clear();
-				while(ml.size() > 0 && ml.get(0).matches("\\W+"))
-					ml.remove(0);
+				if(inverseMarkov != null) {
+					Collections.reverse(ml);
+					ml = new MarkovIterator(context, inverseMarkov, maxlen, ml).toList();
+					Collections.reverse(ml);
+				}
 			}
-			if(ml.size() == 0) {
+			if(ml.size() == prefix.size()) {
 				ml = new MarkovIterator(context, markov, maxlen, Arrays.asList(Markov.SOT)).toList();
-				while(ml.size() > 0 && ml.get(0).matches("\\W+"))
-					ml.remove(0);
+				ml.remove(0);
 			}
 			if(ml.size() == 0)
 				ml = Arrays.asList("i have nothing to say to that");
@@ -132,8 +134,13 @@ public class MarkovListener extends ListenerAdapter<PircBotX> {
 				if(StringContent.LINK.matcher(ci.next()).matches())
 					ci.remove();
 			}
-			if(content.size() > 0)
+			if(content.size() > 0) {
 				markov.consume(event.getUser().getNick(), content, maxlen);
+				if(inverseMarkov != null) {
+					Collections.reverse(content);
+					inverseMarkov.consume(event.getUser().getNick(), content, maxlen);
+				}
+			}
 		}
 	}
 
@@ -199,5 +206,13 @@ public class MarkovListener extends ListenerAdapter<PircBotX> {
 
 	public void setContexts(Map<Pattern, String> contexts) {
 		this.contexts = contexts;
+	}
+
+	public Markov getInverseMarkov() {
+		return inverseMarkov;
+	}
+
+	public void setInverseMarkov(Markov inverseMarkov) {
+		this.inverseMarkov = inverseMarkov;
 	}
 }
