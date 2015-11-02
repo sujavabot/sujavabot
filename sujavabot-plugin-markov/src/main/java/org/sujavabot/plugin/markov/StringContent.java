@@ -55,6 +55,8 @@ public abstract class StringContent {
 			ELLIPSES,
 			TRAILERS
 			);
+	
+	public static final Pattern STRIP = Pattern.compile("[\"'`\\(\\)\\[\\]\\{\\}]");
 
 	private static Pattern any(Pattern... patterns) {
 		String sep = "";
@@ -77,7 +79,7 @@ public abstract class StringContent {
 			String p = s.substring(i, m.start()).trim();
 			if(!p.isEmpty()) {
 				for(String t : p.split("\\s+")) {
-					t = t.replaceAll("[\"'`]", "");
+					t = t.replaceAll(STRIP.pattern(), "");
 					if(!t.isEmpty())
 						tokens.add(t);
 				}
@@ -88,7 +90,7 @@ public abstract class StringContent {
 		String p = s.substring(i).trim();
 		if(!p.isEmpty()) {
 			for(String t : p.split("\\s+")) {
-				t = t.replaceAll("[\"'`]", "");
+				t = t.replaceAll(STRIP.pattern(), "");
 				if(!t.isEmpty())
 					tokens.add(t);
 			}
@@ -100,6 +102,9 @@ public abstract class StringContent {
 		StringBuilder sb = new StringBuilder();
 
 		for(String word : chain) {
+			word = word.replaceAll(STRIP.pattern(), "");
+			if(word.isEmpty())
+				continue;
 			if(sb.length() > 0 && word.matches(".*\\w.*"))
 				sb.append(' ');
 			sb.append(word);
