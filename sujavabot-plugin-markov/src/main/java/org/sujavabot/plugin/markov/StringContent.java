@@ -102,7 +102,8 @@ public abstract class StringContent {
 		StringBuilder sb = new StringBuilder();
 
 		for(String word : chain) {
-			word = word.replaceAll(STRIP.pattern(), "");
+			if(!TOKEN.matcher(word).matches())
+				word = word.replaceAll(STRIP.pattern(), "");
 			if(word.isEmpty())
 				continue;
 			if(sb.length() > 0 && word.matches(".*\\w.*"))
