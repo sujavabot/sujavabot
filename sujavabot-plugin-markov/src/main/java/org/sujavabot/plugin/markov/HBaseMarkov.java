@@ -125,6 +125,8 @@ public class HBaseMarkov implements Markov {
 				List<String> prefix = content.subList(Math.max(0, i-j), i+1);
 				String suffix = content.get(i+1);
 				byte[] row = Bytes.toBytes(StringContent.join(prefix).toUpperCase());
+				if(row.length == 0)
+					continue;
 				byte[] qual = Bytes.toBytes(suffix + " " + context);
 				Increment inc = new Increment(row);
 				inc.addColumn(family, qual, 1);
