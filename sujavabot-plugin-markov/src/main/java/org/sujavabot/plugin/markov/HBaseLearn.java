@@ -42,6 +42,8 @@ public class HBaseLearn {
 		byte[] family = Bytes.toBytes(familyName);
 		
 		boolean inverse = conf.getBoolean("inverse", false);
+		
+		boolean buffer = conf.getBoolean("buffer", true);
 
 		Connection cxn = ConnectionFactory.createConnection(conf);
 		try {
@@ -84,6 +86,8 @@ public class HBaseLearn {
 					if(inverse)
 						Collections.reverse(words);
 					markov.consume(context, words, maxlen);
+					if(!buffer)
+						markov.sync();
 					long read = total - in.available();
 					long rpct = read * 100 / total;
 					if(pct != rpct) {
