@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.FileInputStream;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.util.Collections;
 import java.util.List;
 
 import org.apache.hadoop.conf.Configuration;
@@ -13,6 +14,7 @@ import org.apache.hadoop.hbase.client.Admin;
 import org.apache.hadoop.hbase.client.Connection;
 import org.apache.hadoop.hbase.client.ConnectionFactory;
 import org.apache.hadoop.hbase.client.HTable;
+import org.apache.hadoop.hbase.util.Bytes;
 import org.apache.hadoop.util.GenericOptionsParser;
 import org.apache.log4j.xml.DOMConfigurator;
 
@@ -35,13 +37,18 @@ public class HBaseLearn {
 			throw new IllegalArgumentException("must supply -Dcontext=");
 		
 		int maxlen = conf.getInt("maxlen", 5);
+		
+		String familyName = conf.get("family", "suffix");
+		byte[] family = Bytes.toBytes(familyName);
+		
+		boolean inverse = conf.getBoolean("inverse", false);
 
 		Connection cxn = ConnectionFactory.createConnection(conf);
 		try {
 			Admin admin = cxn.getAdmin();
 			try {
 				if(!admin.tableExists(name))
-					HBaseMarkov.createTable(conf, name);
+					HBaseMarkov.createTable(conf, name, family);
 			} finally {
 				admin.close();
 			}
@@ -54,6 +61,7 @@ public class HBaseLearn {
 			markov.setConf(conf);
 			markov.setDuration(duration);
 			markov.setTable(table);
+			markov.setFamily(family);
 			markov.setNosync(true);
 
 			InputStream[] inputs = new InputStream[] { System.in };
@@ -73,6 +81,8 @@ public class HBaseLearn {
 					List<String> words = StringContent.parse(line);
 					if(words.size() == 0)
 						continue;
+					if(inverse)
+						Collections.reverse(words);
 					markov.consume(context, words, maxlen);
 					long read = total - in.available();
 					long rpct = read * 100 / total;
