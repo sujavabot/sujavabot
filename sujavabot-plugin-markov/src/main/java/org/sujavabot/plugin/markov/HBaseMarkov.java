@@ -21,16 +21,20 @@ import org.apache.hadoop.hbase.client.Table;
 import org.apache.hadoop.hbase.util.Bytes;
 
 public class HBaseMarkov implements Markov {
-	private static final byte[] SUFFIX = Bytes.toBytes("suffix");
+	private static final byte[] DEFAULT_FAMILY = Bytes.toBytes("suffix");
 	
 	public static void createTable(Configuration conf, TableName name) throws IOException {
+		createTable(conf, name, DEFAULT_FAMILY);
+	}
+	
+	public static void createTable(Configuration conf, TableName name, byte[]... families) throws IOException {
 		Connection cxn = ConnectionFactory.createConnection(conf);
 		try {
 			Admin admin = cxn.getAdmin();
 			try {
 				HTableDescriptor htd = new HTableDescriptor(name);
-				HColumnDescriptor suffix = new HColumnDescriptor(SUFFIX);
-				htd.addFamily(suffix);
+				for(byte[] f : families)
+					htd.addFamily(new HColumnDescriptor(f));
 				admin.createTable(htd);
 			} finally {
 				admin.close();
@@ -56,6 +60,7 @@ public class HBaseMarkov implements Markov {
 	
 	private Configuration conf;
 	private Table table;
+	private byte[] family = DEFAULT_FAMILY;
 	private Long duration;
 	private boolean nosync;
 	private double prefixPower = 5;
@@ -122,7 +127,7 @@ public class HBaseMarkov implements Markov {
 				byte[] row = Bytes.toBytes(StringContent.join(prefix).toUpperCase());
 				byte[] qual = Bytes.toBytes(suffix + " " + context);
 				Increment inc = new Increment(row);
-				inc.addColumn(SUFFIX, qual, 1);
+				inc.addColumn(family, qual, 1);
 				if(duration != null)
 					inc.setTimeRange(startTS, stopTS);
 				incs.add(inc);
@@ -147,7 +152,7 @@ public class HBaseMarkov implements Markov {
 		while(prefix.size() > 0) {
 			byte[] row = Bytes.toBytes(StringContent.join(prefix).toUpperCase());
 			Get get = new Get(row);
-			get.addFamily(SUFFIX);
+			get.addFamily(family);
 			gets.add(get);
 			prefix.remove(0);
 		}
@@ -156,7 +161,7 @@ public class HBaseMarkov implements Markov {
 		for(Result result : table.get(gets)) {
 			Map<byte[], Long> counts = new TreeMap<>(Bytes.BYTES_COMPARATOR);
 			if(!result.isEmpty()) {
-				for(Entry<byte[], byte[]> suffix : result.getFamilyMap(SUFFIX).entrySet()) {
+				for(Entry<byte[], byte[]> suffix : result.getFamilyMap(family).entrySet()) {
 					String[] f = Bytes.toString(suffix.getKey()).split(" ", 2);
 					if(context != null && (f.length == 1 || !context.equals(f[1])))
 						continue;
@@ -196,6 +201,14 @@ public class HBaseMarkov implements Markov {
 	@Override
 	public void close() throws IOException {
 		table.close();
+	}
+
+	public byte[] getFamily() {
+		return family;
+	}
+
+	public void setFamily(byte[] family) {
+		this.family = family;
 	}
 
 }
