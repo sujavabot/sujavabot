@@ -151,6 +151,8 @@ public class HBaseMarkov implements Markov {
 		List<Get> gets = new ArrayList<>();
 		while(prefix.size() > 0) {
 			byte[] row = Bytes.toBytes(StringContent.join(prefix).toUpperCase());
+			if(row.length == 0)
+				break;
 			Get get = new Get(row);
 			get.addFamily(family);
 			gets.add(get);
