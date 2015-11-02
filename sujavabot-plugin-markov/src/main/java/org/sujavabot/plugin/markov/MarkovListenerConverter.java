@@ -101,7 +101,8 @@ public class MarkovListenerConverter extends AbstractConverter<MarkovListener> {
 			Markov markov = (Markov) m.get("markov");
 			markov.setPrefixPower((Double) m.getOrDefault("prefix-power", 5.));
 			Markov im = (Markov) m.get("inverse-markov");
-			im.setPrefixPower(markov.getPrefixPower());
+			if(im != null)
+				im.setPrefixPower(markov.getPrefixPower());
 			
 			ml.setChannels(ch);
 			ml.setLearn((Boolean) m.getOrDefault("learn", true));
