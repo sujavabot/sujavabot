@@ -92,12 +92,8 @@ public class MarkovListener extends ListenerAdapter<PircBotX> {
 				m = m.substring(matcher.end()).trim();
 			m = m.replaceAll("\\?+$", "");
 			List<String> prefix = StringContent.parse(m);
-			MarkovIterator mi = new MarkovIterator(context, markov, maxlen, prefix);
-			List<String> ml = mi.toList();
-			ml.subList(0, prefix.size()).clear();
-			while(ml.size() > 0 && ml.get(0).matches("\\W+"))
-				ml.remove(0);
-			for(int i = 0; i < 10 && ml.size() == 0; i++) {
+			List<String> ml = new MarkovIterator(context, markov, maxlen, prefix).toList();
+			for(int i = 0; i < 10 && ml.size() == prefix.size(); i++) {
 				ml = new MarkovIterator(context, markov, maxlen, prefix).toList();
 				if(inverseMarkov != null) {
 					Collections.reverse(ml);
