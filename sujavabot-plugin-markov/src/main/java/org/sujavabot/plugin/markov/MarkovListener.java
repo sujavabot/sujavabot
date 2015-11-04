@@ -143,13 +143,17 @@ public class MarkovListener extends ListenerAdapter<PircBotX> {
 			m = m.replaceAll("\\?+$", "");
 			List<String> prefix = StringContent.parse(m);
 			List<String> ml = prefix;
-			for(int i = 0; i < 10 && ml.size() == prefix.size(); i++) {
+			int size = ml.size();
+			for(int i = 0; i < 10 && ml.size() == size; i++) {
 				ml = new MarkovIterator(context, markov, maxlen, prefix).toList();
-				if(inverseMarkov != null) {
-					Collections.reverse(ml);
+			}
+			if(inverseMarkov != null) {
+				Collections.reverse(ml);
+				size = ml.size();
+				for(int i = 0; i < 10 && ml.size() == size; i++) {
 					ml = new MarkovIterator(context, inverseMarkov, maxlen, ml).toList();
-					Collections.reverse(ml);
 				}
+				Collections.reverse(ml);
 			}
 			if(ml.size() == prefix.size()) {
 				ml = new MarkovIterator(context, markov, maxlen, Arrays.asList(Markov.SOT)).toList();
