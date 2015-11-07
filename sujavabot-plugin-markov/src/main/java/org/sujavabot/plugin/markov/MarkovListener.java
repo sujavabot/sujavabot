@@ -153,14 +153,16 @@ public class MarkovListener extends ListenerAdapter<PircBotX> {
 			}
 			if(inverseMarkov != null) {
 				Collections.reverse(ml);
-				size = ml.size();
+				List<String> l = ml;
+				size = l.size();
 				for(int i = 0; i < 10; i++) {
-					List<String> ml2 = new MarkovIterator(context, inverseMarkov, maxlen, ml).toList();
-					if(ml2.size() > size) {
-						size = ml2.size();
-						ml = ml2;
+					List<String> l2 = new MarkovIterator(context, inverseMarkov, maxlen, ml).toList();
+					if(l2.size() > size) {
+						size = l2.size();
+						l = l2;
 					}
 				}
+				ml = l;
 				Collections.reverse(ml);
 			}
 			if(ml.size() == prefix.size()) {
