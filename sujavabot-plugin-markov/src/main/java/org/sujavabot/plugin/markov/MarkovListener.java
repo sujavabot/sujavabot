@@ -94,20 +94,37 @@ public class MarkovListener extends ListenerAdapter<PircBotX> {
 			List<String> prefix = StringContent.parse(m);
 			List<String> ml = prefix;
 			int size = ml.size();
-			for(int i = 0; i < 10 && ml.size() == size; i++) {
-				ml = new MarkovIterator(context, markov, maxlen, prefix).toList();
+			for(int i = 0; i < 10; i++) {
+				List<String> ml2 = new MarkovIterator(context, markov, maxlen, prefix).toList();
+				if(ml2.size() > size) {
+					size = ml2.size();
+					ml = ml2;
+				}
 			}
 			if(inverseMarkov != null) {
 				Collections.reverse(ml);
 				size = ml.size();
-				for(int i = 0; i < 10 && ml.size() == size; i++) {
-					ml = new MarkovIterator(context, inverseMarkov, maxlen, ml).toList();
+				for(int i = 0; i < 10; i++) {
+					List<String> ml2 = new MarkovIterator(context, inverseMarkov, maxlen, ml).toList();
+					if(ml2.size() > size) {
+						size = ml2.size();
+						ml = ml2;
+					}
 				}
 				Collections.reverse(ml);
 			}
 			if(ml.size() == prefix.size()) {
 				ml = new MarkovIterator(context, markov, maxlen, Arrays.asList(Markov.SOT)).toList();
 				ml.remove(0);
+				size = ml.size();
+				for(int i = 0; i < 10; i++) {
+					List<String> ml2 = new MarkovIterator(context, markov, maxlen, Arrays.asList(Markov.SOT)).toList();
+					ml2.remove(0);
+					if(ml2.size() > size) {
+						size = ml2.size();
+						ml = ml2;
+					}
+				}
 			}
 			if(ml.size() == 0)
 				ml = Arrays.asList("i have nothing to say to that");
