@@ -16,6 +16,7 @@ import java.util.regex.Pattern;
 
 import org.pircbotx.PircBotX;
 import org.pircbotx.hooks.ListenerAdapter;
+import org.pircbotx.hooks.events.ActionEvent;
 import org.pircbotx.hooks.events.MessageEvent;
 
 
@@ -28,6 +29,8 @@ public class MarkovListener extends ListenerAdapter<PircBotX> {
 	protected Pattern prefix;
 	protected List<Pattern> ignore;
 	protected int shutdownPort = -1;
+	
+	protected int extensions = 10;
 	
 	protected Map<Pattern, String> contexts = new LinkedHashMap<>();
 	
@@ -92,9 +95,9 @@ public class MarkovListener extends ListenerAdapter<PircBotX> {
 				m = m.substring(matcher.end()).trim();
 			m = m.replaceAll("\\?+$", "");
 			List<String> prefix = StringContent.parse(m);
-			List<String> ml = prefix;
+			List<String> ml = new MarkovIterator(context, markov, maxlen, prefix).toList();
 			int size = ml.size();
-			for(int i = 0; i < 10; i++) {
+			for(int i = 0; i < extensions; i++) {
 				List<String> ml2 = new MarkovIterator(context, markov, maxlen, prefix).toList();
 				if(ml2.size() > size) {
 					size = ml2.size();
@@ -105,7 +108,7 @@ public class MarkovListener extends ListenerAdapter<PircBotX> {
 				Collections.reverse(ml);
 				List<String> l = ml;
 				size = l.size();
-				for(int i = 0; i < 10; i++) {
+				for(int i = 0; i < extensions; i++) {
 					List<String> l2 = new MarkovIterator(context, inverseMarkov, maxlen, ml).toList();
 					if(l2.size() > size) {
 						size = l2.size();
@@ -119,7 +122,7 @@ public class MarkovListener extends ListenerAdapter<PircBotX> {
 				ml = new MarkovIterator(context, markov, maxlen, Arrays.asList(Markov.SOT)).toList();
 				ml.remove(0);
 				size = ml.size();
-				for(int i = 0; i < 10; i++) {
+				for(int i = 0; i < extensions; i++) {
 					List<String> ml2 = new MarkovIterator(context, markov, maxlen, Arrays.asList(Markov.SOT)).toList();
 					ml2.remove(0);
 					if(ml2.size() > size) {
@@ -146,6 +149,34 @@ public class MarkovListener extends ListenerAdapter<PircBotX> {
 			String r = StringContent.join(ml);
 			event.getChannel().send().message(event.getUser().getNick() + ": " + r);
 		} else if(learn) {
+			m = m.replaceAll("^\\S+:", "");
+			List<String> content = StringContent.parse(m);
+			Iterator<String> ci = content.iterator();
+			while(ci.hasNext()) {
+				if(StringContent.LINK.matcher(ci.next()).matches())
+					ci.remove();
+			}
+			if(content.size() > 0) {
+				markov.consume(event.getUser().getNick(), content, maxlen);
+				if(inverseMarkov != null) {
+					Collections.reverse(content);
+					inverseMarkov.consume(event.getUser().getNick(), content, maxlen);
+				}
+			}
+		}
+	}
+	
+	@Override
+	public void onAction(ActionEvent<PircBotX> event) throws Exception {
+		if(learn) {
+			if(!channels.contains(event.getChannel().getName()))
+				return;
+			for(Pattern p : ignore) {
+				if(p.matcher(event.getUser().getNick()).matches())
+					return;
+			}
+			String m = event.getUser().getNick() + " " + event.getAction();
+
 			m = m.replaceAll("^\\S+:", "");
 			List<String> content = StringContent.parse(m);
 			Iterator<String> ci = content.iterator();
@@ -233,5 +264,13 @@ public class MarkovListener extends ListenerAdapter<PircBotX> {
 
 	public void setInverseMarkov(Markov inverseMarkov) {
 		this.inverseMarkov = inverseMarkov;
+	}
+
+	public int getExtensions() {
+		return extensions;
+	}
+
+	public void setExtensions(int extensions) {
+		this.extensions = extensions;
 	}
 }

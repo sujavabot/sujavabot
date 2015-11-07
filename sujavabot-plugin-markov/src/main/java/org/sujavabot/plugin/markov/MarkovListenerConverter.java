@@ -48,6 +48,7 @@ public class MarkovListenerConverter extends AbstractConverter<MarkovListener> {
 		helper.field("maxlen", Integer.class, () -> current.getMaxlen());
 		helper.field("prefix", String.class, () -> current.getPrefix().pattern());
 		helper.field("learn", Boolean.class, () -> current.isLearn());
+		helper.field("extensions", Integer.class, () -> current.getExtensions());
 		for(String channel : current.getChannels())
 			helper.field("channel", String.class, () -> channel);
 		for(Pattern p : current.getIgnore())
@@ -89,6 +90,7 @@ public class MarkovListenerConverter extends AbstractConverter<MarkovListener> {
 			helper.field("ignore", String.class, s -> ml.getIgnore().add(Pattern.compile(s)));
 			helper.field("thesaurus", Boolean.class, b -> m.put("thesaurus", b));
 			helper.field("shutdown-port", Integer.class, i -> m.put("shutdown-port", i));
+			helper.field("extensions", Integer.class, i -> m.put("extensions", i));
 			
 			helper.handler("context", (o, h) -> {
 				Pattern p = Pattern.compile(h.getReader().getAttribute("pattern"));
@@ -106,6 +108,8 @@ public class MarkovListenerConverter extends AbstractConverter<MarkovListener> {
 			
 			ml.setChannels(ch);
 			ml.setLearn((Boolean) m.getOrDefault("learn", true));
+			if(m.containsKey("extensions"))
+				ml.setExtensions((Integer) m.get("extensions"));
 			ml.setMarkov(markov);
 			ml.setInverseMarkov(im);
 			ml.setMaxlen((Integer) m.getOrDefault("maxlen", 5));
