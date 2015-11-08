@@ -21,6 +21,25 @@ import org.pircbotx.hooks.events.MessageEvent;
 
 
 public class MarkovListener extends ListenerAdapter<PircBotX> {
+	protected static List<String> merge(int maxlen, String prefix, List<String> words) {
+		List<String> merged = new ArrayList<>();
+		for(int start = 0; start < words.size(); ) {
+			for(int stop = start + 2; stop < words.size(); stop++) {
+				String line = prefix + StringContent.join(words.subList(start, stop));
+				if(line.length() > maxlen) {
+					merged.add(prefix + StringContent.join(words.subList(start, stop - 1)));
+					start = stop - 1;
+					break;
+				}
+			}
+			if(start == words.size() - 2) {
+				merged.add(prefix + StringContent.join(words.subList(start, words.size())));
+				break;
+			}
+		}
+		return merged;
+	}
+	
 	protected Markov markov;
 	protected Markov inverseMarkov;
 	protected int maxlen;
@@ -146,8 +165,14 @@ public class MarkovListener extends ListenerAdapter<PircBotX> {
 					ml.subList(i, j-3).clear();
 				}
 			}
-			String r = StringContent.join(ml);
-			event.getChannel().send().message(event.getUser().getNick() + ": " + r);
+			
+			List<String> lines = merge(
+					event.getBot().getConfiguration().getMaxLineLength(),
+					event.getUser().getNick() + ": ",
+					ml);
+			for(String line : lines) {
+				event.getChannel().send().message(line);
+			}
 		} else if(learn) {
 			m = m.replaceAll("^\\S+:", "");
 			List<String> content = StringContent.parse(m);
