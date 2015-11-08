@@ -24,15 +24,18 @@ public class MarkovListener extends ListenerAdapter<PircBotX> {
 	protected static List<String> merge(int maxlen, String prefix, List<String> words) {
 		List<String> merged = new ArrayList<>();
 		for(int start = 0; start < words.size(); ) {
+			merged.add(prefix + StringContent.join(words.subList(start, start + 1)));
 			for(int stop = start + 2; stop < words.size(); stop++) {
 				String line = prefix + StringContent.join(words.subList(start, stop));
+				merged.set(merged.size() - 1, line);
 				if(line.length() > maxlen) {
-					merged.add(prefix + StringContent.join(words.subList(start, stop - 1)));
+					line = prefix + StringContent.join(words.subList(start, stop - 1));
+					merged.set(merged.size() - 1, line);
 					start = stop - 1;
 					break;
 				}
 			}
-			if(start == words.size() - 2) {
+			if(start >= words.size() - 2) {
 				merged.add(prefix + StringContent.join(words.subList(start, words.size())));
 				break;
 			}
