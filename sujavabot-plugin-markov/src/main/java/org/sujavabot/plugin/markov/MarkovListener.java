@@ -36,7 +36,8 @@ public class MarkovListener extends ListenerAdapter<PircBotX> {
 				tail = move + tail;
 			}
 			merged.set(merged.size() - 1, prefix + head.trim());
-			merged.add(prefix + tail.trim());
+			merged.add(tail.trim());
+			prefix = "";
 		}
 		return merged;
 	}
