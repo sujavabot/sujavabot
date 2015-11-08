@@ -89,20 +89,13 @@ public class MarkovListener extends ListenerAdapter<PircBotX> {
 			if(p.matcher(event.getUser().getNick()).matches())
 				return;
 		}
-		String m;
-		if(((SujavaBot) event.getBot()).isVerified(event.getUser()))
-			m = event.getUser().getNick() + " is";
-		else
-			m = "fucking unidentified " + event.getUser().getNick() + " is";
+		String m = event.getUser().getNick() + " is";
+		boolean identified = ((SujavaBot) event.getBot()).isVerified(event.getUser());
 		List<String> prefix = StringContent.parse(m);
 		MarkovIterator mi = new MarkovIterator(null, markov, maxlen, prefix);
 		List<String> ml = mi.toList();
-		if(ml.get(ml.size()-1).isEmpty())
-			ml.remove(ml.size()-1);
 		for(int i = 0; i < 10 && ml.size() == prefix.size(); i++) {
 			ml = new MarkovIterator(null, markov, maxlen, prefix).toList();
-			if(ml.get(ml.size()-1).isEmpty())
-				ml.remove(ml.size()-1);
 		}
 		for(int i = ml.size() - 3; i >= 0; i--) {
 			int j = i+3;
@@ -117,12 +110,13 @@ public class MarkovListener extends ListenerAdapter<PircBotX> {
 				ml.subList(i, j-3).clear();
 			}
 		}
-		while(ml.size() > 0 && !ml.get(0).matches(".*\\w.*"))
-			ml.remove(0);
-		if(ml.size() > 0) {
-			String r = StringContent.join(ml);
-			event.getChannel().send().message(r);
-		}
+		ml.subList(0, prefix.size()).clear();
+		String r = StringContent.join(ml);
+		if(identified)
+			r = "* " + event.getUser().getNick() + " is " + r;
+		else
+			r = "* " + event.getUser().getNick() + ", a fucking unidentified impersonation of " + event.getUser().getNick() + ", is " + r;
+		event.getChannel().send().message(r);
 	}
 	
 	@Override
