@@ -165,8 +165,11 @@ public class MarkovListener extends ListenerAdapter<PircBotX> {
 				}
 			}
 			
+			int maxlen = event.getBot().getConfiguration().getMaxLineLength();
+			maxlen -= ("PRIVMSG " + event.getChannel().getName() + " :\r\n").length();
+			
 			List<String> lines = merge(
-					event.getBot().getConfiguration().getMaxLineLength(),
+					maxlen,
 					event.getUser().getNick() + ": ",
 					ml);
 			for(String line : lines) {
