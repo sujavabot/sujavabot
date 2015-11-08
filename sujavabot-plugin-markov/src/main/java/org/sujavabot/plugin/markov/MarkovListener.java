@@ -23,22 +23,18 @@ import org.pircbotx.hooks.events.MessageEvent;
 public class MarkovListener extends ListenerAdapter<PircBotX> {
 	protected static List<String> merge(int maxlen, String prefix, List<String> words) {
 		List<String> merged = new ArrayList<>();
-		for(int start = 0; start < words.size(); ) {
-			merged.add(prefix + StringContent.join(words.subList(start, start + 1)));
-			for(int stop = start + 2; stop < words.size(); stop++) {
-				String line = prefix + StringContent.join(words.subList(start, stop));
-				merged.set(merged.size() - 1, line);
-				if(line.length() > maxlen) {
-					line = prefix + StringContent.join(words.subList(start, stop - 1));
-					merged.set(merged.size() - 1, line);
-					start = stop - 1;
-					break;
-				}
+		merged.add(prefix + StringContent.join(words));
+		while(merged.get(merged.size()-1).length() > maxlen) {
+			String last = merged.get(merged.size() - 1);
+			String head = last.substring(prefix.length(), maxlen);
+			String tail = last.substring(maxlen);
+			if(head.matches(".*\\s+\\S+") && tail.matches("\\S.*")) {
+				String move = head.replaceAll("^.*\\s+(\\S+)$", "$1");
+				head = head.substring(0, head.length() - move.length());
+				tail = move + tail;
 			}
-			if(start >= words.size() - 2) {
-				merged.add(prefix + StringContent.join(words.subList(start, words.size())));
-				break;
-			}
+			merged.set(merged.size() - 1, prefix + head.trim());
+			merged.add(prefix + tail.trim());
 		}
 		return merged;
 	}
