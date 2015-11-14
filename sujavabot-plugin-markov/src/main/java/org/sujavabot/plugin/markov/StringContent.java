@@ -84,7 +84,9 @@ public abstract class StringContent {
 						tokens.add(t);
 				}
 			}
-			tokens.add(m.group().trim());
+			String g = m.group().trim();
+			if(!LINK.matcher(g).matches())
+				tokens.add(g);
 			i = m.end();
 		}
 		String p = s.substring(i).trim();

@@ -221,7 +221,7 @@ public class MarkovListener extends ListenerAdapter<PircBotX> {
 				event.getChannel().send().message(line);
 			}
 		} else if(learn) {
-			m = m.replaceAll("^\\S+:", "");
+			m = m.replaceAll("^(\\S+:\\s*|<\\S+>\\s*)*", "");
 			List<String> content = StringContent.parse(m);
 			Iterator<String> ci = content.iterator();
 			while(ci.hasNext()) {
