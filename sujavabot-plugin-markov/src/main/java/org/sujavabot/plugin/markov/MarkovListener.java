@@ -90,7 +90,6 @@ public class MarkovListener extends ListenerAdapter<PircBotX> {
 				return;
 		}
 		String m = event.getUser().getNick() + " is";
-		boolean identified = ((SujavaBot) event.getBot()).isVerified(event.getUser());
 		List<String> prefix = StringContent.parse(m);
 		MarkovIterator mi = new MarkovIterator(null, markov, maxlen, prefix);
 		List<String> ml = mi.toList();
@@ -112,10 +111,7 @@ public class MarkovListener extends ListenerAdapter<PircBotX> {
 		}
 		ml.subList(0, prefix.size()).clear();
 		String r = StringContent.join(ml);
-		if(identified)
-			r = event.getUser().getNick() + " is " + r;
-		else
-			r = event.getUser().getNick() + ", a fucking unidentified impersonation, is " + r;
+		r = event.getUser().getNick() + " is " + r;
 		event.getChannel().send().message(r);
 	}
 	
