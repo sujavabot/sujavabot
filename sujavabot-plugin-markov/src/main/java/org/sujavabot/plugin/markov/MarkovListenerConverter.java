@@ -49,6 +49,7 @@ public class MarkovListenerConverter extends AbstractConverter<MarkovListener> {
 		helper.field("prefix", String.class, () -> current.getPrefix().pattern());
 		helper.field("learn", Boolean.class, () -> current.isLearn());
 		helper.field("extensions", Integer.class, () -> current.getExtensions());
+		helper.field("greet", Boolean.class, () -> current.isGreet());
 		for(String channel : current.getChannels())
 			helper.field("channel", String.class, () -> channel);
 		for(Pattern p : current.getIgnore())
@@ -91,6 +92,7 @@ public class MarkovListenerConverter extends AbstractConverter<MarkovListener> {
 			helper.field("thesaurus", Boolean.class, b -> m.put("thesaurus", b));
 			helper.field("shutdown-port", Integer.class, i -> m.put("shutdown-port", i));
 			helper.field("extensions", Integer.class, i -> m.put("extensions", i));
+			helper.field("greet", Boolean.class, b -> m.put("greet", b));
 			
 			helper.handler("context", (o, h) -> {
 				Pattern p = Pattern.compile(h.getReader().getAttribute("pattern"));
@@ -114,6 +116,7 @@ public class MarkovListenerConverter extends AbstractConverter<MarkovListener> {
 			ml.setInverseMarkov(im);
 			ml.setMaxlen((Integer) m.getOrDefault("maxlen", 5));
 			ml.setPrefix(Pattern.compile((String) m.getOrDefault("prefix", "@markov ")));
+			ml.setGreet((Boolean) m.getOrDefault("greet", false));
 			
 			ml.setShutdownPort((Integer) m.getOrDefault("shutdown-port", -1));
 			

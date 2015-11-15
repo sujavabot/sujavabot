@@ -59,6 +59,8 @@ public class MarkovListener extends ListenerAdapter<PircBotX> {
 	
 	protected Set<String> firstJoined = new TreeSet<>();
 	
+	protected boolean greet;
+	
 	public MarkovListener() {}
 	
 	public Markov getMarkov() {
@@ -79,6 +81,8 @@ public class MarkovListener extends ListenerAdapter<PircBotX> {
 	
 	@Override
 	public void onJoin(JoinEvent<PircBotX> event) throws Exception {
+		if(!greet)
+			return;
 		if(!channels.contains(event.getChannel().getName()))
 			return;
 		if(event.getUser().getNick().equals(event.getBot().getNick())) {
@@ -340,5 +344,13 @@ public class MarkovListener extends ListenerAdapter<PircBotX> {
 
 	public void setExtensions(int extensions) {
 		this.extensions = extensions;
+	}
+
+	public boolean isGreet() {
+		return greet;
+	}
+
+	public void setGreet(boolean greet) {
+		this.greet = greet;
 	}
 }
