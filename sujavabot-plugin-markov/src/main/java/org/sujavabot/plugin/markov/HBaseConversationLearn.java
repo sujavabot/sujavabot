@@ -33,10 +33,6 @@ public class HBaseConversationLearn {
 		if(conf.get("duration") != null)
 			duration = conf.getLong("duration", 0);
 
-		String context = conf.get("context");
-		if(context == null)
-			throw new IllegalArgumentException("must supply -Dcontext=");
-		
 		int maxlen = conf.getInt("maxlen", 5);
 		
 		String familyName = conf.get("family", "conversation");
@@ -82,6 +78,7 @@ public class HBaseConversationLearn {
 				long start = System.currentTimeMillis();
 				BufferedReader buf = new BufferedReader(new InputStreamReader(in, "UTF-8"), 256);
 				for(String line = buf.readLine(); line != null; line = buf.readLine()) {
+					String context = line.replaceAll("^<(\\S+)>.*", "$1");
 					line = line.replaceAll("^(\\S+:\\s*|<\\S+>\\s*)*", "").trim();
 					List<String> next = StringContent.parse(line);
 					if(next.size() == 0)
