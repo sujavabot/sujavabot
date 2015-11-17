@@ -119,13 +119,13 @@ public class HBaseConversation implements Conversation {
 		
 		List<List<String>> pngrams = ngrams(previous, maxlen);
 		List<List<String>> nngrams = ngrams(next, maxlen + 1);
+
+		pngrams.add(new ArrayList<>());
 		
 		byte[] contextBytes = Bytes.toBytes(context);
 		
 		for(List<String> pngram : pngrams) {
 			byte[] prow = Bytes.toBytes(StringContent.join(pngram).toUpperCase());
-			if(prow.length == 0)
-				continue;
 			for(List<String> nngram : nngrams) {
 				if(nngram.size() <= 1)
 					continue;
@@ -165,6 +165,8 @@ public class HBaseConversation implements Conversation {
 		List<List<String>> pngrams = ngrams(previous, maxlen);
 		List<List<String>> ntgrams = tgrams(next, maxlen);
 		
+		pngrams.add(new ArrayList<>());
+		
 		byte[] contextBytes = (context == null ? new byte[0] : Bytes.toBytes(context));
 		
 		List<Get> gets = new ArrayList<>();
@@ -172,8 +174,6 @@ public class HBaseConversation implements Conversation {
 		for(List<String> ntgram : ntgrams) {
 			for(List<String> pngram : pngrams) {
 				byte[] prow = Bytes.toBytes(StringContent.join(pngram).toUpperCase());
-				if(prow.length == 0)
-					continue;
 				byte[] nrow = Bytes.add(prow, DELIM, Bytes.toBytes(StringContent.join(ntgram).toUpperCase()));
 				Get get = new Get(Bytes.add(contextBytes, DELIM, nrow));
 				get.addFamily(family);
