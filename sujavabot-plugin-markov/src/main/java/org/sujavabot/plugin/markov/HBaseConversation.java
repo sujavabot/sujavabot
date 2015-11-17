@@ -136,23 +136,26 @@ public class HBaseConversation implements Conversation {
 				
 				inc = new Increment(Bytes.add(DELIM, nrow));
 				inc.addColumn(family, qual, 1);
-				incs.add(inc);
+				if(duration != null)
+					inc.setTimeRange(startTS, stopTS);
+				if(nosync)
+					incs.add(inc);
+				else
+					table.increment(inc);
+				
 				
 				inc = new Increment(Bytes.add(contextBytes, DELIM, nrow));
 				inc.addColumn(family, qual, 1);
-				incs.add(inc);
-				
+				if(duration != null)
+					inc.setTimeRange(startTS, stopTS);
+				if(nosync)
+					incs.add(inc);
+				else
+					table.increment(inc);
 			}
 		}
 
-		if(duration != null) {
-			for(Increment inc : incs)
-				inc.setTimeRange(startTS, stopTS);
-		}
-		
-		if(!nosync)
-			table.batch(incs, new Object[incs.size()]);
-		else
+		if(nosync)
 			rows.addAll(incs);
 	}
 

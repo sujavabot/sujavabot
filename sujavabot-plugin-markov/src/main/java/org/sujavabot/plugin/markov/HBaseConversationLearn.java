@@ -61,7 +61,7 @@ public class HBaseConversationLearn {
 			conversation.setDuration(duration);
 			conversation.setTable(table);
 			conversation.setFamily(family);
-			conversation.setNosync(true);
+			conversation.setNosync(buffer);
 
 			InputStream[] inputs = new InputStream[] { System.in };
 			if(args.length > 0) {
@@ -86,12 +86,11 @@ public class HBaseConversationLearn {
 					if(inverse)
 						Collections.reverse(next);
 					conversation.consume(previous, next, context, maxlen);
-					if(!buffer)
+					if(buffer)
 						conversation.sync();
 					long read = total - in.available();
 					long rpct = read * 100 / total;
 					if(pct != rpct) {
-						conversation.sync();
 						long dur = System.currentTimeMillis() - start;
 						System.out.println(String.format("%02d%% (%d bytes, %d bytes per second)", rpct, read, read * 1000 / dur));
 					}
@@ -100,7 +99,6 @@ public class HBaseConversationLearn {
 				}
 				buf.close();
 			}
-			conversation.sync();
 			conversation.close();
 		} finally {
 			cxn.close();
