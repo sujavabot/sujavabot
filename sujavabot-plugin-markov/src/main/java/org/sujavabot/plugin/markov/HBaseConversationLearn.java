@@ -89,10 +89,10 @@ public class HBaseConversationLearn {
 					if(buffer)
 						conversation.sync();
 					long read = total - in.available();
-					long rpct = read * 100 / total;
+					long rpct = read * 1000 / total;
 					if(pct != rpct) {
 						long dur = System.currentTimeMillis() - start;
-						System.out.println(String.format("%02d%% (%d bytes, %d bytes per second)", rpct, read, read * 1000 / dur));
+						System.out.println(String.format("%03.1f%% (%d bytes, %d bytes per second)", rpct / 10., read, read * 1000 / dur));
 					}
 					pct = rpct;
 					previous = next;
