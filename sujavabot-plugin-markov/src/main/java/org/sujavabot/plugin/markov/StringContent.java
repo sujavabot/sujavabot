@@ -7,40 +7,6 @@ import java.util.regex.Pattern;
 
 public abstract class StringContent {
 
-	private static class CharSubSequence implements CharSequence {
-		public int start;
-		public int len;
-		public char[] c;
-
-		public CharSubSequence(char[] c, int start, int len) {
-			this.c = c;
-			this.start = start;
-			this.len = len;
-		}
-
-		@Override
-		public int length() {
-			return len;
-		}
-
-		@Override
-		public char charAt(int index) {
-			if(index < 0 || index >= len)
-				throw new IndexOutOfBoundsException();
-			return c[start + index];
-		}
-
-		@Override
-		public CharSequence subSequence(int start, int end) {
-			return new CharSubSequence(c, this.start + start, end - start);
-		}
-
-		@Override
-		public String toString() {
-			return new String(c, start, len);
-		}
-	}
-
 	public static final Pattern TRAILERS = Pattern.compile(",|\\?|!");
 	public static final Pattern WORD = Pattern.compile("(?i)(\\s+|^)[a-z\\-_0-9]+(['’][a-z\\-_0-9]+)*['’]?");
 	public static final Pattern LINK = Pattern.compile("(?i)(\\s+|^)(https?:|ftp:|www\\.)\\S*");
