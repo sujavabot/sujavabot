@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.TreeMap;
+import java.util.regex.Pattern;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.HColumnDescriptor;
@@ -147,7 +148,7 @@ public class HBaseMarkov implements Markov {
 	}
 	
 	@Override
-	public String next(String context, List<String> prefix) throws Exception {
+	public String next(Pattern context, List<String> prefix) throws Exception {
 		prefix = new ArrayList<>(prefix);
 
 		List<Get> gets = new ArrayList<>();
@@ -167,7 +168,7 @@ public class HBaseMarkov implements Markov {
 			if(!result.isEmpty()) {
 				for(Entry<byte[], byte[]> suffix : result.getFamilyMap(family).entrySet()) {
 					String[] f = Bytes.toString(suffix.getKey()).split(" ", 2);
-					if(context != null && (f.length == 1 || !context.equals(f[1])))
+					if(context != null && (f.length == 1 || !context.matcher(f[1]).find()))
 						continue;
 					byte[] s = Bytes.toBytes(f[0]);
 					if(!counts.containsKey(s))
