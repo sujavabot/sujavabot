@@ -293,7 +293,7 @@ public class BerkeleyDBMarkov implements Closeable, Markov {
 			Iterator<String> ki = suffixes.keySet().iterator();
 			while(ki.hasNext()) {
 				String c[] = ki.next().split(" ", 2);
-				if(c.length < 2 || !context.matcher(c[1]).find())
+				if(c.length < 2 || !context.matcher(c[1]).matches())
 					ki.remove();
 			}
 		}
