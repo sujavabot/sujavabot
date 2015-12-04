@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.WeakHashMap;
+import java.util.regex.Pattern;
 
 import com.sleepycat.je.Database;
 import com.sleepycat.je.DatabaseEntry;
@@ -279,7 +280,7 @@ public class BerkeleyDBMarkov implements Closeable, Markov {
 	 * @see org.sujavabot.plugin.markov.Markov#next(java.util.List)
 	 */
 	@Override
-	public String next(String context, List<String> prefixes) throws DatabaseException {
+	public String next(Pattern context, List<String> prefixes) throws DatabaseException {
 		String prefix = "";
 		for(String p : prefixes) {
 			prefix += SEP + p;
@@ -291,7 +292,8 @@ public class BerkeleyDBMarkov implements Closeable, Markov {
 		if(context != null) {
 			Iterator<String> ki = suffixes.keySet().iterator();
 			while(ki.hasNext()) {
-				if(!ki.next().endsWith(" " + context))
+				String c[] = ki.next().split(" ", 2);
+				if(c.length < 2 || !context.matcher(c[1]).matches())
 					ki.remove();
 			}
 		}

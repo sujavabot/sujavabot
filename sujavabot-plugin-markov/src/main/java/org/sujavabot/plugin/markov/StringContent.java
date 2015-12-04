@@ -1,46 +1,11 @@
 package org.sujavabot.plugin.markov;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public abstract class StringContent {
-
-	private static class CharSubSequence implements CharSequence {
-		public int start;
-		public int len;
-		public char[] c;
-
-		public CharSubSequence(char[] c, int start, int len) {
-			this.c = c;
-			this.start = start;
-			this.len = len;
-		}
-
-		@Override
-		public int length() {
-			return len;
-		}
-
-		@Override
-		public char charAt(int index) {
-			if(index < 0 || index >= len)
-				throw new IndexOutOfBoundsException();
-			return c[start + index];
-		}
-
-		@Override
-		public CharSequence subSequence(int start, int end) {
-			return new CharSubSequence(c, this.start + start, end - start);
-		}
-
-		@Override
-		public String toString() {
-			return new String(c, start, len);
-		}
-	}
 
 	public static final Pattern TRAILERS = Pattern.compile(",|\\?|!");
 	public static final Pattern WORD = Pattern.compile("(?i)(\\s+|^)[a-z\\-_0-9]+(['’][a-z\\-_0-9]+)*['’]?");
