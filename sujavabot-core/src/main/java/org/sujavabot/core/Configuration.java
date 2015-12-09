@@ -6,6 +6,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import org.pircbotx.PircBotX;
+import org.pircbotx.hooks.Listener;
 
 public class Configuration extends org.pircbotx.Configuration<PircBotX> {
 	

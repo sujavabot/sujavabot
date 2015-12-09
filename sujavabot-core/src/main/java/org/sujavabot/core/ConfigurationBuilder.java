@@ -6,6 +6,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import org.pircbotx.PircBotX;
+import org.pircbotx.hooks.Listener;
 import org.sujavabot.core.xml.XStreams;
 
 import com.thoughtworks.xstream.XStream;
@@ -22,6 +23,8 @@ public class ConfigurationBuilder extends org.pircbotx.Configuration.Builder<Pir
 	protected Map<String, AuthorizedGroup> groups = new LinkedHashMap<>();
 	
 	protected Map<String, AuthorizedUser> users = new LinkedHashMap<>();
+	
+	protected List<Listener<?>> botListeners = new ArrayList<>();
 
 	public ConfigurationBuilder() {
 	}
@@ -61,5 +64,9 @@ public class ConfigurationBuilder extends org.pircbotx.Configuration.Builder<Pir
 
 	public void setUsers(Map<String, AuthorizedUser> users) {
 		this.users = users;
+	}
+
+	public List<Listener<?>> getBotListeners() {
+		return botListeners;
 	}
 }
