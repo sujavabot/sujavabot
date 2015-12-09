@@ -5,6 +5,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.pircbotx.hooks.Event;
+import org.sujavabot.core.Command;
 import org.sujavabot.core.SujavaBot;
 
 public class AliasCommand extends AbstractReportingCommand {
@@ -12,6 +13,8 @@ public class AliasCommand extends AbstractReportingCommand {
 
 	protected String alias;
 
+	protected transient Command reporter;
+	
 	public AliasCommand(String alias) {
 		this.alias = alias;
 	}
@@ -39,8 +42,36 @@ public class AliasCommand extends AbstractReportingCommand {
 			end = m.end();
 		}
 		sb.append(alias.substring(end, alias.length()));
-		bot.getCommands().perform(cause, sb.toString());
-		return null;
+		Object[] parsed = bot.getCommands().parse(sb.toString());
+		String[] flat = flatten(bot, cause, parsed);
+		if(flat.length > 0) {
+			Command reporter = bot.getCommands().get(cause, flat[0]);
+			String result = bot.getCommands().invoke(cause, flat);
+			this.reporter = reporter;
+			return result;
+		} else {
+			reporter = null;
+			return null;
+		}
 	}
 
+	@Override
+	public void report(SujavaBot bot, Event<?> cause, String result) {
+		if(reporter != null)
+			reporter.report(bot, cause, result);
+	}
+	
+	protected String[] flatten(SujavaBot bot, Event<?> cause, Object[] cmd) {
+		String[] flat = new String[cmd.length];
+		for(int i = 0; i < cmd.length; i++) {
+			if(cmd[i] instanceof Object[]) {
+				String[] subcmd = flatten(bot, cause, (Object[]) cmd[i]);
+				flat[i] = bot.getCommands().invoke(cause, subcmd);
+			}
+			else
+				flat[i] = (String) cmd[i];
+		}
+		return flat;
+	}
+	
 }
