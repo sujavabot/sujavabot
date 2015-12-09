@@ -28,6 +28,7 @@ public class JythonCommand extends AbstractReportingCommand implements HelperCon
 		try {
 			PySystemState state = new PySystemState();
 			state.argv = new PyList(args);
+			state.path.add(new File(".").getCanonicalPath());
 			PythonInterpreter interp = new PythonInterpreter(null, state);
 			
 			ByteArrayOutputStream bytes = new ByteArrayOutputStream();
