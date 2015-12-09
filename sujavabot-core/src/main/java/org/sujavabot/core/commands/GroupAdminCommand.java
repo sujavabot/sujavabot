@@ -62,7 +62,7 @@ public class GroupAdminCommand extends AbstractReportingCommand {
 			if(bot.getAuthorizedGroups().get(name) != null)
 				return "group " + name + " already exists";
 			AuthorizedGroup group = new AuthorizedGroup(name);
-			AuthorizedGroup root = bot.getAuthorizedGroups().get("root");
+			AuthorizedGroup root = bot.getAuthorizedGroups().get("@root");
 			if(root != null) {
 				if(caller == null || !caller.isOwnerOf(root))
 					return "permission denied";
@@ -75,7 +75,7 @@ public class GroupAdminCommand extends AbstractReportingCommand {
 			if(help || args.size() != 3)
 				return "group delete <name>: delete a group";
 			String name = args.get(2);
-			if("root".equals(name))
+			if("@root".equals(name))
 				return "cannot delete root group";
 			if(bot.getAuthorizedGroups().get(name) == null)
 				return "group " + name + " does not exist";
