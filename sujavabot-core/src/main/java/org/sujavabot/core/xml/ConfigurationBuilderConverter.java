@@ -152,10 +152,10 @@ public class ConfigurationBuilderConverter extends AbstractConverter<Configurati
 			helper.field("user", AuthorizedUser.class, () -> user);
 		
 		for(Listener<?> l : current.getListenerManager().getListeners()) {
-			if(l instanceof CoreHooks)
-				continue;
-			if(l instanceof UnverifyListener)
-				continue;
+//			if(l instanceof CoreHooks)
+//				continue;
+//			if(l instanceof UnverifyListener)
+//				continue;
 			helper.field("listener", () -> l);
 		}
 	}
