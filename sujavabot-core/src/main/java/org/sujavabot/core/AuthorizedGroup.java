@@ -73,6 +73,7 @@ public class AuthorizedGroup {
 	
 	public Map<String, Command> getAllCommands() {
 		Map<String, Command> all = new TreeMap<>();
+		all.putAll(getCommands().getTransientCommands());
 		all.putAll(getCommands().getCommands());
 		for(AuthorizedGroup parent : getParents()) {
 			for(Entry<String, Command> e : parent.getAllCommands().entrySet())

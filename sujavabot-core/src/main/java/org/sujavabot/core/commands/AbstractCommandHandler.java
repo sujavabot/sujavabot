@@ -35,6 +35,8 @@ public abstract class AbstractCommandHandler implements CommandHandler {
 	protected SujavaBot bot;
 	protected Map<String, Command> commands = new TreeMap<>();
 	
+	protected transient Map<String, Command> transientCommands = new TreeMap<>();
+	
 	public AbstractCommandHandler(SujavaBot bot) {
 		this.bot = bot;
 	}
@@ -43,14 +45,23 @@ public abstract class AbstractCommandHandler implements CommandHandler {
 		return commands;
 	}
 	
+	public Map<String, Command> getTransientCommands() {
+		return transientCommands;
+	}
+	
 	public abstract Command getDefaultCommand(Event<?> cause, String name);
 	
-	/* (non-Javadoc)
-	 * @see org.sujavabot.core.commands.CommandHandler#get(org.pircbotx.hooks.Event, java.lang.String)
-	 */
+	@Override
+	public void addCommand(String name, Command command, boolean isTransient) {
+		(isTransient ? commands : transientCommands).remove(name);
+		(isTransient ? transientCommands : commands).put(name, command);
+	}
+	
 	@Override
 	public Command get(Event<?> cause, String name) {
 		Command c = commands.get(name);
+		if(c == null)
+			c = transientCommands.get(name);
 		if(c == null)
 			c = getDefaultCommand(cause, name);
 		return c;
