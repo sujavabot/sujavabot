@@ -27,6 +27,9 @@ public class JRubyCommand extends AbstractReportingCommand implements HelperConv
 		try {
 			ScriptingContainer container = new ScriptingContainer(LocalContextScope.THREADSAFE);
 			container.setArgv(args.toArray(new String[args.size()]));
+			
+			container.put("BOT", bot);
+			container.put("CAUSE", cause);
 
 			ByteArrayOutputStream bytes = new ByteArrayOutputStream();
 			Writer out = new OutputStreamWriter(bytes, Charset.forName("UTF-8"));
