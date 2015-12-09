@@ -14,6 +14,7 @@ public class Configuration extends org.pircbotx.Configuration<PircBotX> {
 	protected List<File> pluginConfigs = new ArrayList<>();
 	protected Map<String, AuthorizedGroup> groups = new LinkedHashMap<>();
 	protected Map<String, AuthorizedUser> users = new LinkedHashMap<>();
+	protected List<Listener<?>> botListeners = new ArrayList<>();
 
 	public Configuration(File configFile, ConfigurationBuilder builder) {
 		super(builder);
@@ -21,6 +22,7 @@ public class Configuration extends org.pircbotx.Configuration<PircBotX> {
 		pluginConfigs.addAll(builder.getPluginConfigs());
 		groups.putAll(builder.getGroups());
 		users.putAll(builder.getUsers());
+		botListeners.addAll(builder.getBotListeners());
 	}
 
 	public List<File> getPluginConfigs() {
@@ -82,6 +84,8 @@ public class Configuration extends org.pircbotx.Configuration<PircBotX> {
 		
 		builder.setGroups(getGroups());
 		builder.setUsers(getUsers());
+		
+		builder.getBotListeners().addAll(botListeners);
 		
 		return builder;
 	}
