@@ -39,7 +39,8 @@ public class AliasCommand extends AbstractReportingCommand {
 			end = m.end();
 		}
 		sb.append(alias.substring(end, alias.length()));
-		return bot.getCommands().invoke(cause, sb.toString());
+		bot.getCommands().perform(cause, sb.toString());
+		return null;
 	}
 
 }
