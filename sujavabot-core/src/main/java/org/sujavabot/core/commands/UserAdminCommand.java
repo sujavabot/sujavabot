@@ -20,7 +20,7 @@ public class UserAdminCommand extends AbstractReportingCommand {
 			return "user <command>: list, info, create, delete, set_name, set_nick, add_alias, remove_alias";
 		}
 		boolean help = "help".equals(args.get(0));
-		AuthorizedUser caller = bot.getAuthorizedUsers().get(getUser(cause));
+		AuthorizedUser caller = bot.getAuthorizedUser(getUser(cause));
 		if("list".equals(args.get(1))) {
 			if(help || args.size() != 2)
 				return "user list: list the user names";
