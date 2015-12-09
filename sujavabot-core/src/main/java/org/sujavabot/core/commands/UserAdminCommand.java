@@ -71,7 +71,7 @@ public class UserAdminCommand extends AbstractReportingCommand {
 				return "invalid nick pattern";
 			}
 			List<AuthorizedGroup> groups = new ArrayList<>();
-			AuthorizedGroup root = bot.getAuthorizedGroups().get("root");
+			AuthorizedGroup root = bot.getAuthorizedGroups().get("@root");
 			if(root != null) {
 				if(caller == null || !caller.isOwnerOf(root))
 					return "permission denied";
@@ -92,7 +92,7 @@ public class UserAdminCommand extends AbstractReportingCommand {
 		if("delete".equals(args.get(1))) {
 			if(help || args.size() != 3)
 				return "user delete <name>: delete a user";
-			AuthorizedGroup root = bot.getAuthorizedGroups().get("root");
+			AuthorizedGroup root = bot.getAuthorizedGroups().get("@root");
 			if(root != null) {
 				if(caller == null || !caller.isOwnerOf(root))
 					return "permission denied";
@@ -107,7 +107,7 @@ public class UserAdminCommand extends AbstractReportingCommand {
 		if("set_name".equals(args.get(1))) {
 			if(help || args.size() != 4)
 				return "user set_name <old_name> <new_name>";
-			AuthorizedGroup root = bot.getAuthorizedGroups().get("root");
+			AuthorizedGroup root = bot.getAuthorizedGroups().get("@root");
 			if(root != null) {
 				if(caller == null || !caller.isOwnerOf(root))
 					return "permission denied";
@@ -125,7 +125,7 @@ public class UserAdminCommand extends AbstractReportingCommand {
 		if("set_nick".equals(args.get(1))) {
 			if(help || args.size() != 4) 
 				return "user set_name <old_name> <new_name>";
-			AuthorizedGroup root = bot.getAuthorizedGroups().get("root");
+			AuthorizedGroup root = bot.getAuthorizedGroups().get("@root");
 			if(root != null) {
 				if(caller == null || !caller.isOwnerOf(root))
 					return "permission denied";
@@ -150,7 +150,7 @@ public class UserAdminCommand extends AbstractReportingCommand {
 			AuthorizedUser user = bot.getAuthorizedUsers().get(args.get(2));
 			if(user == null)
 				return "user does not exist";
-			AuthorizedGroup root = bot.getAuthorizedGroups().get("root");
+			AuthorizedGroup root = bot.getAuthorizedGroups().get("@root");
 			if(caller == null || (caller != user && (root == null || !caller.isOwnerOf(root))))
 				return "permission denied";
 			if(user.getCommands().getCommands().get(args.get(3)) != null)
@@ -164,7 +164,7 @@ public class UserAdminCommand extends AbstractReportingCommand {
 			AuthorizedUser user = bot.getAuthorizedUsers().get(args.get(2));
 			if(user == null)
 				return "user does not exist";
-			AuthorizedGroup root = bot.getAuthorizedGroups().get("root");
+			AuthorizedGroup root = bot.getAuthorizedGroups().get("@root");
 			if(caller == null || (caller != user && (root == null || !caller.isOwnerOf(root))))
 				return "permission denied";
 			Command c = user.getCommands().getCommands().get(args.get(3));
