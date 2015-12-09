@@ -21,6 +21,7 @@ public class UserAdminCommand extends AbstractReportingCommand {
 		}
 		boolean help = "help".equals(args.get(0));
 		AuthorizedUser caller = bot.getAuthorizedUsers().get(getUser(cause));
+		System.out.println("user caller:" + caller);
 		if("list".equals(args.get(1))) {
 			if(help || args.size() != 2)
 				return "user list: list the user names";
