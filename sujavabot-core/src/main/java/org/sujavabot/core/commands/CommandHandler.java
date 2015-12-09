@@ -5,6 +5,8 @@ import org.sujavabot.core.Command;
 
 public interface CommandHandler {
 
+	public void addCommand(String name, Command command, boolean isTransient);
+	
 	Command get(Event<?> cause, String name);
 
 	public Object[] parse(String unparsed);
