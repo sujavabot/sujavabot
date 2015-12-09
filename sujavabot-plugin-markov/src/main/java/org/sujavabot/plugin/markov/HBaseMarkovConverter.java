@@ -43,7 +43,6 @@ public class HBaseMarkovConverter extends AbstractConverter<HBaseMarkov> {
 		helper.field("family", String.class, () -> Bytes.toString(current.getFamily()));
 		if(current.getDuration() != null)
 			helper.field("duration", Long.class, () -> current.getDuration());
-		helper.field(HConstants.ZOOKEEPER_QUORUM, String.class, () -> current.getConf().get(HConstants.ZOOKEEPER_QUORUM));
 	}
 
 	@Override
