@@ -3,9 +3,15 @@ package org.sujavabot.core.commands;
 import java.util.List;
 
 import org.pircbotx.hooks.Event;
+import org.pircbotx.hooks.events.MessageEvent;
 import org.sujavabot.core.SujavaBot;
 
 public class EchoCommand extends AbstractReportingCommand {
+	
+	@Override
+	protected void reportMessage(SujavaBot bot, MessageEvent<?> cause, String result) {
+		cause.getChannel().send().message(result);
+	}
 	
 	@Override
 	public String invoke(SujavaBot bot, Event<?> cause, List<String> args) {
