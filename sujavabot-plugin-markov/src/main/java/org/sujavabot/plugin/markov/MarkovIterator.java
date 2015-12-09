@@ -4,11 +4,12 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.regex.Pattern;
 
 import com.google.common.base.Optional;
 
 public class MarkovIterator implements Iterator<String> {
-	protected String context;
+	protected Pattern context;
 	protected List<String> prefix = new ArrayList<>();
 	protected Markov markov;
 	protected int maxlen;
@@ -17,7 +18,8 @@ public class MarkovIterator implements Iterator<String> {
 	protected Optional<String> next;
 
 	public MarkovIterator(String context, Markov markov, int maxlen, List<String> prefix) {
-		this.context = context;
+		if(context != null)
+			this.context = Pattern.compile(context, Pattern.CASE_INSENSITIVE);
 		this.markov = markov;
 		this.maxlen = maxlen;
 		this.prefix.addAll(prefix);

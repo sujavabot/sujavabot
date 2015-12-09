@@ -69,7 +69,7 @@ public class SujavaBot extends PircBotX {
 	}
 	
 	public CommandHandler getRootCommands() {
-		return getAuthorizedGroups().get("@root").getCommands();
+		return getAuthorizedGroups().get("root").getCommands();
 	}
 
 	public Map<String, AuthorizedUser> getAuthorizedUsers() {
