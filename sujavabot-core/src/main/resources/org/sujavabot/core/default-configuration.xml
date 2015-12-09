@@ -3,7 +3,7 @@
 	<username>sujavabot</username>
 	<realname>sujavabot</realname>
 	<group>
-		<name>@root</name>
+		<name>root</name>
 		<commands>
 			<__parse-error class="org.sujavabot.core.commands.ParseErrorCommand" />
 			<__unrecognized class="org.sujavabot.core.commands.UnrecognizedCommand" />
@@ -14,7 +14,7 @@
 	</group>
 	<group>
 		<name>admin</name>
-		<parent>@root</parent>
+		<parent>root</parent>
 		<commands>
 			<config class="org.sujavabot.core.commands.ConfigCommand" />
 			<group class="org.sujavabot.core.commands.GroupAdminCommand" />
@@ -24,15 +24,15 @@
 	<user>
 		<name>@nobody</name>
 		<nick>$^</nick>
-		<group>@root</group>
+		<group>root</group>
 		<commands />
 	</user>
 	<user>
 		<name>admin</name>
 		<nick>changeme</nick>
-		<group>@root</group>
+		<group>root</group>
 		<group>admin</group>
-		<owns-group>@root</owns-group>
+		<owns-group>root</owns-group>
 		<commands />
 	</user>
 	<listener class="org.sujavabot.core.commands.CommandReceiverListener">
