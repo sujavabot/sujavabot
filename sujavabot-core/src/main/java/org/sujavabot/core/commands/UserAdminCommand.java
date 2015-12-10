@@ -257,7 +257,7 @@ public class UserAdminCommand extends AbstractReportingCommand {
 		AuthorizedUser user = bot.getAuthorizedUsers().get(args.get(2));
 		if(user == null)
 			return "user does not exist";
-		Command c = user.getCommands().getCommands().get(args.get(3));
+		Command c = user.getAllCommands().get(args.get(3));
 		if(c == null)
 			return "named command does not exist";
 		if(!(c instanceof AliasCommand))
