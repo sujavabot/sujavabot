@@ -4,6 +4,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileReader;
 import java.io.OutputStreamWriter;
+import java.io.PrintStream;
 import java.io.Reader;
 import java.io.Writer;
 import java.nio.charset.Charset;
@@ -32,7 +33,7 @@ public class JRubyCommand extends AbstractReportingCommand implements HelperConv
 			container.put("CAUSE", cause);
 
 			ByteArrayOutputStream bytes = new ByteArrayOutputStream();
-			Writer out = new OutputStreamWriter(bytes, Charset.forName("UTF-8"));
+			PrintStream out = new PrintStream(bytes);
 			container.setOutput(out);
 			
 			if(source != null)
