@@ -27,15 +27,15 @@ public class JRubyCommand extends AbstractReportingCommand implements HelperConv
 	public String invoke(SujavaBot bot, Event<?> cause, List<String> args) {
 		try {
 			ScriptingContainer container = new ScriptingContainer(LocalContextScope.THREADSAFE);
+			ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+			PrintStream out = new PrintStream(bytes);
+			container.setOutput(out);
+			
 			container.setArgv(args.toArray(new String[args.size()]));
 			
 			container.put("BOT", bot);
 			container.put("CAUSE", cause);
 
-			ByteArrayOutputStream bytes = new ByteArrayOutputStream();
-			PrintStream out = new PrintStream(bytes);
-			container.setOutput(out);
-			
 			if(source != null)
 				container.runScriptlet(source);
 			else {
