@@ -87,6 +87,7 @@ public class UserAdminCommand extends AbstractReportingCommand {
 			user.setNick(nick);
 			user.setGroups(groups);
 			bot.getAuthorizedUsers().put(user.getName(), user);
+			bot.saveConfiguration();
 			return "user created";
 		}
 		if("delete".equals(args.get(1))) {
@@ -102,6 +103,7 @@ public class UserAdminCommand extends AbstractReportingCommand {
 				return "user " + name + " does not exist";
 			AuthorizedUser user = bot.getAuthorizedUsers().get(name);
 			bot.getAuthorizedUsers().remove(user);
+			bot.saveConfiguration();
 			return "user deleted";
 		}
 		if("set_name".equals(args.get(1))) {
@@ -120,6 +122,7 @@ public class UserAdminCommand extends AbstractReportingCommand {
 			if(bot.getAuthorizedUsers().get(newName) != null)
 				return "user with new name " + newName + " already exists";
 			user.setName(newName);
+			bot.saveConfiguration();
 			return "user updated";
 		}
 		if("set_nick".equals(args.get(1))) {
@@ -142,6 +145,7 @@ public class UserAdminCommand extends AbstractReportingCommand {
 				return "invalid regex";
 			}
 			user.setNick(p);
+			bot.saveConfiguration();
 			return "user updated";
 		}
 		if("add_alias".equals(args.get(1))) {
@@ -156,6 +160,7 @@ public class UserAdminCommand extends AbstractReportingCommand {
 			if(user.getCommands().getCommands().get(args.get(3)) != null)
 				return "named command already exists";
 			user.getCommands().getCommands().put(args.get(3), new AliasCommand(args.get(4)));
+			bot.saveConfiguration();
 			return "alias added";
 		}
 		if("remove_alias".equals(args.get(1))) {
@@ -173,6 +178,7 @@ public class UserAdminCommand extends AbstractReportingCommand {
 			if(!(c instanceof AliasCommand))
 				return "named command not an alias";
 			user.getCommands().getCommands().remove(args.get(3));
+			bot.saveConfiguration();
 			return "alias removed";
 		}
 		if("show_alias".equals(args.get(1))) {
