@@ -9,7 +9,7 @@ import org.sujavabot.core.Command;
 import org.sujavabot.core.SujavaBot;
 
 public class AliasCommand extends AbstractReportingCommand {
-	protected static final Pattern SUB = Pattern.compile("\\$(@|([0-9]+))");
+	protected static final Pattern SUB = Pattern.compile("\\$(@|nick|([0-9]+))");
 
 	protected String alias;
 
@@ -34,6 +34,8 @@ public class AliasCommand extends AbstractReportingCommand {
 			sb.append(alias.substring(end, m.start()));
 			if("@".equals(m.group(1))) {
 				sb.append(joined.toString());
+			} else if("nick".equals(m.group(1))) {
+				sb.append(getUser(cause).getNick());
 			} else {
 				int i = Integer.parseInt(m.group(1));
 				if(i < args.size())
