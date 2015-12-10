@@ -1,5 +1,7 @@
 package org.sujavabot.core.xml;
 
+import java.util.Map.Entry;
+
 import org.sujavabot.core.AuthorizedGroup;
 import org.sujavabot.core.ConfigurationBuilder;
 import org.sujavabot.core.xml.ConverterHelpers.MarshalHelper;
@@ -24,6 +26,8 @@ public class AuthorizedGroupConverter extends AbstractConverter<AuthorizedGroup>
 		for(AuthorizedGroup subgroup : current.getParents())
 			helper.field("parent", String.class, () -> subgroup.getName());
 		helper.field("commands", CommandsMap.class, () -> new CommandsMap(current.getCommands().getCommands()));
+		for(Entry<String, String> e : current.getProperties().entrySet())
+			helper.field("property", String.class, () -> (e.getKey() + "=" + e.getValue()));
 	}
 
 	@Override
@@ -35,6 +39,10 @@ public class AuthorizedGroupConverter extends AbstractConverter<AuthorizedGroup>
 				current.getParents().add(builder.getGroups().get(s));
 		});
 		helper.field("commands", CommandsMap.class, m -> current.getCommands().getCommands().putAll(m));
+		helper.field("property", String.class, (s) -> {
+			String[] f = s.split("=", 2);
+			current.getProperties().put(f[0], f[1]);
+		});
 	}
 
 }
