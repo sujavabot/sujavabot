@@ -43,7 +43,7 @@ public abstract class AbstractReportingCommand implements Command {
 	}
 	
 	protected String sanitize(String result) {
-		return (result == null ? null : result.replaceAll("[\r\n]", " ").replaceAll("\\s+", " ").trim());
+		return Messages.sanitize(result);
 	}
 	
 	protected String prefix(SujavaBot bot, Event<?> cause, String result) {
