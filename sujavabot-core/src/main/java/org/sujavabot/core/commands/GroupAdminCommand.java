@@ -69,6 +69,7 @@ public class GroupAdminCommand extends AbstractReportingCommand {
 				group.getParents().add(root);
 			}
 			bot.getAuthorizedGroups().put(group.getName(), group);
+			bot.saveConfiguration();
 			return "group created";
 		}
 		if("delete".equals(args.get(1))) {
@@ -83,6 +84,7 @@ public class GroupAdminCommand extends AbstractReportingCommand {
 			if(caller == null || !caller.isOwnerOf(group))
 				return "permission denied";
 			bot.getAuthorizedGroups().remove(group);
+			bot.saveConfiguration();
 			return "group deleted";
 		}
 		if("set_name".equals(args.get(1))) {
@@ -98,6 +100,7 @@ public class GroupAdminCommand extends AbstractReportingCommand {
 			if(bot.getAuthorizedGroups().get(newName) != null)
 				return "group with new name " + newName + " already exists";
 			group.setName(newName);
+			bot.saveConfiguration();
 			return "group updated";
 		}
 		if("add_user".equals(args.get(1))) {
@@ -114,6 +117,7 @@ public class GroupAdminCommand extends AbstractReportingCommand {
 			if(user.getGroups().contains(group))
 				return "user " + user.getName() + " is already a member of group " + group.getName();
 			user.getGroups().add(group);
+			bot.saveConfiguration();
 			return "user added";
 		}
 		if("remove_user".equals(args.get(1))) {
@@ -130,6 +134,7 @@ public class GroupAdminCommand extends AbstractReportingCommand {
 			if(!user.getGroups().contains(group))
 				return "user " + user.getName() + " is not a member of group " + group.getName();
 			user.getGroups().remove(group);
+			bot.saveConfiguration();
 			return "user removed";
 		}
 		if("add_parent".equals(args.get(1))) {
@@ -146,6 +151,7 @@ public class GroupAdminCommand extends AbstractReportingCommand {
 			if(child.getParents().contains(parent))
 				return "group " + parent.getName() + " is already a parent of group " + child.getName();
 			child.getParents().add(parent);
+			bot.saveConfiguration();
 			return "parent added";
 		}
 		if("remove_parent".equals(args.get(1))) {
@@ -162,6 +168,7 @@ public class GroupAdminCommand extends AbstractReportingCommand {
 			if(!child.getParents().contains(parent))
 				return "group " + parent.getName() + " is not a parent of group " + child.getName();
 			child.getParents().remove(parent);
+			bot.saveConfiguration();
 			return "parent removed";
 		}
 		if("add_alias".equals(args.get(1))) {
@@ -175,6 +182,7 @@ public class GroupAdminCommand extends AbstractReportingCommand {
 			if(group.getCommands().getCommands().get(args.get(3)) != null)
 				return "named command already exists";
 			group.getCommands().getCommands().put(args.get(3), new AliasCommand(args.get(4)));
+			bot.saveConfiguration();
 			return "alias added";
 		}
 		if("remove_alias".equals(args.get(1))) {
@@ -191,6 +199,7 @@ public class GroupAdminCommand extends AbstractReportingCommand {
 			if(!(c instanceof AliasCommand))
 				return "named command not an alias";
 			group.getCommands().getCommands().remove(args.get(3));
+			bot.saveConfiguration();
 			return "alias removed";
 		}
 		if("show_alias".equals(args.get(1))) {
