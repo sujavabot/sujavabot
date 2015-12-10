@@ -112,6 +112,9 @@ public class GroupAdminCommand extends AbstractReportingCommand {
 		m.put("commands", commands);
 		m.put("parents", parents);
 		m.put("all-commands", allCommands);
+		
+		m.put("properties", group.getProperties());
+		m.put("all-properties", group.getAllProperties());
 
 		String info = m.toString();
 

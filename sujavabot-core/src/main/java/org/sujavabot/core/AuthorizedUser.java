@@ -103,4 +103,13 @@ public class AuthorizedUser {
 	public void setProperties(Map<String, String> properties) {
 		this.properties = properties;
 	}
+	
+	public Map<String, String> getAllProperties() {
+		Map<String, String> all = new TreeMap<>();
+		for(AuthorizedGroup group : groups) {
+			all.putAll(group.getAllProperties());
+		}
+		all.putAll(getProperties());
+		return all;
+	}
 }

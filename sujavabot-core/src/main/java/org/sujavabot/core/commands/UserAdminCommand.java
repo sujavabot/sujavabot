@@ -106,6 +106,9 @@ public class UserAdminCommand extends AbstractReportingCommand {
 		m.put("groups", groups);
 		m.put("all-commands", allCommands);
 		
+		m.put("properties", user.getProperties());
+		m.put("all-properties", user.getAllProperties());
+
 		String info = m.toString();
 		
 		if(args.size() == 4) {

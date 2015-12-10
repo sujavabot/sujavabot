@@ -92,4 +92,13 @@ public class AuthorizedGroup {
 	public void setProperties(Map<String, String> properties) {
 		this.properties = properties;
 	}
+	
+	public Map<String, String> getAllProperties() {
+		Map<String, String> all = new TreeMap<>();
+		for(AuthorizedGroup parent : getParents()) {
+			all.putAll(parent.getAllProperties());
+		}
+		all.putAll(getProperties());
+		return all;
+	}
 }
