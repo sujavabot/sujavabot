@@ -29,6 +29,7 @@ public class AuthorizedGroup {
 	public AuthorizedGroup() {
 		commands = new GroupCommandHandler(this);
 		parents = new ArrayList<>();
+		properties = new TreeMap<>();
 	}
 	
 	public AuthorizedGroup(String name) {
