@@ -30,6 +30,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sujavabot.core.commands.CommandHandler;
 import org.sujavabot.core.commands.DefaultCommandHandler;
+import org.sujavabot.core.util.Messages;
 import org.sujavabot.core.util.Throwables;
 import org.sujavabot.core.xml.XStreams;
 
@@ -47,7 +48,7 @@ public class SujavaBot extends PircBotX {
 	
 	protected Set<User> verified = Collections.synchronizedSet(new HashSet<>());
 	
-	protected Map<Channel, Map<User, String>> outputBuffers = Collections.synchronizedMap(new WeakHashMap<>());
+	protected Map<Channel, Map<User, String[]>> outputBuffers = Collections.synchronizedMap(new WeakHashMap<>());
 
 	public SujavaBot(Configuration configuration) {
 		super(configuration);
@@ -143,42 +144,32 @@ public class SujavaBot extends PircBotX {
 		return c;
 	}
 	
-	public Map<Channel, Map<User, String>> getOutputBuffers() {
+	public Map<Channel, Map<User, String[]>> getOutputBuffers() {
 		return outputBuffers;
 	}
 	
-	public String buffer(Channel channel, User user, String result) {
+	public String buffer(Channel channel, User user, String prefix, String result) {
 		if(!outputBuffers.containsKey(channel))
 			outputBuffers.put(channel, Collections.synchronizedMap(new WeakHashMap<>()));
-		int maxlen = getConfiguration().getMaxLineLength();
-		maxlen -= ("PRIVMSG " + channel.getName() + " :\r\n").length();
-		Map<User, String> channelBuffer = outputBuffers.get(channel);
+		Map<User, String[]> channelBuffer = outputBuffers.get(channel);
 		channelBuffer.remove(user);
-		result = user.getNick() + ": " + result;
-		if(result.length() > maxlen) {
-			int stop = maxlen - " (!more)".length();
-			channelBuffer.put(user, result.substring(stop));
-			return result.substring(0, stop) + " (!more)";
-		}
-		return result;
+		String[] sb = Messages.splitPM(this, channel.getName(), prefix + result);
+		if(sb[1] != null)
+			channelBuffer.put(user, new String[] {prefix, sb[1]});
+		return sb[0];
 	}
 	
 	public String continueBuffer(Channel channel, User user) {
 		if(!outputBuffers.containsKey(channel))
 			outputBuffers.put(channel, Collections.synchronizedMap(new WeakHashMap<>()));
-		Map<User, String> channelBuffer = outputBuffers.get(channel);
-		String result = channelBuffer.remove(user);
-		if(result == null)
+		Map<User, String[]> channelBuffer = outputBuffers.get(channel);
+		String[] pb = channelBuffer.remove(user);
+		if(pb == null)
 			return null;
-		result = user.getNick() + ": " + result;
-		int maxlen = getConfiguration().getMaxLineLength();
-		maxlen -= ("PRIVMSG " + channel.getName() + " :\r\n").length();
-		if(result.length() > maxlen) {
-			int stop = maxlen - " (!more)".length();
-			channelBuffer.put(user, result.substring(stop));
-			return result.substring(0, stop) + " (!more)";
-		}
-		return result;
+		String[] sb = Messages.splitPM(this, channel.getName(), pb[0] + pb[1]);
+		if(sb[1] != null)
+			channelBuffer.put(user, new String[] {pb[0], sb[1]});
+		return sb[0];
 	}
 	
 	public void saveConfiguration() {

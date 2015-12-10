@@ -10,8 +10,8 @@ import org.sujavabot.core.SujavaBot;
 public class EchoCommand extends AbstractReportingCommand {
 	
 	@Override
-	protected void reportMessage(SujavaBot bot, MessageEvent<?> cause, String result) {
-		cause.getChannel().send().message(result);
+	protected String prefix(SujavaBot bot, Event<?> cause, String result) {
+		return "";
 	}
 	
 	@Override

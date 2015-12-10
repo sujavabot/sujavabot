@@ -12,18 +12,8 @@ import org.sujavabot.core.SujavaBot;
 public class ActionCommand extends AbstractReportingCommand {
 
 	@Override
-	protected void reportMessage(SujavaBot bot, MessageEvent<?> cause, String result) {
-		cause.getChannel().send().action(result);
-	}
-	
-	@Override
-	protected void reportAction(SujavaBot bot, ActionEvent<?> cause, String result) {
-		cause.getChannel().send().action(result);
-	}
-	
-	@Override
-	protected void reportPrivateMessage(SujavaBot bot, PrivateMessageEvent<?> cause, String result) {
-		cause.getUser().send().action(result);
+	protected void reportMessage(SujavaBot bot, Event<?> cause, String result, boolean isChannelMessage) {
+		reportAction(bot, cause, result, isChannelMessage);
 	}
 	
 	@Override

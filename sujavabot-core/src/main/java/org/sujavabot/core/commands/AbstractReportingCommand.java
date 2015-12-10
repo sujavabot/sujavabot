@@ -11,6 +11,7 @@ import org.pircbotx.hooks.events.MessageEvent;
 import org.pircbotx.hooks.events.PrivateMessageEvent;
 import org.sujavabot.core.Command;
 import org.sujavabot.core.SujavaBot;
+import org.sujavabot.core.util.Messages;
 
 public abstract class AbstractReportingCommand implements Command {
 	protected static User getUser(Event<?> event) {
@@ -44,17 +45,39 @@ public abstract class AbstractReportingCommand implements Command {
 	protected String sanitize(String result) {
 		return (result == null ? null : result.replaceAll("[\r\n]", " ").replaceAll("\\s+", " ").trim());
 	}
+	
+	protected String prefix(SujavaBot bot, Event<?> cause, String result) {
+		return getUser(cause).getNick() + ": ";
+	}
 
-	protected void reportMessage(SujavaBot bot, MessageEvent<?> cause, String result) {
-		cause.getChannel().send().message(bot.buffer(cause.getChannel(), cause.getUser(), result));
+	protected void reportMessage(SujavaBot bot, Event<?> cause, String result, boolean isChannelMessage) {
+		User user = getUser(cause);
+		Channel channel = getChannel(cause);
+		if(isChannelMessage) {
+			String msg = bot.buffer(channel, user, prefix(bot, cause, result), result);
+			channel.send().message(msg);
+		} else {
+			String p = prefix(bot, cause, result);
+			String[] sb = Messages.splitPM(bot, user.getNick(), p + result);
+			while(true) {
+				user.send().message(sb[0]);
+				if(sb[1] == null)
+					break;
+				sb = Messages.splitPM(bot, user.getNick(), p + sb[1]);
+			}
+		}
 	}
 	
-	protected void reportAction(SujavaBot bot, ActionEvent<?> cause, String result) {
-		cause.getChannel().send().message(result);
-	}
-	
-	protected void reportPrivateMessage(SujavaBot bot, PrivateMessageEvent<?> cause, String result) {
-		cause.getUser().send().message(result);
+	protected void reportAction(SujavaBot bot, Event<?> cause, String result, boolean isChannelAction) {
+		User user = getUser(cause);
+		Channel channel = getChannel(cause);
+		int maxlen = Messages.maxlenAction(bot, isChannelAction ? channel.getName() : user.getNick());
+		if(result.length() > maxlen)
+			result = result.substring(0, maxlen);
+		if(isChannelAction)
+			channel.send().action(result);
+		else
+			user.send().action(result);
 	}
 	
 	@Override
@@ -76,14 +99,11 @@ public abstract class AbstractReportingCommand implements Command {
 		if(result == null)
 			return;
 		if(cause instanceof MessageEvent<?>) {
-			MessageEvent<?> m = (MessageEvent<?>) cause;
-			reportMessage(bot, m, result);
+			reportMessage(bot, cause, result, true);
 		} else if(cause instanceof ActionEvent<?>) {
-			ActionEvent<?> a = (ActionEvent<?>) cause;
-			reportAction(bot, a, result);
+			reportAction(bot, cause, result, getChannel(cause) != null);
 		} else if(cause instanceof PrivateMessageEvent<?>) {
-			PrivateMessageEvent<?> p = (PrivateMessageEvent<?>) cause;
-			reportPrivateMessage(bot, p, result);
+			reportMessage(bot, cause, result, false);
 		}
 	}
 	
