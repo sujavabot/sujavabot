@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import org.apache.commons.lang3.StringUtils;
 import org.pircbotx.hooks.Event;
 import org.sujavabot.core.AuthorizedGroup;
 import org.sujavabot.core.AuthorizedUser;
@@ -18,7 +19,7 @@ public class GroupAdminCommand extends AbstractReportingCommand {
 	protected Map<String, String> helpTopics() {
 		return buildHelp("authorization group control", 
 				"list", "list groups",
-				"info", "<group>: show group info",
+				"info", "<group> [<field>]: show group info",
 				"create", "<group>: create a group",
 				"delete", "<group>: delete a group",
 				"set_name", "<old_group> <new_group>: change a group name",
@@ -52,7 +53,7 @@ public class GroupAdminCommand extends AbstractReportingCommand {
 			return sb.toString();
 		}
 		if("info".equals(args.get(1))) {
-			if(help || args.size() != 3)
+			if(help || (args.size() != 3 && args.size() != 4))
 				return "group info <name>: show group info";
 			String name = args.get(2);
 			AuthorizedGroup group = bot.getAuthorizedGroups().get(name);
@@ -75,7 +76,17 @@ public class GroupAdminCommand extends AbstractReportingCommand {
 			m.put("parents", parents);
 			m.put("all-commands", allCommands);
 			
-			return m.toString();
+			String info = m.toString();
+			
+			if(args.size() == 4) {
+				Object o = m.get(args.get(3));
+				if(o instanceof List<?>)
+					info = StringUtils.join((List<?>) o, ", ");
+				else
+					info = String.valueOf(o);
+			}
+			
+			return info;
 		}
 		if("create".equals(args.get(1))) {
 			if(help || args.size() != 3)

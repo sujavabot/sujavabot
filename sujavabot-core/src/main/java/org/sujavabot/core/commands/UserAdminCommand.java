@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.regex.Pattern;
 
+import org.apache.commons.lang3.StringUtils;
 import org.pircbotx.hooks.Event;
 import org.sujavabot.core.AuthorizedGroup;
 import org.sujavabot.core.AuthorizedUser;
@@ -19,7 +20,7 @@ public class UserAdminCommand extends AbstractReportingCommand {
 	protected Map<String, String> helpTopics() {
 		return buildHelp("authorization user control", 
 				"list", "list users",
-				"info", "<user>: show user info",
+				"info", "<user> [<field>]: show user info",
 				"create", "<user>: create a user",
 				"delete", "<user>: delete a user",
 				"set_name", "<old_user> <new_user>: change a user name",
@@ -49,7 +50,7 @@ public class UserAdminCommand extends AbstractReportingCommand {
 			return sb.toString();
 		}
 		if("info".equals(args.get(1))) {
-			if(help || args.size() != 3)
+			if(help || (args.size() != 3 && args.size() != 4))
 				return "user info <name>: show user info";
 			String name = args.get(2);
 			AuthorizedUser user = bot.getAuthorizedUsers().get(name);
@@ -74,7 +75,17 @@ public class UserAdminCommand extends AbstractReportingCommand {
 			m.put("groups", groups);
 			m.put("all-commands", allCommands);
 			
-			return m.toString();
+			String info = m.toString();
+			
+			if(args.size() == 4) {
+				Object o = m.get(args.get(3));
+				if(o instanceof List<?>)
+					info = StringUtils.join((List<?>) o, ", ");
+				else
+					info = String.valueOf(o);
+			}
+			
+			return info;
 		}
 		if("create".equals(args.get(1))) {
 			if(help || args.size() < 3)
