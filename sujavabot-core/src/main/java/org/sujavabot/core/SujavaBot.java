@@ -153,9 +153,13 @@ public class SujavaBot extends PircBotX {
 			outputBuffers.put(channel, Collections.synchronizedMap(new WeakHashMap<>()));
 		Map<User, String[]> channelBuffer = outputBuffers.get(channel);
 		channelBuffer.remove(user);
-		String[] sb = Messages.splitPM(this, channel.getName(), prefix + result);
-		if(sb[1] != null)
+		int maxlen = Messages.maxlenPM(this, channel.getName());
+		String[] sb = Messages.split(maxlen, channel.getName(), prefix + result);
+		if(sb[1] != null) {
+			sb = Messages.split(maxlen - " (more)".length(), channel.getName(), prefix + result);
+			sb[0] += " (more)";
 			channelBuffer.put(user, new String[] {prefix, sb[1]});
+		}
 		return sb[0];
 	}
 	
@@ -166,9 +170,13 @@ public class SujavaBot extends PircBotX {
 		String[] pb = channelBuffer.remove(user);
 		if(pb == null)
 			return null;
-		String[] sb = Messages.splitPM(this, channel.getName(), pb[0] + pb[1]);
-		if(sb[1] != null)
+		int maxlen = Messages.maxlenPM(this, channel.getName());
+		String[] sb = Messages.split(maxlen, channel.getName(), pb[0] + pb[1]);
+		if(sb[1] != null) {
+			sb = Messages.split(maxlen - " (more)".length(), channel.getName(), pb[0] + pb[1]);
+			sb[0] += " (more)";
 			channelBuffer.put(user, new String[] {pb[0], sb[1]});
+		}
 		return sb[0];
 	}
 	
