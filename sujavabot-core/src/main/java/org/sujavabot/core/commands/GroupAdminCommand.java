@@ -291,7 +291,7 @@ public class GroupAdminCommand extends AbstractReportingCommand {
 		AuthorizedGroup group = bot.getAuthorizedGroups().get(args.get(2));
 		if (group == null)
 			return "group does not exist";
-		Command c = group.getCommands().getCommands().get(args.get(3));
+		Command c = group.getAllCommands().get(args.get(3));
 		if (c == null)
 			return "named command does not exist";
 		if (!(c instanceof AliasCommand))
