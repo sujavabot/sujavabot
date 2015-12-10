@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import org.pircbotx.hooks.Event;
 import org.sujavabot.core.AuthorizedGroup;
@@ -42,10 +43,12 @@ public class GroupAdminCommand extends AbstractReportingCommand {
 			List<String> parents = new ArrayList<>();
 			List<String> allCommands = new ArrayList<>();
 			
-			commands.addAll(group.getCommands().getCommands().keySet());
+			for(Entry<String, Command> e : group.getCommands().getCommands().entrySet())
+				commands.add(e.getKey() + ((e.getValue() instanceof AliasCommand) ? "*" : ""));
 			for(AuthorizedGroup parent : group.getParents())
 				parents.add(parent.getName());
-			allCommands.addAll(group.getAllCommands().keySet());
+			for(Entry<String, Command> e : group.getAllCommands().entrySet())
+				allCommands.add(e.getKey() + ((e.getValue() instanceof AliasCommand) ? "*" : ""));
 			
 			Map<String, Object> m = new LinkedHashMap<>();
 			m.put("name", name);
