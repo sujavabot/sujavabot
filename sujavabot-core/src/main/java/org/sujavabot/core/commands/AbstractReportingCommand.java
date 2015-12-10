@@ -58,16 +58,20 @@ public abstract class AbstractReportingCommand implements Command {
 		User user = getUser(cause);
 		Channel channel = getChannel(cause);
 		if(isChannelMessage) {
+			result = Messages.sanitize(result);
 			String msg = bot.buffer(channel, user, prefix(bot, cause, result), result);
 			channel.send().message(msg);
 		} else {
 			String p = prefix(bot, cause, result);
-			String[] sb = Messages.splitPM(bot, user.getNick(), p + result);
-			while(true) {
-				user.send().message(sb[0]);
-				if(sb[1] == null)
-					break;
-				sb = Messages.splitPM(bot, user.getNick(), p + sb[1]);
+			for(String msg : result.split("[\r\n]+")) {
+				msg = Messages.sanitize(msg);
+				String[] sb = Messages.splitPM(bot, user.getNick(), p + msg);
+				while(true) {
+					user.send().message(sb[0]);
+					if(sb[1] == null)
+						break;
+					sb = Messages.splitPM(bot, user.getNick(), p + sb[1]);
+				}
 			}
 		}
 	}
@@ -107,7 +111,6 @@ public abstract class AbstractReportingCommand implements Command {
 	
 	@Override
 	public void report(SujavaBot bot, Event<?> cause, String result) {
-		result = sanitize(result);
 		if(result == null)
 			return;
 		if(cause instanceof MessageEvent<?>) {
