@@ -1,5 +1,6 @@
 package org.sujavabot.core.commands;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -17,7 +18,7 @@ public class HelpCommand extends AbstractReportingCommand {
 	@Override
 	public String invoke(SujavaBot bot, Event<?> cause, List<String> args) {
 		if(args.size() == 1)
-			return help(null);
+			args = Arrays.asList(args.get(0), "help");
 		String command = args.get(1);
 		String topic = StringUtils.join(args.subList(2, args.size()), " ");
 		return command + (topic.isEmpty() ? "" : " " + topic) + ": " + bot.getCommands().get(cause, command).help(topic);
