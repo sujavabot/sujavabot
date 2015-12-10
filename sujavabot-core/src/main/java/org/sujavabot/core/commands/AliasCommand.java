@@ -91,4 +91,8 @@ public class AliasCommand extends AbstractReportingCommand {
 		return flat;
 	}
 	
+	@Override
+	public String toString() {
+		return alias;
+	}
 }

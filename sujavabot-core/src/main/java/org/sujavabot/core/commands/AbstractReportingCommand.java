@@ -62,5 +62,10 @@ public abstract class AbstractReportingCommand implements Command {
 			reportPrivateMessage(bot, p, result);
 		}
 	}
+	
+	@Override
+	public String toString() {
+		return getClass().getSimpleName();
+	}
 
 }

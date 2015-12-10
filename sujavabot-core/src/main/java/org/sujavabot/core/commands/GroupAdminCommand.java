@@ -16,7 +16,7 @@ public class GroupAdminCommand extends AbstractReportingCommand {
 	@Override
 	public String invoke(SujavaBot bot, Event<?> cause, List<String> args) {
 		if(args.size() <= 1) {
-			return "group <command>: list, info, create, delete, set_name, add_user, remove_user, add_parent, remove_parent, add_alias, remove_alias";
+			return "group <command>: list, info, create, delete, set_name, add_user, remove_user, add_parent, remove_parent, add_alias, remove_alias, show_alias";
 		}
 		boolean help = "help".equals(args.get(0));
 		AuthorizedUser caller = bot.getAuthorizedUser(getUser(cause));
@@ -193,7 +193,20 @@ public class GroupAdminCommand extends AbstractReportingCommand {
 			group.getCommands().getCommands().remove(args.get(3));
 			return "alias removed";
 		}
-		return "group <command>: list, info, create, delete, set_name, add_user, remove_user, add_parent, remove_parent, add_alias, remove_alias";
+		if("show_alias".equals(args.get(1))) {
+			if(help || args.size() != 4)
+				return "group show_alias <group> <name>";
+			AuthorizedGroup group = bot.getAuthorizedGroups().get(args.get(2));
+			if(group == null)
+				return "group does not exist";
+			Command c = group.getCommands().getCommands().get(args.get(3));
+			if(c == null)
+				return "named command does not exist";
+			if(!(c instanceof AliasCommand))
+				return "named command not an alias";
+			return c.toString();
+		}
+		return "group <command>: list, info, create, delete, set_name, add_user, remove_user, add_parent, remove_parent, add_alias, remove_alias, show_alias";
 	}
 
 }

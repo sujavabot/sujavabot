@@ -17,7 +17,7 @@ public class UserAdminCommand extends AbstractReportingCommand {
 	@Override
 	public String invoke(SujavaBot bot, Event<?> cause, List<String> args) {
 		if(args.size() <= 1) {
-			return "user <command>: list, info, create, delete, set_name, set_nick, add_alias, remove_alias";
+			return "user <command>: list, info, create, delete, set_name, set_nick, add_alias, remove_alias, show_alias";
 		}
 		boolean help = "help".equals(args.get(0));
 		AuthorizedUser caller = bot.getAuthorizedUser(getUser(cause));
@@ -160,7 +160,7 @@ public class UserAdminCommand extends AbstractReportingCommand {
 		}
 		if("remove_alias".equals(args.get(1))) {
 			if(help || args.size() != 4)
-				return "group remove_alias <group> <name>";
+				return "user remove_alias <user> <name>";
 			AuthorizedUser user = bot.getAuthorizedUsers().get(args.get(2));
 			if(user == null)
 				return "user does not exist";
@@ -175,7 +175,20 @@ public class UserAdminCommand extends AbstractReportingCommand {
 			user.getCommands().getCommands().remove(args.get(3));
 			return "alias removed";
 		}
-		return "user <command>: list, info, create, delete, set_name, set_nick, add_alias, remove_alias";
+		if("show_alias".equals(args.get(1))) {
+			if(help || args.size() != 4)
+				return "user show_alias <user> <name>";
+			AuthorizedUser user = bot.getAuthorizedUsers().get(args.get(2));
+			if(user == null)
+				return "user does not exist";
+			Command c = user.getCommands().getCommands().get(args.get(3));
+			if(c == null)
+				return "named command does not exist";
+			if(!(c instanceof AliasCommand))
+				return "named command not an alias";
+			return c.toString();
+		}
+		return "user <command>: list, info, create, delete, set_name, set_nick, add_alias, remove_alias, show_alias";
 	}
 
 }
