@@ -33,7 +33,7 @@ public abstract class AbstractReportingCommand implements Command {
 		Map<String, String> helpTopics = new HashMap<>();
 		for(int i = 0; i < specificHelp.length - 1; i += 2) {
 			helpTopics.put(specificHelp[i], specificHelp[i+1]);
-			defaultHelp += (i == 0 ? " (" : ", ") + specificHelp[i];
+			defaultHelp += (i == 0 ? " (topics: " : ", ") + specificHelp[i];
 		}
 		if(specificHelp.length > 0)
 			defaultHelp += ")";
