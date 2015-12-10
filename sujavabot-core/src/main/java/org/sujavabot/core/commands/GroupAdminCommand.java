@@ -63,12 +63,16 @@ public class GroupAdminCommand extends AbstractReportingCommand {
 			List<String> parents = new ArrayList<>();
 			List<String> allCommands = new ArrayList<>();
 			
-			for(Entry<String, Command> e : group.getCommands().getCommands().entrySet())
-				commands.add(e.getKey() + ((e.getValue() instanceof AliasCommand) ? "*" : ""));
+			for(Entry<String, Command> e : group.getCommands().getCommands().entrySet()) {
+				if(!(e.getValue() instanceof HiddenCommand))
+					commands.add(e.getKey() + ((e.getValue() instanceof AliasCommand) ? "*" : ""));
+			}
 			for(AuthorizedGroup parent : group.getParents())
 				parents.add(parent.getName());
-			for(Entry<String, Command> e : group.getAllCommands().entrySet())
-				allCommands.add(e.getKey() + ((e.getValue() instanceof AliasCommand) ? "*" : ""));
+			for(Entry<String, Command> e : group.getAllCommands().entrySet()) {
+				if(!(e.getValue() instanceof HiddenCommand))
+					allCommands.add(e.getKey() + ((e.getValue() instanceof AliasCommand) ? "*" : ""));
+			}
 			
 			Map<String, Object> m = new LinkedHashMap<>();
 			m.put("name", name);
