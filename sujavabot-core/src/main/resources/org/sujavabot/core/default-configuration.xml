@@ -10,6 +10,9 @@
 			<action class="org.sujavabot.core.commands.ActionCommand" />
 			<echo class="org.sujavabot.core.commands.EchoCommand" />
 			<more class="org.sujavabot.core.commands.MoreBufferCommand" />
+			<group class="org.sujavabot.core.commands.GroupAdminCommand" />
+			<user class="org.sujavabot.core.commands.UserAdminCommand" />
+			<help class="org.sujavabot.core.commands.HelpCommand" />
 		</commands>
 	</group>
 	<group>
@@ -17,8 +20,6 @@
 		<parent>root</parent>
 		<commands>
 			<config class="org.sujavabot.core.commands.ConfigCommand" />
-			<group class="org.sujavabot.core.commands.GroupAdminCommand" />
-			<user class="org.sujavabot.core.commands.UserAdminCommand" />
 		</commands>
 	</group>
 	<user>
