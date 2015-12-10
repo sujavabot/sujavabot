@@ -8,6 +8,7 @@ import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.nio.charset.Charset;
 import java.util.List;
+import java.util.Map;
 
 import org.pircbotx.hooks.Event;
 import org.python.core.PyList;
@@ -24,6 +25,11 @@ public class JythonCommand extends AbstractReportingCommand implements HelperCon
 	protected File file;
 
 	@Override
+	protected Map<String, String> helpTopics() {
+		return buildHelp("python script: " + (source != null ? source : file.toString()));
+	}
+	
+	@Override
 	public String invoke(SujavaBot bot, Event<?> cause, List<String> args) {
 		try {
 			PySystemState state = new PySystemState();
@@ -34,6 +40,9 @@ public class JythonCommand extends AbstractReportingCommand implements HelperCon
 			ByteArrayOutputStream bytes = new ByteArrayOutputStream();
 			Writer out = new OutputStreamWriter(bytes, Charset.forName("UTF-8"));
 			interp.setOut(out);
+			
+			interp.set("bot", bot);
+			interp.set("cause", cause);
 			
 			if(source != null)
 				interp.exec(source);

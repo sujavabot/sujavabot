@@ -2,12 +2,20 @@ package org.sujavabot.core.commands;
 
 import java.io.File;
 import java.util.List;
+import java.util.Map;
 
 import org.pircbotx.hooks.Event;
 import org.sujavabot.core.SujavaBot;
 
 public class ConfigCommand extends AbstractReportingCommand {
 
+	@Override
+	protected Map<String, String> helpTopics() {
+		return buildHelp("bot configuration", 
+				"save", "[<file>]: save bot configuration"
+				);
+	}
+	
 	@Override
 	public String invoke(SujavaBot bot, Event<?> cause, List<String> args) {
 		if(args.size() <= 1)

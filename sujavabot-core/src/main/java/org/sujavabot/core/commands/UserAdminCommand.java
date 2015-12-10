@@ -16,6 +16,21 @@ import org.sujavabot.core.SujavaBot;
 public class UserAdminCommand extends AbstractReportingCommand {
 
 	@Override
+	protected Map<String, String> helpTopics() {
+		return buildHelp("authorization user control", 
+				"list", "list users",
+				"info", "<user>: show user info",
+				"create", "<user>: create a user",
+				"delete", "<user>: delete a user",
+				"set_name", "<old_user> <new_user>: change a user name",
+				"set_nick", "<name> <new_nick>: change a user nick",
+				"add_alias", "<user> <name> <command>: add a command alias to a user",
+				"remove_alias", "<user> <name>: remove a command alias from a user",
+				"show_alias", "<user> <name>: show a command alias from a user"
+				);
+	}
+
+	@Override
 	public String invoke(SujavaBot bot, Event<?> cause, List<String> args) {
 		if(args.size() <= 1) {
 			return "user <command>: list, info, create, delete, set_name, set_nick, add_alias, remove_alias, show_alias";
@@ -130,7 +145,7 @@ public class UserAdminCommand extends AbstractReportingCommand {
 		}
 		if("set_nick".equals(args.get(1))) {
 			if(help || args.size() != 4) 
-				return "user set_name <old_name> <new_name>";
+				return "user set_name <name> <new_nick>";
 			AuthorizedGroup root = bot.getAuthorizedGroups().get("@root");
 			if(root != null) {
 				if(caller == null || !caller.isOwnerOf(root))

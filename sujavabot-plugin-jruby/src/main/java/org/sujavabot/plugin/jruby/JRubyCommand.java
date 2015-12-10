@@ -9,6 +9,7 @@ import java.io.Reader;
 import java.io.Writer;
 import java.nio.charset.Charset;
 import java.util.List;
+import java.util.Map;
 
 import org.jruby.embed.LocalContextScope;
 import org.jruby.embed.ScriptingContainer;
@@ -23,6 +24,11 @@ public class JRubyCommand extends AbstractReportingCommand implements HelperConv
 	protected String source;
 	protected File file;
 
+	@Override
+	protected Map<String, String> helpTopics() {
+		return buildHelp("ruby script: " + (source != null ? source : file.toString()));
+	}
+	
 	@Override
 	public String invoke(SujavaBot bot, Event<?> cause, List<String> args) {
 		try {

@@ -15,6 +15,25 @@ import org.sujavabot.core.SujavaBot;
 public class GroupAdminCommand extends AbstractReportingCommand {
 
 	@Override
+	protected Map<String, String> helpTopics() {
+		return buildHelp("authorization group control", 
+				"list", "list groups",
+				"info", "<group>: show group info",
+				"create", "<group>: create a group",
+				"delete", "<group>: delete a group",
+				"set_name", "<old_group> <new_group>: change a group name",
+				"add_user", "<group> <user>: add a user to a group",
+				"remove_user", "<group> <user>: remove a user from a group",
+				"add_parent", "<child_group> <parent_group>: add a parent to a group",
+				"remove_parent", "<child_group> <parent_group>: remove a parent from a group",
+				"add_alias", "<group> <name> <command>: add a command alias to a group",
+				"remove_alias", "<group> <name>: remove a command alias from a group",
+				"show_alias", "<group> <name>: show a command alias from a group"
+				);
+				
+	}
+	
+	@Override
 	public String invoke(SujavaBot bot, Event<?> cause, List<String> args) {
 		if(args.size() <= 1) {
 			return "group <command>: list, info, create, delete, set_name, add_user, remove_user, add_parent, remove_parent, add_alias, remove_alias, show_alias";
