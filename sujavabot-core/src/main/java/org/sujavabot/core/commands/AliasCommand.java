@@ -4,12 +4,13 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.apache.commons.lang3.StringUtils;
 import org.pircbotx.hooks.Event;
 import org.sujavabot.core.Command;
 import org.sujavabot.core.SujavaBot;
 
 public class AliasCommand extends AbstractReportingCommand {
-	protected static final Pattern SUB = Pattern.compile("\\$(@|nick|([0-9]+))");
+	protected static final Pattern SUB = Pattern.compile("\\$(@|nick|\\{([0-9]*):([0-9]*)\\}|([0-9]+))");
 
 	protected String alias;
 
@@ -36,6 +37,13 @@ public class AliasCommand extends AbstractReportingCommand {
 				sb.append(joined.toString());
 			} else if("nick".equals(m.group(1))) {
 				sb.append(getUser(cause).getNick());
+			} else if(m.group(1).startsWith("{")) {
+				int from = (m.group(2).isEmpty() ? 0 : Integer.parseInt(m.group(2)));
+				int to = (m.group(3).isEmpty() ? args.size() : Integer.parseInt(m.group(3)));
+				if(from <= args.size() && to <= args.size() && from <= to) {
+					List<String> sub = args.subList(from, to);
+					sb.append(StringUtils.join(sub, " "));
+				}
 			} else {
 				int i = Integer.parseInt(m.group(1));
 				if(i < args.size())
