@@ -39,8 +39,9 @@ public class JRubyCommand extends AbstractReportingCommand implements HelperConv
 			
 			container.setArgv(args.toArray(new String[args.size()]));
 			
-			container.put("BOT", bot);
-			container.put("CAUSE", cause);
+			container.put("bot", bot);
+			container.put("cause", cause);
+			container.put("caller", bot.getAuthorizedUser(getUser(cause)));
 
 			if(source != null)
 				container.runScriptlet(source);
