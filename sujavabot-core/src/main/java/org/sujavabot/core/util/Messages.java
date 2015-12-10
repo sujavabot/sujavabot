@@ -5,6 +5,19 @@ import org.sujavabot.core.SujavaBot;
 public abstract class Messages {
 	private Messages() {}
 	
+	public static String sanitize(String message) {
+		if(message == null)
+			return null;
+		String s = message;
+		s = s.replaceAll("^[\r\n]+\\s*", "");
+		s = s.replaceAll("\\s*[\r\n]+$", "");
+		s = s.replaceAll("(\\s+)[\r\n]+(\\s+)", " ");
+		s = s.replaceAll("(\\s+)[\r\n]+(\\S+)", " $2");
+		s = s.replaceAll("(\\S+)[\r\n]+(\\s+)", "$1 ");
+		s = s.replaceAll("(\\S+)[\r\n]+(\\S+)", "$1 $2");
+		return s;
+	}
+	
 	public static String[] splitPM(SujavaBot bot, String recipient, String message) {
 		if(message == null)
 			return new String[] {null, null};
