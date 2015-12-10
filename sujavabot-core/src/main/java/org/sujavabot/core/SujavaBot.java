@@ -129,12 +129,17 @@ public class SujavaBot extends PircBotX {
 	@Override
 	public Configuration getConfiguration() {
 		Configuration c = (Configuration) super.getConfiguration();
-		
+		return c;
+	}
+	
+	public Configuration updateConfiguration() {
+		Configuration c = (Configuration) super.getConfiguration();
+
 		c.getUsers().clear();
 		c.getUsers().putAll(authorizedUsers);
 		c.getGroups().clear();
 		c.getGroups().putAll(authorizedGroups);
-		
+
 		return c;
 	}
 	
@@ -184,7 +189,7 @@ public class SujavaBot extends PircBotX {
 		if(configFile == null)
 			configFile = getConfiguration().getConfigFile();
 		if(configFile == null) {
-			ConfigurationBuilder builder = getConfiguration().createBuilder();
+			ConfigurationBuilder builder = updateConfiguration().createBuilder();
 			XStream x = XStreams.configure(new XStream());
 			x.toXML(builder, System.out);
 			System.out.println();
@@ -197,7 +202,7 @@ public class SujavaBot extends PircBotX {
 				configFileOld = new File(configFile.getParent(), configFile.getName() + ".old." + i);
 			OutputStream out = new FileOutputStream(configFileTmp);
 			try {
-				ConfigurationBuilder builder = getConfiguration().createBuilder();
+				ConfigurationBuilder builder = updateConfiguration().createBuilder();
 				XStream x = XStreams.configure(new XStream());
 				x.toXML(builder, out);
 			} finally {
