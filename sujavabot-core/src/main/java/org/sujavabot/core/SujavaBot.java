@@ -128,7 +128,14 @@ public class SujavaBot extends PircBotX {
 	
 	@Override
 	public Configuration getConfiguration() {
-		return (Configuration) super.getConfiguration();
+		Configuration c = (Configuration) super.getConfiguration();
+		
+		c.getUsers().clear();
+		c.getUsers().putAll(authorizedUsers);
+		c.getGroups().clear();
+		c.getGroups().putAll(authorizedGroups);
+		
+		return c;
 	}
 	
 	public Map<Channel, Map<User, String>> getOutputBuffers() {
