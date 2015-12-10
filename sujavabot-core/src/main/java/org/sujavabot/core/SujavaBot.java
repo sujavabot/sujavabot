@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -168,8 +169,10 @@ public class SujavaBot extends PircBotX {
 			outputBuffers.put(channel, Collections.synchronizedMap(new WeakHashMap<>()));
 		Map<User, String> channelBuffer = outputBuffers.get(channel);
 		String pb = channelBuffer.get(user);
-		if(pb == null)
+		if(pb == null) {
+			System.out.println(channel.getName() + " (" + user.getNick() + "): buffer empty");
 			return null;
+		}
 		int maxlen = Messages.maxlenPM(this, channel.getName());
 		String[] sb = Messages.split(maxlen, channel.getName(), prefix + pb);
 		if(sb[1] != null) {
@@ -178,6 +181,7 @@ public class SujavaBot extends PircBotX {
 			channelBuffer.put(user, sb[1]);
 		} else
 			channelBuffer.put(user, null);
+		System.out.println(channel.getName() + " (" + user.getNick() + "): buffer " + Arrays.asList(sb));
 		return sb[0];
 	}
 	
