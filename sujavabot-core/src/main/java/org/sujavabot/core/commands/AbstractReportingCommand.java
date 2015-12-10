@@ -58,12 +58,15 @@ public abstract class AbstractReportingCommand implements Command {
 		User user = getUser(cause);
 		Channel channel = getChannel(cause);
 		if(isChannelMessage) {
+			System.out.println("channel msg!");
 			result = Messages.sanitize(result);
 			String msg = bot.buffer(channel, user, prefix(bot, cause, result), result);
 			channel.send().message(msg);
 		} else {
 			String p = prefix(bot, cause, result);
+			System.out.println("user msg");
 			for(String msg : result.split("[\r\n]+")) {
+				System.out.println("msg:" + msg);
 				msg = Messages.sanitize(msg);
 				String[] sb = Messages.splitPM(bot, user.getNick(), p + msg);
 				while(true) {
