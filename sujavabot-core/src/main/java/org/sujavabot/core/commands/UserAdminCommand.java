@@ -34,13 +34,12 @@ public class UserAdminCommand extends AbstractReportingCommand {
 	@Override
 	public String invoke(SujavaBot bot, Event<?> cause, List<String> args) {
 		if(args.size() <= 1) {
-			return "user <command>: list, info, create, delete, set_name, set_nick, add_alias, remove_alias, show_alias";
+			return invokeHelp(bot, cause, args);
 		}
-		boolean help = "help".equals(args.get(0));
 		AuthorizedUser caller = bot.getAuthorizedUser(getUser(cause));
 		if("list".equals(args.get(1))) {
-			if(help || args.size() != 2)
-				return "user list: list the user names";
+			if(args.size() != 2)
+				return invokeHelp(bot, cause, args, "list");
 			StringBuilder sb = new StringBuilder();
 			for(AuthorizedUser user : bot.getAuthorizedUsers().values()) {
 				if(sb.length() > 0)
@@ -50,8 +49,8 @@ public class UserAdminCommand extends AbstractReportingCommand {
 			return sb.toString();
 		}
 		if("info".equals(args.get(1))) {
-			if(help || (args.size() != 3 && args.size() != 4))
-				return "user info <name>: show user info";
+			if((args.size() != 3 && args.size() != 4))
+				return invokeHelp(bot, cause, args, "info");
 			String name = args.get(2);
 			AuthorizedUser user = bot.getAuthorizedUsers().get(name);
 			if(user == null)
@@ -92,8 +91,8 @@ public class UserAdminCommand extends AbstractReportingCommand {
 			return info;
 		}
 		if("create".equals(args.get(1))) {
-			if(help || args.size() < 3)
-				return "user create <name> <nick> [<group>...]: create a user";
+			if(args.size() < 3)
+				return invokeHelp(bot, cause, args, "create");
 			String name = args.get(2);
 			if(bot.getAuthorizedUsers().get(name) != null)
 				return "user " + name + " already exists";
@@ -124,8 +123,8 @@ public class UserAdminCommand extends AbstractReportingCommand {
 			return "user created";
 		}
 		if("delete".equals(args.get(1))) {
-			if(help || args.size() != 3)
-				return "user delete <name>: delete a user";
+			if(args.size() != 3)
+				return invokeHelp(bot, cause, args, "delete");
 			AuthorizedGroup root = bot.getAuthorizedGroups().get("@root");
 			if(root != null) {
 				if(caller == null || !caller.isOwnerOf(root))
@@ -140,8 +139,8 @@ public class UserAdminCommand extends AbstractReportingCommand {
 			return "user deleted";
 		}
 		if("set_name".equals(args.get(1))) {
-			if(help || args.size() != 4)
-				return "user set_name <old_name> <new_name>";
+			if(args.size() != 4)
+				return invokeHelp(bot, cause, args, "set_name");
 			AuthorizedGroup root = bot.getAuthorizedGroups().get("@root");
 			if(root != null) {
 				if(caller == null || !caller.isOwnerOf(root))
@@ -159,8 +158,8 @@ public class UserAdminCommand extends AbstractReportingCommand {
 			return "user updated";
 		}
 		if("set_nick".equals(args.get(1))) {
-			if(help || args.size() != 4) 
-				return "user set_name <name> <new_nick>";
+			if(args.size() != 4) 
+				return invokeHelp(bot, cause, args, "set_nick");
 			AuthorizedGroup root = bot.getAuthorizedGroups().get("@root");
 			if(root != null) {
 				if(caller == null || !caller.isOwnerOf(root))
@@ -182,8 +181,8 @@ public class UserAdminCommand extends AbstractReportingCommand {
 			return "user updated";
 		}
 		if("add_alias".equals(args.get(1))) {
-			if(help || args.size() != 5)
-				return "user add_alias <user> <name> <command>";
+			if(args.size() != 5)
+				return invokeHelp(bot, cause, args, "add_alias");
 			AuthorizedUser user = bot.getAuthorizedUsers().get(args.get(2));
 			if(user == null)
 				return "user does not exist";
@@ -197,8 +196,8 @@ public class UserAdminCommand extends AbstractReportingCommand {
 			return "alias added";
 		}
 		if("remove_alias".equals(args.get(1))) {
-			if(help || args.size() != 4)
-				return "user remove_alias <user> <name>";
+			if(args.size() != 4)
+				return invokeHelp(bot, cause, args, "remove_alias");
 			AuthorizedUser user = bot.getAuthorizedUsers().get(args.get(2));
 			if(user == null)
 				return "user does not exist";
@@ -215,8 +214,8 @@ public class UserAdminCommand extends AbstractReportingCommand {
 			return "alias removed";
 		}
 		if("show_alias".equals(args.get(1))) {
-			if(help || args.size() != 4)
-				return "user show_alias <user> <name>";
+			if(args.size() != 4)
+				return invokeHelp(bot, cause, args, "show_alias");
 			AuthorizedUser user = bot.getAuthorizedUsers().get(args.get(2));
 			if(user == null)
 				return "user does not exist";
@@ -227,7 +226,7 @@ public class UserAdminCommand extends AbstractReportingCommand {
 				return "named command not an alias";
 			return c.toString();
 		}
-		return "user <command>: list, info, create, delete, set_name, set_nick, add_alias, remove_alias, show_alias";
+		return invokeHelp(bot, cause, args);
 	}
 
 }

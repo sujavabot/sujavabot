@@ -1,6 +1,8 @@
 package org.sujavabot.core.commands;
 
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.pircbotx.Channel;
@@ -87,6 +89,14 @@ public abstract class AbstractReportingCommand implements Command {
 	}
 	
 	protected abstract Map<String, String> helpTopics();
+	
+	protected String invokeHelp(SujavaBot bot, Event<?> cause, List<String> args) {
+		return invokeHelp(bot, cause, args, null);
+	}
+	
+	protected String invokeHelp(SujavaBot bot, Event<?> cause, List<String> args, String topic) {
+		return new HelpCommand().invoke(bot, cause, Arrays.asList("help", args.get(0), topic));
+	}
 	
 	@Override
 	public String help(String helpwith) {

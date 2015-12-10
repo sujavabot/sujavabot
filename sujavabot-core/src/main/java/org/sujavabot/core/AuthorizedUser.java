@@ -15,11 +15,13 @@ public class AuthorizedUser {
 	protected UserCommandHandler commands;
 	protected List<AuthorizedGroup> groups;
 	protected List<AuthorizedGroup> ownedGroups;
+	protected Map<String, String> properties;
 	
 	public AuthorizedUser() {
 		commands = new UserCommandHandler(this);
 		groups = new ArrayList<>();
 		ownedGroups = new ArrayList<>();
+		properties = new TreeMap<>();
 	}
 	
 	public AuthorizedUser(String name) {
@@ -92,5 +94,13 @@ public class AuthorizedUser {
 				return true;
 		}
 		return false;
+	}
+
+	public Map<String, String> getProperties() {
+		return properties;
+	}
+
+	public void setProperties(Map<String, String> properties) {
+		this.properties = properties;
 	}
 }

@@ -24,6 +24,7 @@ public class AuthorizedGroup {
 	protected String name;
 	protected GroupCommandHandler commands;
 	protected List<AuthorizedGroup> parents;
+	protected Map<String, String> properties;
 	
 	public AuthorizedGroup() {
 		commands = new GroupCommandHandler(this);
@@ -81,5 +82,13 @@ public class AuthorizedGroup {
 					all.put(e.getKey(), e.getValue());
 		}
 		return all;
+	}
+
+	public Map<String, String> getProperties() {
+		return properties;
+	}
+
+	public void setProperties(Map<String, String> properties) {
+		this.properties = properties;
 	}
 }

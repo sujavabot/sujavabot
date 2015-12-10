@@ -37,13 +37,12 @@ public class GroupAdminCommand extends AbstractReportingCommand {
 	@Override
 	public String invoke(SujavaBot bot, Event<?> cause, List<String> args) {
 		if(args.size() <= 1) {
-			return "group <command>: list, info, create, delete, set_name, add_user, remove_user, add_parent, remove_parent, add_alias, remove_alias, show_alias";
+			return invokeHelp(bot, cause, args);
 		}
-		boolean help = "help".equals(args.get(0));
 		AuthorizedUser caller = bot.getAuthorizedUser(getUser(cause));
 		if("list".equals(args.get(1))) {
-			if(help || args.size() != 2)
-				return "group list: list the group names";
+			if(args.size() != 2)
+				return invokeHelp(bot, cause, args, "list");
 			StringBuilder sb = new StringBuilder();
 			for(AuthorizedGroup group : bot.getAuthorizedGroups().values()) {
 				if(sb.length() > 0)
@@ -53,8 +52,8 @@ public class GroupAdminCommand extends AbstractReportingCommand {
 			return sb.toString();
 		}
 		if("info".equals(args.get(1))) {
-			if(help || (args.size() != 3 && args.size() != 4))
-				return "group info <name>: show group info";
+			if((args.size() != 3 && args.size() != 4))
+				return invokeHelp(bot, cause, args, "info");
 			String name = args.get(2);
 			AuthorizedGroup group = bot.getAuthorizedGroups().get(name);
 			if(group == null)
@@ -93,8 +92,8 @@ public class GroupAdminCommand extends AbstractReportingCommand {
 			return info;
 		}
 		if("create".equals(args.get(1))) {
-			if(help || args.size() != 3)
-				return "group create <name>: create a group";
+			if(args.size() != 3)
+				return invokeHelp(bot, cause, args, "create");
 			String name = args.get(2);
 			if(bot.getAuthorizedGroups().get(name) != null)
 				return "group " + name + " already exists";
@@ -110,8 +109,8 @@ public class GroupAdminCommand extends AbstractReportingCommand {
 			return "group created";
 		}
 		if("delete".equals(args.get(1))) {
-			if(help || args.size() != 3)
-				return "group delete <name>: delete a group";
+			if(args.size() != 3)
+				return invokeHelp(bot, cause, args, "delete");
 			String name = args.get(2);
 			if("@root".equals(name))
 				return "cannot delete root group";
@@ -125,8 +124,8 @@ public class GroupAdminCommand extends AbstractReportingCommand {
 			return "group deleted";
 		}
 		if("set_name".equals(args.get(1))) {
-			if(help || args.size() != 4)
-				return "group set_name <old_name> <new_name>";
+			if(args.size() != 4)
+				return invokeHelp(bot, cause, args, "set_name");
 			String oldName = args.get(2);
 			AuthorizedGroup group = bot.getAuthorizedGroups().get(oldName);
 			if(group == null)
@@ -141,8 +140,8 @@ public class GroupAdminCommand extends AbstractReportingCommand {
 			return "group updated";
 		}
 		if("add_user".equals(args.get(1))) {
-			if(help || args.size() != 4)
-				return "group add_user <group> <user>";
+			if(args.size() != 4)
+				return invokeHelp(bot, cause, args, "add_user");
 			AuthorizedGroup group = bot.getAuthorizedGroups().get(args.get(2));
 			if(group == null)
 				return "group does not exist";
@@ -158,8 +157,8 @@ public class GroupAdminCommand extends AbstractReportingCommand {
 			return "user added";
 		}
 		if("remove_user".equals(args.get(1))) {
-			if(help || args.size() != 4)
-				return "group remove_user <group> <user>";
+			if(args.size() != 4)
+				return invokeHelp(bot, cause, args, "remove_user");
 			AuthorizedGroup group = bot.getAuthorizedGroups().get(args.get(2));
 			if(group == null)
 				return "group does not exist";
@@ -175,8 +174,8 @@ public class GroupAdminCommand extends AbstractReportingCommand {
 			return "user removed";
 		}
 		if("add_parent".equals(args.get(1))) {
-			if(help || args.size() != 4)
-				return "group add_parent <child> <parent>";
+			if(args.size() != 4)
+				return invokeHelp(bot, cause, args, "add_parent");
 			AuthorizedGroup child = bot.getAuthorizedGroups().get(args.get(2));
 			if(child == null)
 				return "child does not exist";
@@ -192,8 +191,8 @@ public class GroupAdminCommand extends AbstractReportingCommand {
 			return "parent added";
 		}
 		if("remove_parent".equals(args.get(1))) {
-			if(help || args.size() != 4)
-				return "group remove_parent <child> <parent>";
+			if(args.size() != 4)
+				return invokeHelp(bot, cause, args, "remove_parent");
 			AuthorizedGroup child = bot.getAuthorizedGroups().get(args.get(2));
 			if(child == null)
 				return "child does not exist";
@@ -209,8 +208,8 @@ public class GroupAdminCommand extends AbstractReportingCommand {
 			return "parent removed";
 		}
 		if("add_alias".equals(args.get(1))) {
-			if(help || args.size() != 5)
-				return "group add_alias <group> <name> <command>";
+			if(args.size() != 5)
+				return invokeHelp(bot, cause, args, "add_alias");
 			AuthorizedGroup group = bot.getAuthorizedGroups().get(args.get(2));
 			if(group == null)
 				return "group does not exist";
@@ -223,8 +222,8 @@ public class GroupAdminCommand extends AbstractReportingCommand {
 			return "alias added";
 		}
 		if("remove_alias".equals(args.get(1))) {
-			if(help || args.size() != 4)
-				return "group remove_alias <group> <name>";
+			if(args.size() != 4)
+				return invokeHelp(bot, cause, args, "remove_alias");
 			AuthorizedGroup group = bot.getAuthorizedGroups().get(args.get(2));
 			if(group == null)
 				return "group does not exist";
@@ -240,8 +239,8 @@ public class GroupAdminCommand extends AbstractReportingCommand {
 			return "alias removed";
 		}
 		if("show_alias".equals(args.get(1))) {
-			if(help || args.size() != 4)
-				return "group show_alias <group> <name>";
+			if(args.size() != 4)
+				return invokeHelp(bot, cause, args, "show_alias");
 			AuthorizedGroup group = bot.getAuthorizedGroups().get(args.get(2));
 			if(group == null)
 				return "group does not exist";
@@ -252,7 +251,7 @@ public class GroupAdminCommand extends AbstractReportingCommand {
 				return "named command not an alias";
 			return c.toString();
 		}
-		return "group <command>: list, info, create, delete, set_name, add_user, remove_user, add_parent, remove_parent, add_alias, remove_alias, show_alias";
+		return invokeHelp(bot, cause, args);
 	}
 
 }
