@@ -170,7 +170,6 @@ public class SujavaBot extends PircBotX {
 		Map<User, String> channelBuffer = outputBuffers.get(channel);
 		String pb = channelBuffer.get(user);
 		if(pb == null) {
-			System.out.println(channel.getName() + " (" + user.getNick() + "): buffer empty");
 			return null;
 		}
 		int maxlen = Messages.maxlenPM(this, channel.getName());
@@ -181,7 +180,6 @@ public class SujavaBot extends PircBotX {
 			channelBuffer.put(user, sb[1]);
 		} else
 			channelBuffer.put(user, null);
-		System.out.println(channel.getName() + " (" + user.getNick() + "): buffer " + Arrays.asList(sb));
 		return sb[0];
 	}
 	

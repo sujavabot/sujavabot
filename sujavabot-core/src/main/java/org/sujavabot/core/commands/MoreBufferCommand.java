@@ -19,7 +19,7 @@ public class MoreBufferCommand extends AbstractReportingCommand {
 		String more = null;
 		if(cause instanceof MessageEvent<?>) {
 			MessageEvent<?> m = (MessageEvent<?>) cause;
-			more = bot.continueBuffer(m.getChannel(), m.getUser(), "");
+			more = bot.getOutputBuffers().get(m.getChannel()).get(m.getUser());
 		}
 		return more;
 	}
