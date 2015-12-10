@@ -1,6 +1,7 @@
 package org.sujavabot.core.commands;
 
 import java.util.List;
+import java.util.Map;
 
 import org.pircbotx.hooks.Event;
 import org.pircbotx.hooks.events.MessageEvent;
@@ -11,6 +12,11 @@ public class EchoCommand extends AbstractReportingCommand {
 	@Override
 	protected void reportMessage(SujavaBot bot, MessageEvent<?> cause, String result) {
 		cause.getChannel().send().message(result);
+	}
+	
+	@Override
+	protected Map<String, String> helpTopics() {
+		return buildHelp("respond with text");
 	}
 	
 	@Override

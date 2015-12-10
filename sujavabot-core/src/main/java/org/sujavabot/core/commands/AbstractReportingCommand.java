@@ -1,5 +1,8 @@
 package org.sujavabot.core.commands;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.pircbotx.Channel;
 import org.pircbotx.User;
 import org.pircbotx.hooks.Event;
@@ -26,6 +29,18 @@ public abstract class AbstractReportingCommand implements Command {
 		}
 	}
 	
+	protected static Map<String, String> buildHelp(String defaultHelp, String... specificHelp) {
+		Map<String, String> helpTopics = new HashMap<>();
+		for(int i = 0; i < specificHelp.length - 1; i += 2) {
+			helpTopics.put(specificHelp[i], specificHelp[i+1]);
+			defaultHelp += (i == 0 ? " (" : ", ") + specificHelp[i];
+		}
+		if(specificHelp.length > 0)
+			defaultHelp += ")";
+		helpTopics.put(null, defaultHelp);
+		return helpTopics;
+	}
+	
 	protected String sanitize(String result) {
 		return (result == null ? null : result.replaceAll("[\r\n]", " ").replaceAll("\\s+", " ").trim());
 	}
@@ -44,6 +59,15 @@ public abstract class AbstractReportingCommand implements Command {
 	
 	@Override
 	public void init(SujavaBot bot) {
+	}
+	
+	protected abstract Map<String, String> helpTopics();
+	
+	@Override
+	public String help(String helpwith) {
+		Map<String, String> helpTopics = helpTopics();
+		String help = helpTopics.get(helpwith);
+		return (help != null ? help : helpTopics.get(null));
 	}
 	
 	@Override

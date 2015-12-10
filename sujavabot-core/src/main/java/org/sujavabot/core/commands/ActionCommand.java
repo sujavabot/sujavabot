@@ -1,6 +1,7 @@
 package org.sujavabot.core.commands;
 
 import java.util.List;
+import java.util.Map;
 
 import org.pircbotx.hooks.Event;
 import org.pircbotx.hooks.events.ActionEvent;
@@ -26,6 +27,11 @@ public class ActionCommand extends AbstractReportingCommand {
 	}
 	
 	@Override
+	protected Map<String, String> helpTopics() {
+		return buildHelp("perform an action");
+	}
+	
+	@Override
 	public String invoke(SujavaBot bot, Event<?> cause, List<String> args) {
 		StringBuilder sb = new StringBuilder();
 		String sep = "";
@@ -36,5 +42,5 @@ public class ActionCommand extends AbstractReportingCommand {
 		}
 		return sb.toString();
 	}
-
+	
 }
