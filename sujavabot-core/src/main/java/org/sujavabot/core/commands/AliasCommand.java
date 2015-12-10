@@ -9,9 +9,15 @@ import org.pircbotx.hooks.Event;
 import org.sujavabot.core.Command;
 import org.sujavabot.core.SujavaBot;
 
-public class AliasCommand extends AbstractReportingCommand {
-	protected static final Pattern SUB = Pattern.compile("\\$(@|nick|\\{([0-9]*):([0-9]*)\\}|([0-9]+))");
+import com.google.common.base.Function;
+import com.google.common.base.Functions;
 
+public class AliasCommand extends AbstractReportingCommand {
+	protected static final Pattern SUB = Pattern.compile("(\\$|%)(@|nick|\\{([0-9]*):([0-9]*)\\}|([0-9]+))");
+
+	protected static final Function<String, String> DIRECT = Functions.identity();
+	protected static final Function<String, String> QUOTED = (s) -> s.replace("\\", "\\\\").replace("\"", "\\\"");
+	
 	protected String alias;
 
 	protected transient Command reporter;
@@ -33,21 +39,22 @@ public class AliasCommand extends AbstractReportingCommand {
 		Matcher m = SUB.matcher(alias);
 		while(m.find()) {
 			sb.append(alias.substring(end, m.start()));
-			if("@".equals(m.group(1))) {
-				sb.append(joined.toString());
+			Function<String, String> escape = ("$".equals(m.group(1)) ? DIRECT : QUOTED);
+			if("@".equals(m.group(2))) {
+				sb.append(escape.apply(joined.toString()));
 			} else if("nick".equals(m.group(1))) {
-				sb.append(getUser(cause).getNick());
-			} else if(m.group(1).startsWith("{")) {
-				int from = (m.group(2).isEmpty() ? 0 : Integer.parseInt(m.group(2)));
-				int to = (m.group(3).isEmpty() ? args.size() : Integer.parseInt(m.group(3)));
+				sb.append(escape.apply(getUser(cause).getNick()));
+			} else if(m.group(2).startsWith("{")) {
+				int from = (m.group(3).isEmpty() ? 0 : Integer.parseInt(m.group(3)));
+				int to = (m.group(4).isEmpty() ? args.size() : Integer.parseInt(m.group(4)));
 				if(from <= args.size() && to <= args.size() && from <= to) {
 					List<String> sub = args.subList(from, to);
-					sb.append(StringUtils.join(sub, " "));
+					sb.append(escape.apply(StringUtils.join(sub, " ")));
 				}
 			} else {
-				int i = Integer.parseInt(m.group(1));
+				int i = Integer.parseInt(m.group(2));
 				if(i < args.size())
-					sb.append(args.get(i));
+					sb.append(escape.apply(args.get(i)));
 			}
 			end = m.end();
 		}
