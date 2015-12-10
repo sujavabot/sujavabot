@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.regex.Pattern;
 
 import org.pircbotx.hooks.Event;
@@ -44,10 +45,12 @@ public class UserAdminCommand extends AbstractReportingCommand {
 			List<String> groups = new ArrayList<>();
 			List<String> allCommands = new ArrayList<>();
 			
-			commands.addAll(user.getCommands().getCommands().keySet());
+			for(Entry<String, Command> e : user.getCommands().getCommands().entrySet())
+				commands.add(e.getKey() + ((e.getValue() instanceof AliasCommand) ? "*" : ""));
 			for(AuthorizedGroup parent : user.getGroups())
 				groups.add(parent.getName());
-			allCommands.addAll(user.getAllCommands().keySet());
+			for(Entry<String, Command> e : user.getAllCommands().entrySet())
+				allCommands.add(e.getKey() + ((e.getValue() instanceof AliasCommand) ? "*" : ""));
 			
 			Map<String, Object> m = new LinkedHashMap<>();
 			m.put("name", name);
