@@ -42,7 +42,7 @@ public class AliasCommand extends AbstractReportingCommand {
 			Function<String, String> escape = ("$".equals(m.group(1)) ? DIRECT : QUOTED);
 			if("@".equals(m.group(2))) {
 				sb.append(escape.apply(joined.toString()));
-			} else if("nick".equals(m.group(1))) {
+			} else if("nick".equals(m.group(2))) {
 				sb.append(escape.apply(getUser(cause).getNick()));
 			} else if(m.group(2).startsWith("{")) {
 				int from = (m.group(3).isEmpty() ? 0 : Integer.parseInt(m.group(3)));
