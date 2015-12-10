@@ -6,7 +6,7 @@ import java.util.Map;
 import org.pircbotx.hooks.Event;
 import org.sujavabot.core.SujavaBot;
 
-public class UnrecognizedCommand extends AbstractReportingCommand {
+public class UnrecognizedCommand extends AbstractReportingCommand implements HiddenCommand {
 
 	@Override
 	protected Map<String, String> helpTopics() {
