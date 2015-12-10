@@ -47,6 +47,8 @@ public abstract class AbstractReportingCommand implements Command {
 	}
 	
 	protected String prefix(SujavaBot bot, Event<?> cause, String result) {
+		if(getChannel(cause) == null)
+			return "";
 		return getUser(cause).getNick() + ": ";
 	}
 
