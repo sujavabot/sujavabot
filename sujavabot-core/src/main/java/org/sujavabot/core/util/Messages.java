@@ -9,8 +9,8 @@ public abstract class Messages {
 		if(message == null)
 			return null;
 		String s = message;
-		s = s.replaceAll("^[\r\n]+\\s*", "");
-		s = s.replaceAll("\\s*[\r\n]+$", "");
+		s = s.replaceAll("^\\s*[\r\n]+", "");
+		s = s.replaceAll("[\r\n]+\\s*$", "");
 		s = s.replaceAll("(\\s+)[\r\n]+(\\s+)", " ");
 		s = s.replaceAll("(\\s+)[\r\n]+(\\S+)", " $2");
 		s = s.replaceAll("(\\S+)[\r\n]+(\\s+)", "$1 ");
