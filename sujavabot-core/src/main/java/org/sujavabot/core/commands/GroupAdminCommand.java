@@ -29,7 +29,10 @@ public class GroupAdminCommand extends AbstractReportingCommand {
 				"remove_parent", "<child_group> <parent_group>: remove a parent from a group", 
 				"add_alias", "<group> <name> <command>: add a command alias to a group", 
 				"remove_alias", "<group> <name>: remove a command alias from a group", 
-				"show_alias", "<group> <name>: show a command alias from a group");
+				"show_alias", "<group> <name>: show a command alias from a group",
+				"set_property", "<key> <value>: set a property on a group",
+				"unset_property", "<key>: unset a property from a group"
+				);
 
 	}
 
@@ -62,6 +65,10 @@ public class GroupAdminCommand extends AbstractReportingCommand {
 			return _remove_alias(bot, cause, args, caller);
 		else if ("show_alias".equals(args.get(1)))
 			return _show_alias(bot, cause, args, caller);
+		else if("set_property".equals(args.get(1)))
+			return _set_property(bot, cause, args, caller);
+		else if("unset_property".equals(args.get(1)))
+			return _unset_property(bot, cause, args, caller);
 		else
 			return invokeHelp(bot, cause, args);
 	}
@@ -287,6 +294,35 @@ public class GroupAdminCommand extends AbstractReportingCommand {
 		if (!(c instanceof AliasCommand))
 			return "named command not an alias";
 		return c.toString();
+	}
+
+	protected String _set_property(SujavaBot bot, Event<?> cause, List<String> args, AuthorizedUser caller) {
+		if (args.size() != 5)
+			return invokeHelp(bot, cause, args, "set_property");
+		AuthorizedGroup group = bot.getAuthorizedGroups().get(args.get(2));
+		if (group == null)
+			return "group does not exist";
+		if (caller == null || !caller.isOwnerOf(group))
+			return "permission denied";
+		String key = args.get(3);
+		String value = args.get(4);
+		group.getProperties().put(key, value);
+		bot.saveConfiguration();
+		return "property set";
+	}
+
+	protected String _unset_property(SujavaBot bot, Event<?> cause, List<String> args, AuthorizedUser caller) {
+		if (args.size() != 4)
+			return invokeHelp(bot, cause, args, "unset_property");
+		AuthorizedGroup group = bot.getAuthorizedGroups().get(args.get(2));
+		if (group == null)
+			return "group does not exist";
+		if (caller == null || !caller.isOwnerOf(group))
+			return "permission denied";
+		String key = args.get(3);
+		group.getProperties().remove(key);
+		bot.saveConfiguration();
+		return "property unset";
 	}
 
 }

@@ -27,7 +27,9 @@ public class UserAdminCommand extends AbstractReportingCommand {
 				"set_nick", "<name> <new_nick>: change a user nick",
 				"add_alias", "<user> <name> <command>: add a command alias to a user",
 				"remove_alias", "<user> <name>: remove a command alias from a user",
-				"show_alias", "<user> <name>: show a command alias from a user"
+				"show_alias", "<user> <name>: show a command alias from a user",
+				"set_property", "<key> <value>: set a property on a user",
+				"unset_property", "<key>: unset a property from a user"
 				);
 	}
 
@@ -54,6 +56,10 @@ public class UserAdminCommand extends AbstractReportingCommand {
 			return _remove_alias(bot, cause, args, caller);
 		else if ("show_alias".equals(args.get(1)))
 			return _show_alias(bot, cause, args, caller);
+		else if("set_property".equals(args.get(1)))
+			return _set_property(bot, cause, args, caller);
+		else if("unset_property".equals(args.get(1)))
+			return _unset_property(bot, cause, args, caller);
 		else
 			return invokeHelp(bot, cause, args);
 	}
@@ -256,5 +262,35 @@ public class UserAdminCommand extends AbstractReportingCommand {
 		return c.toString();
 	}
 
+	protected String _set_property(SujavaBot bot, Event<?> cause, List<String> args, AuthorizedUser caller) {
+		if(args.size() != 5)
+			return invokeHelp(bot, cause, args, "set_property");
+		AuthorizedUser user = bot.getAuthorizedUsers().get(args.get(2));
+		if(user == null)
+			return "user does not exist";
+		AuthorizedGroup root = bot.getAuthorizedGroups().get("@root");
+		if(caller == null || (caller != user && (root == null || !caller.isOwnerOf(root))))
+			return "permission denied";
+		String key = args.get(3);
+		String value = args.get(4);
+		user.getProperties().put(key, value);
+		bot.saveConfiguration();
+		return "property set";
+	}
+
+	protected String _unset_property(SujavaBot bot, Event<?> cause, List<String> args, AuthorizedUser caller) {
+		if(args.size() != 4)
+			return invokeHelp(bot, cause, args, "unset_property");
+		AuthorizedUser user = bot.getAuthorizedUsers().get(args.get(2));
+		if(user == null)
+			return "user does not exist";
+		AuthorizedGroup root = bot.getAuthorizedGroups().get("@root");
+		if(caller == null || (caller != user && (root == null || !caller.isOwnerOf(root))))
+			return "permission denied";
+		String key = args.get(3);
+		user.getProperties().remove(key);
+		bot.saveConfiguration();
+		return "alias removed";
+	}
 
 }
