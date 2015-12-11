@@ -1,6 +1,8 @@
 package org.sujavabot.core.commands;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
@@ -88,27 +90,37 @@ public abstract class AbstractCommandHandler implements CommandHandler {
 	}
 	
 	public void perform(Event<?> cause, Object[] cmd) {
-		String[] args = new String[cmd.length];
+		List<String> args = new ArrayList<>();
 		for(int i = 0; i < cmd.length; i++) {
+			String arg;
 			if(cmd[i] instanceof Object[])
-				args[i] = invoke(cause, (Object[]) cmd[i]);
+				arg = invoke(cause, (Object[]) cmd[i]);
 			else
-				args[i] = (String) cmd[i];
+				arg = (String) cmd[i];
+			if(arg != null)
+				args.add(arg);
 		}
-		Command reporter = get(cause, args[0]);
-		String result = reporter.invoke(bot, cause, Arrays.asList(args));
-		if(result != null)
-			reporter.report(bot, cause, result);
+		if(args.size() > 0) {
+			Command reporter = get(cause, args.get(0));
+			String result = reporter.invoke(bot, cause, args);
+			if(result != null)
+				reporter.report(bot, cause, result);
+		}
 	}
 	
 	public String invoke(Event<?> cause, Object[] cmd) {
-		String[] args = new String[cmd.length];
+		List<String> args = new ArrayList<>();
 		for(int i = 0; i < cmd.length; i++) {
+			String arg;
 			if(cmd[i] instanceof Object[])
-				args[i] = invoke(cause, (Object[]) cmd[i]);
+				arg = invoke(cause, (Object[]) cmd[i]);
 			else
-				args[i] = (String) cmd[i];
+				arg = (String) cmd[i];
+			if(arg != null)
+				args.add(arg);
 		}
-		return get(cause, args[0]).invoke(bot, cause, Arrays.asList(args));
+		if(args.size() == 0)
+			return null;
+		return get(cause, args.get(0)).invoke(bot, cause, args);
 	}
 }
