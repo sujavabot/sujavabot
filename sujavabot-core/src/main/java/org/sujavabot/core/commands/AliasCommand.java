@@ -1,5 +1,6 @@
 package org.sujavabot.core.commands;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -85,16 +86,19 @@ public class AliasCommand extends AbstractReportingCommand {
 	}
 	
 	protected String[] flatten(SujavaBot bot, Event<?> cause, Object[] cmd) {
-		String[] flat = new String[cmd.length];
+		List<String> args = new ArrayList<>();
 		for(int i = 0; i < cmd.length; i++) {
+			String arg;
 			if(cmd[i] instanceof Object[]) {
 				String[] subcmd = flatten(bot, cause, (Object[]) cmd[i]);
-				flat[i] = bot.getCommands().invoke(cause, subcmd);
+				arg = bot.getCommands().invoke(cause, subcmd);
 			}
 			else
-				flat[i] = (String) cmd[i];
+				arg = (String) cmd[i];
+			if(arg != null)
+				args.add(arg);
 		}
-		return flat;
+		return args.toArray(new String[args.size()]);
 	}
 	
 	@Override
