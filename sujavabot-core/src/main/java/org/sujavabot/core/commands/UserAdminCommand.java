@@ -1,10 +1,12 @@
 package org.sujavabot.core.commands;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.TreeMap;
 import java.util.regex.Pattern;
 
 import org.apache.commons.lang3.StringUtils;
@@ -13,6 +15,8 @@ import org.sujavabot.core.AuthorizedGroup;
 import org.sujavabot.core.AuthorizedUser;
 import org.sujavabot.core.Command;
 import org.sujavabot.core.SujavaBot;
+
+import com.google.common.collect.Lists;
 
 public class UserAdminCommand extends AbstractReportingCommand {
 
@@ -67,13 +71,9 @@ public class UserAdminCommand extends AbstractReportingCommand {
 	protected String _list(SujavaBot bot, Event<?> cause, List<String> args, AuthorizedUser caller) {
 		if(args.size() != 2)
 			return invokeHelp(bot, cause, args, "list");
-		StringBuilder sb = new StringBuilder();
-		for(AuthorizedUser user : bot.getAuthorizedUsers().values()) {
-			if(sb.length() > 0)
-				sb.append(" ");
-			sb.append(user.getName());
-		}
-		return sb.toString();
+		List<String> names = Lists.transform(new ArrayList<>(bot.getAuthorizedUsers().values()), (au) -> au.getName());
+		Collections.sort(names);
+		return StringUtils.join(names, ", ");
 	}
 
 	protected String _info(SujavaBot bot, Event<?> cause, List<String> args, AuthorizedUser caller) {
@@ -99,6 +99,10 @@ public class UserAdminCommand extends AbstractReportingCommand {
 				allCommands.add(e.getKey() + ((e.getValue() instanceof AliasCommand) ? "*" : ""));
 		}
 		
+		Collections.sort(commands);
+		Collections.sort(groups);
+		Collections.sort(allCommands);
+		
 		Map<String, Object> m = new LinkedHashMap<>();
 		m.put("name", name);
 		m.put("nick", user.getNick().pattern());
@@ -106,8 +110,8 @@ public class UserAdminCommand extends AbstractReportingCommand {
 		m.put("groups", groups);
 		m.put("all-commands", allCommands);
 		
-		m.put("properties", user.getProperties());
-		m.put("all-properties", user.getAllProperties());
+		m.put("properties", new TreeMap<>(user.getProperties()));
+		m.put("all-properties", new TreeMap<>(user.getAllProperties()));
 
 		String info = m.toString();
 		
