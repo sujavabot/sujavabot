@@ -16,6 +16,7 @@ import org.python.core.PySystemState;
 import org.python.util.PythonInterpreter;
 import org.sujavabot.core.SujavaBot;
 import org.sujavabot.core.commands.AbstractReportingCommand;
+import org.sujavabot.core.util.Events;
 import org.sujavabot.core.xml.ConverterHelpers.MarshalHelper;
 import org.sujavabot.core.xml.ConverterHelpers.UnmarshalHelper;
 import org.sujavabot.core.xml.HelperConvertable;
@@ -43,7 +44,7 @@ public class JythonCommand extends AbstractReportingCommand implements HelperCon
 			
 			interp.set("bot", bot);
 			interp.set("cause", cause);
-			interp.set("caller", bot.getAuthorizedUser(getUser(cause)));
+			interp.set("caller", bot.getAuthorizedUser(Events.getUser(cause)));
 			
 			if(source != null)
 				interp.exec(source);
