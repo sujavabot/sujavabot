@@ -198,10 +198,8 @@ public class SujavaBot extends PircBotX {
 			return null;
 		}
 		try {
-			File configFileTmp = new File(configFile.getParent(), configFile.getName() + ".tmp");
-			File configFileOld = new File(configFile.getParent(), configFile.getName() + ".old");
-			for(int i = 2; configFileOld.exists(); i++)
-				configFileOld = new File(configFile.getParent(), configFile.getName() + ".old." + i);
+			File configFileTmp = new File(configFile.getParentFile(), configFile.getName() + ".tmp");
+
 			OutputStream out = new FileOutputStream(configFileTmp);
 			try {
 				ConfigurationBuilder builder = updateConfiguration().createBuilder();
@@ -209,6 +207,23 @@ public class SujavaBot extends PircBotX {
 				x.toXML(builder, out);
 			} finally {
 				out.close();
+			}
+			
+			File configFileOld = new File(configFile.getParentFile(), configFile.getName() + ".old");
+			int backups = 0;
+			if(configFileOld.exists()) {
+				for(backups = 1; configFileOld.exists(); backups++)
+					configFileOld = new File(configFile.getParentFile(), configFile.getName() + ".old." + backups);
+				while(backups > 0) {
+					File configFilePrev;
+					if(backups == 1)
+						configFilePrev = new File(configFile.getParentFile(), configFile.getName() + ".old");
+					else
+						configFilePrev = new File(configFile.getParentFile(), configFile.getName() + ".old." + (backups - 1));
+					Files.move(configFilePrev.toPath(), configFileOld.toPath(), StandardCopyOption.REPLACE_EXISTING);
+					configFileOld = configFilePrev;
+					backups--;
+				}
 			}
 			Files.move(configFile.toPath(), configFileOld.toPath(), StandardCopyOption.REPLACE_EXISTING);
 			Files.move(configFileTmp.toPath(), configFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
