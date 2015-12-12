@@ -1,12 +1,10 @@
 package org.sujavabot.core.commands;
 
-import java.lang.reflect.Method;
-
-import org.pircbotx.User;
 import org.pircbotx.hooks.Event;
 import org.sujavabot.core.AuthorizedUser;
 import org.sujavabot.core.Command;
 import org.sujavabot.core.SujavaBot;
+import org.sujavabot.core.util.Events;
 
 public class DefaultCommandHandler extends AbstractCommandHandler {
 
@@ -16,13 +14,7 @@ public class DefaultCommandHandler extends AbstractCommandHandler {
 
 	@Override
 	public Command getDefaultCommand(Event<?> cause, String name) {
-		AuthorizedUser user;
-		try {
-			Method getUser = cause.getClass().getMethod("getUser");
-			user = bot.getAuthorizedUser((User) getUser.invoke(cause));
-		} catch(Exception e) {
-			user = null;
-		}
+		AuthorizedUser user = bot.getAuthorizedUser(Events.getUser(cause));
 		Command c = null;
 		if(user != null)
 			c = user.getCommands().get(cause, name);
