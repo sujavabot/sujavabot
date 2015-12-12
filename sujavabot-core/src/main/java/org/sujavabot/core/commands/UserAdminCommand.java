@@ -72,6 +72,7 @@ public class UserAdminCommand extends AbstractReportingCommand {
 		if(args.size() != 2)
 			return invokeHelp(bot, cause, args, "list");
 		List<String> names = Lists.transform(new ArrayList<>(bot.getAuthorizedUsers().values()), (au) -> au.getName());
+		names = new ArrayList<>(names);
 		Collections.sort(names);
 		return StringUtils.join(names, ", ");
 	}
