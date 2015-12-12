@@ -2,6 +2,7 @@ package org.sujavabot.core.xml;
 
 import java.util.ArrayList;
 import java.util.List;
+
 import com.thoughtworks.xstream.core.ClassLoaderReference;
 import com.thoughtworks.xstream.mapper.CannotResolveClassException;
 import com.thoughtworks.xstream.mapper.DefaultMapper;

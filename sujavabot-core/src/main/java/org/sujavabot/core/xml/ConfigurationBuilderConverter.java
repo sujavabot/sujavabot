@@ -11,7 +11,6 @@ import java.util.Map.Entry;
 
 import org.pircbotx.ChannelModeHandler;
 import org.pircbotx.cap.CapHandler;
-import org.pircbotx.hooks.CoreHooks;
 import org.pircbotx.hooks.Listener;
 import org.sujavabot.core.AuthorizedGroup;
 import org.sujavabot.core.AuthorizedUser;
