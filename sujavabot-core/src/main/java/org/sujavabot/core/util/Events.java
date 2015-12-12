@@ -11,22 +11,24 @@ import org.pircbotx.hooks.Event;
 public abstract class Events {
 	private Events() {}
 	
-	private static Map<Class<?>, Method> getUserMethods = new ConcurrentHashMap<>();
-	private static Map<Class<?>, Method> getChannelMethods = new ConcurrentHashMap<>();
+	private static final Object NONE = new Object();
+	
+	private static final Map<Class<?>, Object> getUserMethods = new ConcurrentHashMap<>();
+	private static final Map<Class<?>, Object> getChannelMethods = new ConcurrentHashMap<>();
 	
 	public static User getUser(Event<?> e) {
 		if(!getUserMethods.containsKey(e.getClass())) {
 			try {
 				getUserMethods.put(e.getClass(), e.getClass().getMethod("getUser"));
 			} catch(NoSuchMethodException ex) {
-				getUserMethods.put(e.getClass(), null);
+				getUserMethods.put(e.getClass(), NONE);
 			}
 		}
-		Method m = getUserMethods.get(e.getClass());
-		if(m == null)
+		Object m = getUserMethods.get(e.getClass());
+		if(m == NONE)
 			return null;
 		try {
-			return (User) m.invoke(e);
+			return (User) ((Method) m).invoke(e);
 		} catch(Exception ex) {
 			throw Throwables.as(RuntimeException.class, ex);
 		}
@@ -37,14 +39,14 @@ public abstract class Events {
 			try {
 				getChannelMethods.put(e.getClass(), e.getClass().getMethod("getChannel"));
 			} catch(NoSuchMethodException ex) {
-				getChannelMethods.put(e.getClass(), null);
+				getChannelMethods.put(e.getClass(), NONE);
 			}
 		}
-		Method m = getChannelMethods.get(e.getClass());
-		if(m == null)
+		Object m = getChannelMethods.get(e.getClass());
+		if(m == NONE)
 			return null;
 		try {
-			return (Channel) m.invoke(e);
+			return (Channel) ((Method) m).invoke(e);
 		} catch(Exception ex) {
 			throw Throwables.as(RuntimeException.class, ex);
 		}
