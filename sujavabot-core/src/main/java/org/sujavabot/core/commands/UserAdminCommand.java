@@ -100,7 +100,6 @@ public class UserAdminCommand extends AbstractReportingCommand {
 		}
 		
 		Collections.sort(commands);
-		Collections.sort(groups);
 		Collections.sort(allCommands);
 		
 		Map<String, Object> m = new LinkedHashMap<>();

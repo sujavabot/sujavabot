@@ -108,7 +108,6 @@ public class GroupAdminCommand extends AbstractReportingCommand {
 		}
 		
 		Collections.sort(commands);
-		Collections.sort(parents);
 		Collections.sort(allCommands);
 
 		Map<String, Object> m = new LinkedHashMap<>();
