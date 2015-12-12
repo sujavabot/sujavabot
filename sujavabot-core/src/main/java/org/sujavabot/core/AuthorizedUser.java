@@ -3,8 +3,8 @@ package org.sujavabot.core;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.TreeMap;
 import java.util.Map.Entry;
+import java.util.TreeMap;
 import java.util.regex.Pattern;
 
 import org.sujavabot.core.commands.UserCommandHandler;
@@ -40,6 +40,18 @@ public class AuthorizedUser {
 	}
 	public List<AuthorizedGroup> getGroups() {
 		return groups;
+	}
+	
+	public List<AuthorizedGroup> getAllGroups() {
+		List<AuthorizedGroup> all = new ArrayList<>();
+		for(AuthorizedGroup g : getGroups()) {
+			if(!all.contains(g))
+				all.add(g);
+			for(AuthorizedGroup p : g.getAllParents())
+				if(!all.contains(p))
+					all.add(p);
+		}
+		return all;
 	}
 	
 	public boolean isMemberOf(AuthorizedGroup group) {

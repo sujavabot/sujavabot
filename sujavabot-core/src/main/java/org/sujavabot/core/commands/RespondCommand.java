@@ -4,7 +4,6 @@ import java.util.List;
 import java.util.Map;
 
 import org.pircbotx.hooks.Event;
-import org.pircbotx.hooks.events.MessageEvent;
 import org.sujavabot.core.SujavaBot;
 
 public class RespondCommand extends AbstractReportingCommand {

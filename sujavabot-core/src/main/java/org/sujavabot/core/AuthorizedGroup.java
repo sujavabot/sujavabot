@@ -47,6 +47,18 @@ public class AuthorizedGroup {
 		return parents;
 	}
 	
+	public List<AuthorizedGroup> getAllParents() {
+		List<AuthorizedGroup> all = new ArrayList<>();
+		for(AuthorizedGroup p : getParents()) {
+			if(!all.contains(p))
+				all.add(p);
+			for(AuthorizedGroup pp : p.getAllParents())
+				if(!all.contains(pp))
+					all.add(pp);
+		}
+		return all;
+	}
+	
 	public boolean contains(AuthorizedGroup other) {
 		if(parents.contains(other))
 			return true;

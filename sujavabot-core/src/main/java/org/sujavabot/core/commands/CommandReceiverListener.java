@@ -4,6 +4,7 @@ import org.pircbotx.PircBotX;
 import org.pircbotx.hooks.ListenerAdapter;
 import org.pircbotx.hooks.events.MessageEvent;
 import org.pircbotx.hooks.events.PrivateMessageEvent;
+import org.sujavabot.core.Authorization;
 import org.sujavabot.core.SujavaBot;
 import org.sujavabot.core.xml.ConverterHelpers.MarshalHelper;
 import org.sujavabot.core.xml.ConverterHelpers.UnmarshalHelper;
@@ -19,20 +20,26 @@ implements HelperConvertable<CommandReceiverListener> {
 	
 	@Override
 	public void onMessage(MessageEvent<PircBotX> event) throws Exception {
-		String m = event.getMessage();
-		if(!m.startsWith(prefix))
-			return;
-		m = m.substring(prefix.length());
-		((SujavaBot) event.getBot()).getCommands().perform(event, m);
+		SujavaBot bot = (SujavaBot) event.getBot();
+		Authorization.run(bot, bot.getAuthorizedUser(event.getUser()), null, null, () -> {
+			String m = event.getMessage();
+			if(!m.startsWith(prefix))
+				return;
+			m = m.substring(prefix.length());
+			bot.getCommands().perform(event, m);
+		});
 	}
 	
 	@Override
 	public void onPrivateMessage(PrivateMessageEvent<PircBotX> event) throws Exception {
-		String m = event.getMessage();
-		if(!m.startsWith(prefix))
-			return;
-		m = m.substring(prefix.length());
-		((SujavaBot) event.getBot()).getCommands().perform(event, m);
+		SujavaBot bot = (SujavaBot) event.getBot();
+		Authorization.run(bot, bot.getAuthorizedUser(event.getUser()), null, null, () -> {
+			String m = event.getMessage();
+			if(!m.startsWith(prefix))
+				return;
+			m = m.substring(prefix.length());
+			bot.getCommands().perform(event, m);
+		});
 	}
 
 	public String getPrefix() {

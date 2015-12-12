@@ -8,6 +8,7 @@ import java.util.regex.Pattern;
 
 import org.apache.commons.lang3.StringUtils;
 import org.pircbotx.hooks.Event;
+import org.sujavabot.core.Authorization;
 import org.sujavabot.core.Command;
 import org.sujavabot.core.SujavaBot;
 
@@ -50,7 +51,7 @@ public class AliasCommand extends AbstractReportingCommand {
 			if("@".equals(m.group(2))) {
 				sb.append(escape.apply(joined.toString()));
 			} else if("nick".equals(m.group(2))) {
-				sb.append(escape.apply(getUser(cause).getNick()));
+				sb.append(escape.apply(Authorization.getCurrentUser().getName()));
 			} else if(m.group(2).startsWith("{")) {
 				int from = (m.group(3).isEmpty() ? 0 : Integer.parseInt(m.group(3)));
 				int to = (m.group(4).isEmpty() ? args.size() : Integer.parseInt(m.group(4)));

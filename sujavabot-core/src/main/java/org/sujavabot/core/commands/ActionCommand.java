@@ -4,9 +4,6 @@ import java.util.List;
 import java.util.Map;
 
 import org.pircbotx.hooks.Event;
-import org.pircbotx.hooks.events.ActionEvent;
-import org.pircbotx.hooks.events.MessageEvent;
-import org.pircbotx.hooks.events.PrivateMessageEvent;
 import org.sujavabot.core.SujavaBot;
 
 public class ActionCommand extends AbstractReportingCommand {

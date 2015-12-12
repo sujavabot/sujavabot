@@ -6,7 +6,6 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -70,8 +69,12 @@ public class SujavaBot extends PircBotX {
 		return commands;
 	}
 	
+	public AuthorizedGroup getRootGroup() {
+		return getAuthorizedGroups().get("@root");
+	}
+	
 	public CommandHandler getRootCommands() {
-		return getAuthorizedGroups().get("@root").getCommands();
+		return getRootGroup().getCommands();
 	}
 
 	public Map<String, AuthorizedUser> getAuthorizedUsers() {

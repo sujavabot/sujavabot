@@ -16,7 +16,7 @@ import org.sujavabot.core.SujavaBot;
 import org.sujavabot.core.util.Messages;
 
 public abstract class AbstractReportingCommand implements Command {
-	protected static User getUser(Event<?> event) {
+	protected static User getEventUser(Event<?> event) {
 		try {
 			return (User) event.getClass().getMethod("getUser").invoke(event);
 		} catch(Exception e) {
@@ -24,7 +24,7 @@ public abstract class AbstractReportingCommand implements Command {
 		}
 	}
 	
-	protected static Channel getChannel(Event<?> event) {
+	protected static Channel getEventChannel(Event<?> event) {
 		try {
 			return (Channel) event.getClass().getMethod("getChannel").invoke(event);
 		} catch(Exception e) {
@@ -49,14 +49,14 @@ public abstract class AbstractReportingCommand implements Command {
 	}
 	
 	protected String prefix(SujavaBot bot, Event<?> cause, String result) {
-		if(getChannel(cause) == null)
+		if(getEventChannel(cause) == null)
 			return "";
-		return getUser(cause).getNick() + ": ";
+		return getEventUser(cause).getNick() + ": ";
 	}
 
 	protected void reportMessage(SujavaBot bot, Event<?> cause, String result, boolean isChannelMessage) {
-		User user = getUser(cause);
-		Channel channel = getChannel(cause);
+		User user = getEventUser(cause);
+		Channel channel = getEventChannel(cause);
 		if(isChannelMessage) {
 			result = Messages.sanitize(result);
 			String msg = bot.buffer(channel, user, prefix(bot, cause, result), result);
@@ -77,8 +77,8 @@ public abstract class AbstractReportingCommand implements Command {
 	}
 	
 	protected void reportAction(SujavaBot bot, Event<?> cause, String result, boolean isChannelAction) {
-		User user = getUser(cause);
-		Channel channel = getChannel(cause);
+		User user = getEventUser(cause);
+		Channel channel = getEventChannel(cause);
 		int maxlen = Messages.maxlenAction(bot, isChannelAction ? channel.getName() : user.getNick());
 		if(result.length() > maxlen)
 			result = result.substring(0, maxlen);
@@ -116,7 +116,7 @@ public abstract class AbstractReportingCommand implements Command {
 		if(cause instanceof MessageEvent<?>) {
 			reportMessage(bot, cause, result, true);
 		} else if(cause instanceof ActionEvent<?>) {
-			reportAction(bot, cause, result, getChannel(cause) != null);
+			reportAction(bot, cause, result, getEventChannel(cause) != null);
 		} else if(cause instanceof PrivateMessageEvent<?>) {
 			reportMessage(bot, cause, result, false);
 		}
