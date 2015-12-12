@@ -16,6 +16,7 @@ import org.jruby.embed.ScriptingContainer;
 import org.pircbotx.hooks.Event;
 import org.sujavabot.core.SujavaBot;
 import org.sujavabot.core.commands.AbstractReportingCommand;
+import org.sujavabot.core.util.Events;
 import org.sujavabot.core.xml.ConverterHelpers.MarshalHelper;
 import org.sujavabot.core.xml.ConverterHelpers.UnmarshalHelper;
 import org.sujavabot.core.xml.HelperConvertable;
@@ -41,7 +42,7 @@ public class JRubyCommand extends AbstractReportingCommand implements HelperConv
 			
 			container.put("bot", bot);
 			container.put("cause", cause);
-			container.put("caller", bot.getAuthorizedUser(getUser(cause)));
+			container.put("caller", bot.getAuthorizedUser(Events.getUser(cause)));
 
 			if(source != null)
 				container.runScriptlet(source);
