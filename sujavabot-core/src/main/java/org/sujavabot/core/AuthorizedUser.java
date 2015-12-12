@@ -68,13 +68,13 @@ public class AuthorizedUser {
 
 	public Map<String, Command> getAllCommands() {
 		Map<String, Command> all = new TreeMap<>();
-		all.putAll(getCommands().getTransientCommands());
-		all.putAll(getCommands().getCommands());
 		for(AuthorizedGroup group : getGroups()) {
 			for(Entry<String, Command> e : group.getAllCommands().entrySet())
 				if(!all.containsKey(e.getKey()))
 					all.put(e.getKey(), e.getValue());
 		}
+		all.putAll(getCommands().getTransientCommands());
+		all.putAll(getCommands().getCommands());
 		return all;
 	}
 

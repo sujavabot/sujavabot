@@ -1,10 +1,12 @@
 package org.sujavabot.core.commands;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.TreeMap;
 
 import org.apache.commons.lang3.StringUtils;
 import org.pircbotx.hooks.Event;
@@ -12,6 +14,8 @@ import org.sujavabot.core.AuthorizedGroup;
 import org.sujavabot.core.AuthorizedUser;
 import org.sujavabot.core.Command;
 import org.sujavabot.core.SujavaBot;
+
+import com.google.common.collect.Lists;
 
 public class GroupAdminCommand extends AbstractReportingCommand {
 
@@ -76,13 +80,9 @@ public class GroupAdminCommand extends AbstractReportingCommand {
 	protected String _list(SujavaBot bot, Event<?> cause, List<String> args, AuthorizedUser caller) {
 		if (args.size() != 2)
 			return invokeHelp(bot, cause, args, "list");
-		StringBuilder sb = new StringBuilder();
-		for (AuthorizedGroup group : bot.getAuthorizedGroups().values()) {
-			if (sb.length() > 0)
-				sb.append(" ");
-			sb.append(group.getName());
-		}
-		return sb.toString();
+		List<String> names = Lists.transform(new ArrayList<>(bot.getAuthorizedGroups().values()), (ag) -> ag.getName());
+		Collections.sort(names);
+		return StringUtils.join(names, ", ");
 	}
 
 	protected String _info(SujavaBot bot, Event<?> cause, List<String> args, AuthorizedUser caller) {
@@ -106,6 +106,10 @@ public class GroupAdminCommand extends AbstractReportingCommand {
 			if (!(e.getValue() instanceof HiddenCommand))
 				allCommands.add(e.getKey() + ((e.getValue() instanceof AliasCommand) ? "*" : ""));
 		}
+		
+		Collections.sort(commands);
+		Collections.sort(parents);
+		Collections.sort(allCommands);
 
 		Map<String, Object> m = new LinkedHashMap<>();
 		m.put("name", name);
@@ -113,8 +117,8 @@ public class GroupAdminCommand extends AbstractReportingCommand {
 		m.put("parents", parents);
 		m.put("all-commands", allCommands);
 		
-		m.put("properties", group.getProperties());
-		m.put("all-properties", group.getAllProperties());
+		m.put("properties", new TreeMap<>(group.getProperties()));
+		m.put("all-properties", new TreeMap<>(group.getAllProperties()));
 
 		String info = m.toString();
 
