@@ -11,6 +11,7 @@ import java.util.regex.Pattern;
 
 import org.apache.commons.lang3.StringUtils;
 import org.pircbotx.hooks.Event;
+import org.sujavabot.core.Authorization;
 import org.sujavabot.core.AuthorizedGroup;
 import org.sujavabot.core.AuthorizedUser;
 import org.sujavabot.core.Command;
@@ -41,34 +42,33 @@ public class UserAdminCommand extends AbstractReportingCommand {
 	public String invoke(SujavaBot bot, Event<?> cause, List<String> args) {
 		if (args.size() <= 1)
 			return invokeHelp(bot, cause, args);
-		AuthorizedUser caller = bot.getAuthorizedUser(getUser(cause));
 		if ("list".equals(args.get(1)))
-			return _list(bot, cause, args, caller);
+			return _list(bot, cause, args);
 		else if ("info".equals(args.get(1)))
-			return _info(bot, cause, args, caller);
+			return _info(bot, cause, args);
 		else if ("add".equals(args.get(1)))
-			return _add(bot, cause, args, caller);
+			return _add(bot, cause, args);
 		else if ("remove".equals(args.get(1)))
-			return _remove(bot, cause, args, caller);
+			return _remove(bot, cause, args);
 		else if ("set_name".equals(args.get(1)))
-			return _set_name(bot, cause, args, caller);
+			return _set_name(bot, cause, args);
 		else if ("set_nick".equals(args.get(1)))
-			return _set_nick(bot, cause, args, caller);
+			return _set_nick(bot, cause, args);
 		else if ("add_alias".equals(args.get(1)))
-			return _add_alias(bot, cause, args, caller);
+			return _add_alias(bot, cause, args);
 		else if ("remove_alias".equals(args.get(1)))
-			return _remove_alias(bot, cause, args, caller);
+			return _remove_alias(bot, cause, args);
 		else if ("show_alias".equals(args.get(1)))
-			return _show_alias(bot, cause, args, caller);
+			return _show_alias(bot, cause, args);
 		else if("set_property".equals(args.get(1)))
-			return _set_property(bot, cause, args, caller);
+			return _set_property(bot, cause, args);
 		else if("unset_property".equals(args.get(1)))
-			return _unset_property(bot, cause, args, caller);
+			return _unset_property(bot, cause, args);
 		else
 			return invokeHelp(bot, cause, args);
 	}
 
-	protected String _list(SujavaBot bot, Event<?> cause, List<String> args, AuthorizedUser caller) {
+	protected String _list(SujavaBot bot, Event<?> cause, List<String> args) {
 		if(args.size() != 2)
 			return invokeHelp(bot, cause, args, "list");
 		List<String> names = Lists.transform(new ArrayList<>(bot.getAuthorizedUsers().values()), (au) -> au.getName());
@@ -76,7 +76,7 @@ public class UserAdminCommand extends AbstractReportingCommand {
 		return StringUtils.join(names, ", ");
 	}
 
-	protected String _info(SujavaBot bot, Event<?> cause, List<String> args, AuthorizedUser caller) {
+	protected String _info(SujavaBot bot, Event<?> cause, List<String> args) {
 		if((args.size() != 3 && args.size() != 4))
 			return invokeHelp(bot, cause, args, "info");
 		String name = args.get(2);
@@ -125,7 +125,7 @@ public class UserAdminCommand extends AbstractReportingCommand {
 		return info;
 	}
 
-	protected String _add(SujavaBot bot, Event<?> cause, List<String> args, AuthorizedUser caller) {
+	protected String _add(SujavaBot bot, Event<?> cause, List<String> args) {
 		if(args.size() < 3)
 			return invokeHelp(bot, cause, args, "add");
 		String name = args.get(2);
@@ -139,11 +139,9 @@ public class UserAdminCommand extends AbstractReportingCommand {
 		}
 		List<AuthorizedGroup> groups = new ArrayList<>();
 		AuthorizedGroup root = bot.getAuthorizedGroups().get("@root");
-		if(root != null) {
-			if(caller == null || !caller.isOwnerOf(root))
-				return "permission denied";
-			groups.add(root);
-		}
+		if(!Authorization.isCurrentRootOwner())
+			return "permission denied";
+		groups.add(root);
 		for(int i = 4; i < args.size(); i++) {
 			AuthorizedGroup group = bot.getAuthorizedGroups().get(args.get(i));
 			if(group == null)
@@ -158,14 +156,12 @@ public class UserAdminCommand extends AbstractReportingCommand {
 		return "user created";
 	}
 
-	protected String _remove(SujavaBot bot, Event<?> cause, List<String> args, AuthorizedUser caller) {
+	protected String _remove(SujavaBot bot, Event<?> cause, List<String> args) {
 		if(args.size() != 3)
 			return invokeHelp(bot, cause, args, "remove");
 		AuthorizedGroup root = bot.getAuthorizedGroups().get("@root");
-		if(root != null) {
-			if(caller == null || !caller.isOwnerOf(root))
-				return "permission denied";
-		}
+		if(!Authorization.isCurrentRootOwner())
+			return "permission denied";
 		String name = args.get(2);
 		if(bot.getAuthorizedUsers().get(name) == null)
 			return "user " + name + " does not exist";
@@ -175,14 +171,11 @@ public class UserAdminCommand extends AbstractReportingCommand {
 		return "user deleted";
 	}
 
-	protected String _set_name(SujavaBot bot, Event<?> cause, List<String> args, AuthorizedUser caller) {
+	protected String _set_name(SujavaBot bot, Event<?> cause, List<String> args) {
 		if(args.size() != 4)
 			return invokeHelp(bot, cause, args, "set_name");
-		AuthorizedGroup root = bot.getAuthorizedGroups().get("@root");
-		if(root != null) {
-			if(caller == null || !caller.isOwnerOf(root))
-				return "permission denied";
-		}
+		if(!Authorization.isCurrentRootOwner())
+			return "permission denied";
 		String oldName = args.get(2);
 		AuthorizedUser user = bot.getAuthorizedUsers().get(oldName);
 		if(user == null)
@@ -195,18 +188,15 @@ public class UserAdminCommand extends AbstractReportingCommand {
 		return "user updated";
 	}
 
-	protected String _set_nick(SujavaBot bot, Event<?> cause, List<String> args, AuthorizedUser caller) {
+	protected String _set_nick(SujavaBot bot, Event<?> cause, List<String> args) {
 		if(args.size() != 4) 
 			return invokeHelp(bot, cause, args, "set_nick");
-		AuthorizedGroup root = bot.getAuthorizedGroups().get("@root");
-		if(root != null) {
-			if(caller == null || !caller.isOwnerOf(root))
-				return "permission denied";
-		}
 		String name = args.get(2);
 		AuthorizedUser user = bot.getAuthorizedUsers().get(name);
 		if(user == null)
 			return "user with name " + name + " does not exist";
+		if(!Authorization.isCurrentOwner(user))
+			return "permission denied";
 		String nick = args.get(3);
 		Pattern p;
 		try {
@@ -219,14 +209,13 @@ public class UserAdminCommand extends AbstractReportingCommand {
 		return "user updated";
 	}
 
-	protected String _add_alias(SujavaBot bot, Event<?> cause, List<String> args, AuthorizedUser caller) {
+	protected String _add_alias(SujavaBot bot, Event<?> cause, List<String> args) {
 		if(args.size() != 5)
 			return invokeHelp(bot, cause, args, "add_alias");
 		AuthorizedUser user = bot.getAuthorizedUsers().get(args.get(2));
 		if(user == null)
-			return "user does not exist";
-		AuthorizedGroup root = bot.getAuthorizedGroups().get("@root");
-		if(caller == null || (caller != user && (root == null || !caller.isOwnerOf(root))))
+			return "user with name " + args.get(2) + " does not exist";
+		if(!Authorization.isCurrentOwner(user))
 			return "permission denied";
 		if(user.getCommands().getCommands().get(args.get(3)) != null)
 			return "named command already exists";
@@ -235,14 +224,13 @@ public class UserAdminCommand extends AbstractReportingCommand {
 		return "alias added";
 	}
 
-	protected String _remove_alias(SujavaBot bot, Event<?> cause, List<String> args, AuthorizedUser caller) {
+	protected String _remove_alias(SujavaBot bot, Event<?> cause, List<String> args) {
 		if(args.size() != 4)
 			return invokeHelp(bot, cause, args, "remove_alias");
 		AuthorizedUser user = bot.getAuthorizedUsers().get(args.get(2));
 		if(user == null)
-			return "user does not exist";
-		AuthorizedGroup root = bot.getAuthorizedGroups().get("@root");
-		if(caller == null || (caller != user && (root == null || !caller.isOwnerOf(root))))
+			return "user with name " + args.get(2) + " does not exist";
+		if(!Authorization.isCurrentOwner(user))
 			return "permission denied";
 		Command c = user.getCommands().getCommands().get(args.get(3));
 		if(c == null)
@@ -254,7 +242,7 @@ public class UserAdminCommand extends AbstractReportingCommand {
 		return "alias removed";
 	}
 
-	protected String _show_alias(SujavaBot bot, Event<?> cause, List<String> args, AuthorizedUser caller) {
+	protected String _show_alias(SujavaBot bot, Event<?> cause, List<String> args) {
 		if(args.size() != 4)
 			return invokeHelp(bot, cause, args, "show_alias");
 		AuthorizedUser user = bot.getAuthorizedUsers().get(args.get(2));
@@ -268,14 +256,13 @@ public class UserAdminCommand extends AbstractReportingCommand {
 		return c.toString();
 	}
 
-	protected String _set_property(SujavaBot bot, Event<?> cause, List<String> args, AuthorizedUser caller) {
+	protected String _set_property(SujavaBot bot, Event<?> cause, List<String> args) {
 		if(args.size() != 5)
 			return invokeHelp(bot, cause, args, "set_property");
 		AuthorizedUser user = bot.getAuthorizedUsers().get(args.get(2));
 		if(user == null)
-			return "user does not exist";
-		AuthorizedGroup root = bot.getAuthorizedGroups().get("@root");
-		if(caller == null || (caller != user && (root == null || !caller.isOwnerOf(root))))
+			return "user with name " + args.get(2) + " does not exist";
+		if(!Authorization.isCurrentOwner(user))
 			return "permission denied";
 		String key = args.get(3);
 		String value = args.get(4);
@@ -284,14 +271,13 @@ public class UserAdminCommand extends AbstractReportingCommand {
 		return "property set";
 	}
 
-	protected String _unset_property(SujavaBot bot, Event<?> cause, List<String> args, AuthorizedUser caller) {
+	protected String _unset_property(SujavaBot bot, Event<?> cause, List<String> args) {
 		if(args.size() != 4)
 			return invokeHelp(bot, cause, args, "unset_property");
 		AuthorizedUser user = bot.getAuthorizedUsers().get(args.get(2));
 		if(user == null)
-			return "user does not exist";
-		AuthorizedGroup root = bot.getAuthorizedGroups().get("@root");
-		if(caller == null || (caller != user && (root == null || !caller.isOwnerOf(root))))
+			return "user with name " + args.get(2) + " does not exist";
+		if(!Authorization.isCurrentOwner(user))
 			return "permission denied";
 		String key = args.get(3);
 		user.getProperties().remove(key);

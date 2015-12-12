@@ -10,6 +10,7 @@ import java.util.TreeMap;
 
 import org.apache.commons.lang3.StringUtils;
 import org.pircbotx.hooks.Event;
+import org.sujavabot.core.Authorization;
 import org.sujavabot.core.AuthorizedGroup;
 import org.sujavabot.core.AuthorizedUser;
 import org.sujavabot.core.Command;
@@ -44,40 +45,39 @@ public class GroupAdminCommand extends AbstractReportingCommand {
 	public String invoke(SujavaBot bot, Event<?> cause, List<String> args) {
 		if (args.size() <= 1)
 			return invokeHelp(bot, cause, args);
-		AuthorizedUser caller = bot.getAuthorizedUser(getUser(cause));
 		if ("list".equals(args.get(1)))
-			return _list(bot, cause, args, caller);
+			return _list(bot, cause, args);
 		else if ("info".equals(args.get(1)))
-			return _info(bot, cause, args, caller);
+			return _info(bot, cause, args);
 		else if ("add".equals(args.get(1)))
-			return _add(bot, cause, args, caller);
+			return _add(bot, cause, args);
 		else if ("remove".equals(args.get(1)))
-			return _remove(bot, cause, args, caller);
+			return _remove(bot, cause, args);
 		else if ("set_name".equals(args.get(1)))
-			return _set_name(bot, cause, args, caller);
+			return _set_name(bot, cause, args);
 		else if ("add_user".equals(args.get(1)))
-			return _add_user(bot, cause, args, caller);
+			return _add_user(bot, cause, args);
 		else if ("remove_user".equals(args.get(1)))
-			return _remove_user(bot, cause, args, caller);
+			return _remove_user(bot, cause, args);
 		else if ("add_parent".equals(args.get(1)))
-			return _add_parent(bot, cause, args, caller);
+			return _add_parent(bot, cause, args);
 		else if ("remove_parent".equals(args.get(1)))
-			return _remove_parent(bot, cause, args, caller);
+			return _remove_parent(bot, cause, args);
 		else if ("add_alias".equals(args.get(1)))
-			return _add_alias(bot, cause, args, caller);
+			return _add_alias(bot, cause, args);
 		else if ("remove_alias".equals(args.get(1)))
-			return _remove_alias(bot, cause, args, caller);
+			return _remove_alias(bot, cause, args);
 		else if ("show_alias".equals(args.get(1)))
-			return _show_alias(bot, cause, args, caller);
+			return _show_alias(bot, cause, args);
 		else if("set_property".equals(args.get(1)))
-			return _set_property(bot, cause, args, caller);
+			return _set_property(bot, cause, args);
 		else if("unset_property".equals(args.get(1)))
-			return _unset_property(bot, cause, args, caller);
+			return _unset_property(bot, cause, args);
 		else
 			return invokeHelp(bot, cause, args);
 	}
 
-	protected String _list(SujavaBot bot, Event<?> cause, List<String> args, AuthorizedUser caller) {
+	protected String _list(SujavaBot bot, Event<?> cause, List<String> args) {
 		if (args.size() != 2)
 			return invokeHelp(bot, cause, args, "list");
 		List<String> names = Lists.transform(new ArrayList<>(bot.getAuthorizedGroups().values()), (ag) -> ag.getName());
@@ -85,7 +85,7 @@ public class GroupAdminCommand extends AbstractReportingCommand {
 		return StringUtils.join(names, ", ");
 	}
 
-	protected String _info(SujavaBot bot, Event<?> cause, List<String> args, AuthorizedUser caller) {
+	protected String _info(SujavaBot bot, Event<?> cause, List<String> args) {
 		if ((args.size() != 3 && args.size() != 4))
 			return invokeHelp(bot, cause, args, "info");
 		String name = args.get(2);
@@ -132,7 +132,7 @@ public class GroupAdminCommand extends AbstractReportingCommand {
 		return info;
 	}
 
-	protected String _add(SujavaBot bot, Event<?> cause, List<String> args, AuthorizedUser caller) {
+	protected String _add(SujavaBot bot, Event<?> cause, List<String> args) {
 		if (args.size() != 3)
 			return invokeHelp(bot, cause, args, "add");
 		String name = args.get(2);
@@ -141,39 +141,45 @@ public class GroupAdminCommand extends AbstractReportingCommand {
 		AuthorizedGroup group = new AuthorizedGroup(name);
 		AuthorizedGroup root = bot.getAuthorizedGroups().get("@root");
 		if (root != null) {
-			if (caller == null || !caller.isOwnerOf(root))
+			if (!Authorization.isCurrentRootOwner())
 				return "permission denied";
 			group.getParents().add(root);
 		}
+		if(Authorization.getCurrentUser() != null)
+			Authorization.getCurrentUser().getOwnedGroups().add(group);
 		bot.getAuthorizedGroups().put(group.getName(), group);
 		bot.saveConfiguration();
 		return "group created";
 	}
 
-	protected String _remove(SujavaBot bot, Event<?> cause, List<String> args, AuthorizedUser caller) {
+	protected String _remove(SujavaBot bot, Event<?> cause, List<String> args) {
 		if (args.size() != 3)
 			return invokeHelp(bot, cause, args, "remove");
 		String name = args.get(2);
 		if ("@root".equals(name))
 			return "cannot delete root group";
-		if (bot.getAuthorizedGroups().get(name) == null)
-			return "group " + name + " does not exist";
 		AuthorizedGroup group = bot.getAuthorizedGroups().get(name);
-		if (caller == null || !caller.isOwnerOf(group))
+		if (group == null)
+			return "group " + name + " does not exist";
+		if (!Authorization.isCurrentOwner(group))
 			return "permission denied";
+		for(AuthorizedUser u : bot.getAuthorizedUsers().values()) {
+			u.getGroups().remove(group);
+			u.getOwnedGroups().remove(group);
+		}
 		bot.getAuthorizedGroups().remove(group);
 		bot.saveConfiguration();
 		return "group deleted";
 	}
 
-	protected String _set_name(SujavaBot bot, Event<?> cause, List<String> args, AuthorizedUser caller) {
+	protected String _set_name(SujavaBot bot, Event<?> cause, List<String> args) {
 		if (args.size() != 4)
 			return invokeHelp(bot, cause, args, "set_name");
 		String oldName = args.get(2);
 		AuthorizedGroup group = bot.getAuthorizedGroups().get(oldName);
 		if (group == null)
 			return "group with old name " + oldName + " does not exist";
-		if (caller == null || !caller.isOwnerOf(group))
+		if (!Authorization.isCurrentOwner(group))
 			return "permission denied";
 		String newName = args.get(3);
 		if (bot.getAuthorizedGroups().get(newName) != null)
@@ -183,13 +189,13 @@ public class GroupAdminCommand extends AbstractReportingCommand {
 		return "group updated";
 	}
 
-	protected String _add_user(SujavaBot bot, Event<?> cause, List<String> args, AuthorizedUser caller) {
+	protected String _add_user(SujavaBot bot, Event<?> cause, List<String> args) {
 		if (args.size() != 4)
 			return invokeHelp(bot, cause, args, "add_user");
 		AuthorizedGroup group = bot.getAuthorizedGroups().get(args.get(2));
 		if (group == null)
 			return "group does not exist";
-		if (caller == null || !caller.isOwnerOf(group))
+		if (!Authorization.isCurrentOwner(group))
 			return "permission denied";
 		AuthorizedUser user = bot.getAuthorizedUsers().get(args.get(3));
 		if (user == null)
@@ -201,13 +207,13 @@ public class GroupAdminCommand extends AbstractReportingCommand {
 		return "user added";
 	}
 
-	protected String _remove_user(SujavaBot bot, Event<?> cause, List<String> args, AuthorizedUser caller) {
+	protected String _remove_user(SujavaBot bot, Event<?> cause, List<String> args) {
 		if (args.size() != 4)
 			return invokeHelp(bot, cause, args, "remove_user");
 		AuthorizedGroup group = bot.getAuthorizedGroups().get(args.get(2));
 		if (group == null)
 			return "group does not exist";
-		if (caller == null || !caller.isOwnerOf(group))
+		if (!Authorization.isCurrentOwner(group))
 			return "permission denied";
 		AuthorizedUser user = bot.getAuthorizedUsers().get(args.get(3));
 		if (user == null)
@@ -219,13 +225,13 @@ public class GroupAdminCommand extends AbstractReportingCommand {
 		return "user removed";
 	}
 
-	protected String _add_parent(SujavaBot bot, Event<?> cause, List<String> args, AuthorizedUser caller) {
+	protected String _add_parent(SujavaBot bot, Event<?> cause, List<String> args) {
 		if (args.size() != 4)
 			return invokeHelp(bot, cause, args, "add_parent");
 		AuthorizedGroup child = bot.getAuthorizedGroups().get(args.get(2));
 		if (child == null)
 			return "child does not exist";
-		if (caller == null || !caller.isOwnerOf(child))
+		if (!Authorization.isCurrentOwner(child))
 			return "permission denied";
 		AuthorizedGroup parent = bot.getAuthorizedGroups().get(args.get(3));
 		if (parent == null)
@@ -237,13 +243,13 @@ public class GroupAdminCommand extends AbstractReportingCommand {
 		return "parent added";
 	}
 
-	protected String _remove_parent(SujavaBot bot, Event<?> cause, List<String> args, AuthorizedUser caller) {
+	protected String _remove_parent(SujavaBot bot, Event<?> cause, List<String> args) {
 		if (args.size() != 4)
 			return invokeHelp(bot, cause, args, "remove_parent");
 		AuthorizedGroup child = bot.getAuthorizedGroups().get(args.get(2));
 		if (child == null)
 			return "child does not exist";
-		if (caller == null || !caller.isOwnerOf(child))
+		if (!Authorization.isCurrentOwner(child))
 			return "permission denied";
 		AuthorizedGroup parent = bot.getAuthorizedGroups().get(args.get(3));
 		if (parent == null)
@@ -255,13 +261,13 @@ public class GroupAdminCommand extends AbstractReportingCommand {
 		return "parent removed";
 	}
 
-	protected String _add_alias(SujavaBot bot, Event<?> cause, List<String> args, AuthorizedUser caller) {
+	protected String _add_alias(SujavaBot bot, Event<?> cause, List<String> args) {
 		if (args.size() != 5)
 			return invokeHelp(bot, cause, args, "add_alias");
 		AuthorizedGroup group = bot.getAuthorizedGroups().get(args.get(2));
 		if (group == null)
 			return "group does not exist";
-		if (caller == null || !caller.isOwnerOf(group))
+		if (!Authorization.isCurrentOwner(group))
 			return "permission denied";
 		if (group.getCommands().getCommands().get(args.get(3)) != null)
 			return "named command already exists";
@@ -270,13 +276,13 @@ public class GroupAdminCommand extends AbstractReportingCommand {
 		return "alias added";
 	}
 
-	protected String _remove_alias(SujavaBot bot, Event<?> cause, List<String> args, AuthorizedUser caller) {
+	protected String _remove_alias(SujavaBot bot, Event<?> cause, List<String> args) {
 		if (args.size() != 4)
 			return invokeHelp(bot, cause, args, "remove_alias");
 		AuthorizedGroup group = bot.getAuthorizedGroups().get(args.get(2));
 		if (group == null)
 			return "group does not exist";
-		if (caller == null || !caller.isOwnerOf(group))
+		if (!Authorization.isCurrentOwner(group))
 			return "permission denied";
 		Command c = group.getCommands().getCommands().get(args.get(3));
 		if (c == null)
@@ -288,7 +294,7 @@ public class GroupAdminCommand extends AbstractReportingCommand {
 		return "alias removed";
 	}
 
-	protected String _show_alias(SujavaBot bot, Event<?> cause, List<String> args, AuthorizedUser caller) {
+	protected String _show_alias(SujavaBot bot, Event<?> cause, List<String> args) {
 		if (args.size() != 4)
 			return invokeHelp(bot, cause, args, "show_alias");
 		AuthorizedGroup group = bot.getAuthorizedGroups().get(args.get(2));
@@ -302,13 +308,13 @@ public class GroupAdminCommand extends AbstractReportingCommand {
 		return c.toString();
 	}
 
-	protected String _set_property(SujavaBot bot, Event<?> cause, List<String> args, AuthorizedUser caller) {
+	protected String _set_property(SujavaBot bot, Event<?> cause, List<String> args) {
 		if (args.size() != 5)
 			return invokeHelp(bot, cause, args, "set_property");
 		AuthorizedGroup group = bot.getAuthorizedGroups().get(args.get(2));
 		if (group == null)
 			return "group does not exist";
-		if (caller == null || !caller.isOwnerOf(group))
+		if (!Authorization.isCurrentOwner(group))
 			return "permission denied";
 		String key = args.get(3);
 		String value = args.get(4);
@@ -317,13 +323,13 @@ public class GroupAdminCommand extends AbstractReportingCommand {
 		return "property set";
 	}
 
-	protected String _unset_property(SujavaBot bot, Event<?> cause, List<String> args, AuthorizedUser caller) {
+	protected String _unset_property(SujavaBot bot, Event<?> cause, List<String> args) {
 		if (args.size() != 4)
 			return invokeHelp(bot, cause, args, "unset_property");
 		AuthorizedGroup group = bot.getAuthorizedGroups().get(args.get(2));
 		if (group == null)
 			return "group does not exist";
-		if (caller == null || !caller.isOwnerOf(group))
+		if (!Authorization.isCurrentOwner(group))
 			return "permission denied";
 		String key = args.get(3);
 		group.getProperties().remove(key);
