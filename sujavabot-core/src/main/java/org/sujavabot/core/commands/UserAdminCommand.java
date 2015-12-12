@@ -73,7 +73,7 @@ public class UserAdminCommand extends AbstractReportingCommand {
 			return invokeHelp(bot, cause, args, "list");
 		List<String> names = Lists.transform(new ArrayList<>(bot.getAuthorizedUsers().values()), (au) -> au.getName());
 		names = new ArrayList<>(names);
-		Collections.sort(names);
+		Collections.sort(names, String.CASE_INSENSITIVE_ORDER);
 		return StringUtils.join(names, ", ");
 	}
 
@@ -100,8 +100,8 @@ public class UserAdminCommand extends AbstractReportingCommand {
 				allCommands.add(e.getKey() + ((e.getValue() instanceof AliasCommand) ? "*" : ""));
 		}
 		
-		Collections.sort(commands);
-		Collections.sort(allCommands);
+		Collections.sort(commands, String.CASE_INSENSITIVE_ORDER);
+		Collections.sort(allCommands, String.CASE_INSENSITIVE_ORDER);
 		
 		Map<String, Object> m = new LinkedHashMap<>();
 		m.put("name", name);
@@ -110,8 +110,14 @@ public class UserAdminCommand extends AbstractReportingCommand {
 		m.put("groups", groups);
 		m.put("all-commands", allCommands);
 		
-		m.put("properties", new TreeMap<>(user.getProperties()));
-		m.put("all-properties", new TreeMap<>(user.getAllProperties()));
+		Map<String, String> p = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
+		Map<String, String> ap = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
+		
+		p.putAll(user.getProperties());
+		ap.putAll(user.getAllProperties());
+		
+		m.put("properties", p);
+		m.put("all-properties", ap);
 
 		String info = m.toString();
 		
