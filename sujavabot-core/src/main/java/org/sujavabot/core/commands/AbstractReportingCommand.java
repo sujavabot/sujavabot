@@ -13,24 +13,10 @@ import org.pircbotx.hooks.events.MessageEvent;
 import org.pircbotx.hooks.events.PrivateMessageEvent;
 import org.sujavabot.core.Command;
 import org.sujavabot.core.SujavaBot;
+import org.sujavabot.core.util.Events;
 import org.sujavabot.core.util.Messages;
 
 public abstract class AbstractReportingCommand implements Command {
-	protected static User getEventUser(Event<?> event) {
-		try {
-			return (User) event.getClass().getMethod("getUser").invoke(event);
-		} catch(Exception e) {
-			return null;
-		}
-	}
-	
-	protected static Channel getEventChannel(Event<?> event) {
-		try {
-			return (Channel) event.getClass().getMethod("getChannel").invoke(event);
-		} catch(Exception e) {
-			return null;
-		}
-	}
 	
 	protected static Map<String, String> buildHelp(String defaultHelp, String... specificHelp) {
 		Map<String, String> helpTopics = new HashMap<>();
@@ -49,14 +35,14 @@ public abstract class AbstractReportingCommand implements Command {
 	}
 	
 	protected String prefix(SujavaBot bot, Event<?> cause, String result) {
-		if(getEventChannel(cause) == null)
+		if(Events.getChannel(cause) == null)
 			return "";
-		return getEventUser(cause).getNick() + ": ";
+		return Events.getUser(cause).getNick() + ": ";
 	}
 
 	protected void reportMessage(SujavaBot bot, Event<?> cause, String result, boolean isChannelMessage) {
-		User user = getEventUser(cause);
-		Channel channel = getEventChannel(cause);
+		User user = Events.getUser(cause);
+		Channel channel = Events.getChannel(cause);
 		if(isChannelMessage) {
 			result = Messages.sanitize(result);
 			String msg = bot.buffer(channel, user, prefix(bot, cause, result), result);
@@ -77,8 +63,8 @@ public abstract class AbstractReportingCommand implements Command {
 	}
 	
 	protected void reportAction(SujavaBot bot, Event<?> cause, String result, boolean isChannelAction) {
-		User user = getEventUser(cause);
-		Channel channel = getEventChannel(cause);
+		User user = Events.getUser(cause);
+		Channel channel = Events.getChannel(cause);
 		int maxlen = Messages.maxlenAction(bot, isChannelAction ? channel.getName() : user.getNick());
 		if(result.length() > maxlen)
 			result = result.substring(0, maxlen);
@@ -116,7 +102,7 @@ public abstract class AbstractReportingCommand implements Command {
 		if(cause instanceof MessageEvent<?>) {
 			reportMessage(bot, cause, result, true);
 		} else if(cause instanceof ActionEvent<?>) {
-			reportAction(bot, cause, result, getEventChannel(cause) != null);
+			reportAction(bot, cause, result, Events.getChannel(cause) != null);
 		} else if(cause instanceof PrivateMessageEvent<?>) {
 			reportMessage(bot, cause, result, false);
 		}
