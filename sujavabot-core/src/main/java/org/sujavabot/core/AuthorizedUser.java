@@ -12,7 +12,7 @@ import org.sujavabot.core.commands.UserCommandHandler;
 public class AuthorizedUser {
 	
 	public static final Pattern CREATABLE_NAME = Pattern.compile("[a-zA-Z0-9_\\.]+");
-	public static final Pattern VALID_NAME = Pattern.compile("@nobody|" + CREATABLE_NAME.pattern());
+	public static final Pattern VALID_NAME = Pattern.compile("@nobody|(" + CREATABLE_NAME.pattern() + ")");
 	
 	protected String name;
 	protected Pattern nick;
