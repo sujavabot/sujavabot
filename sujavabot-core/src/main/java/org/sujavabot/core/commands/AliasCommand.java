@@ -19,7 +19,16 @@ import com.google.common.base.Functions;
 
 public class AliasCommand extends AbstractReportingCommand {
 	protected static final Pattern ESCAPE = Pattern.compile("\\\\.");
-	protected static final Pattern VAR = Pattern.compile("(\\$|%)(@|nick|user|channel|\\{([0-9]*):([0-9]*)\\}|([0-9]+))(=(\\S+|\"([^\\\\]*\\\\[\\\\\"])*[^\\\\]*\"))?");
+	protected static final Pattern VAR = Pattern.compile(
+			"(\\$|%)("
+			+ "@|"
+			+ "nick|"
+			+ "user|"
+			+ "channel|"
+			+ "\\{([0-9]*):([0-9]*)\\}|"
+			+ "([0-9]+)|"
+			+ "\"([^\\\\]*\\\\[\\\\\"])*[^\\\\]*\""
+			+ ")(=(\\S+|\"([^\\\\]*\\\\[\\\\\"])*[^\\\\]*\"))?");
 
 	protected static final Function<String, String> DIRECT = Functions.identity();
 	protected static final Function<String, String> QUOTED = (s) -> ("\"" + s.replace("\\", "\\\\").replace("\"", "\\\"") + "\"");
@@ -30,21 +39,17 @@ public class AliasCommand extends AbstractReportingCommand {
 		public String invoke(SujavaBot bot, Event<?> cause, List<String> args) {
 			if(args.size() < 2)
 				return invokeHelp(bot, cause, args);
-			String name = args.get(1);
-			Command cmd = bot.getCommands().get(cause, name);
-			if(!(cmd instanceof AliasCommand))
-				return "not an alias";
-			AliasCommand aliasCmd = (AliasCommand) cmd;
+			String alias = args.get(1);
 			List<String> aliasArgs = new ArrayList<>();
-			aliasArgs.add(name);
+			aliasArgs.add(args.get(0));
 			aliasArgs.addAll(args.subList(2, args.size()));
-			return applyAlias(bot, cause, aliasArgs, aliasCmd.alias);
+			return applyAlias(bot, cause, aliasArgs, alias);
 		}
 
 		@Override
 		protected Map<String, String> helpTopics() {
 			return buildHelp(
-					"<alias> [<args>...]: apply arguments for an alias and show the result"
+					"<alias> [<args>...]: apply arguments for an alias and return the result"
 					);
 					
 		}
@@ -110,6 +115,10 @@ public class AliasCommand extends AbstractReportingCommand {
 				Channel channel = Events.getChannel(cause);
 				String c = (channel == null ? defaultValue : channel.getName());
 				sb.append(escape.apply(c));
+			} else if(m.group(2).startsWith("\"")) {
+				String expr = m.group(2).substring(1, m.group(2).length()-1);
+				String val = bot.getCommands().invoke(cause, expr);
+				sb.append(escape.apply(val));
 			} else if(m.group(2).startsWith("{")) {
 				int from = (m.group(3).isEmpty() ? 0 : Integer.parseInt(m.group(3)));
 				int to = (m.group(4).isEmpty() ? args.size() : Integer.parseInt(m.group(4)));
