@@ -18,7 +18,7 @@ import com.google.common.base.Function;
 import com.google.common.base.Functions;
 
 public class AliasCommand extends AbstractReportingCommand {
-	protected static final Pattern SUB = Pattern.compile("(\\$|%)(@|nick|user|channel(?:=.*)?|\\{([0-9]*):([0-9]*)\\}|([0-9]+))");
+	protected static final Pattern SUB = Pattern.compile("(\\$|%)(@|nick|user|channel|\\{([0-9]*):([0-9]*)\\}|([0-9]+))(=.*)?");
 
 	protected static final Function<String, String> DIRECT = Functions.identity();
 	protected static final Function<String, String> QUOTED = (s) -> ("\"" + s.replace("\\", "\\\\").replace("\"", "\\\"") + "\"");
@@ -48,6 +48,7 @@ public class AliasCommand extends AbstractReportingCommand {
 		int end = 0;
 		Matcher m = SUB.matcher(alias);
 		while(m.find()) {
+			String defaultValue = (m.group(6) == null ? "" : m.group(6));
 			sb.append(alias.substring(end, m.start()));
 			Function<String, String> escape = ("$".equals(m.group(1)) ? DIRECT : QUOTED);
 			if("@".equals(m.group(2))) {
@@ -57,9 +58,8 @@ public class AliasCommand extends AbstractReportingCommand {
 			} else if("user".equals(m.group(2))) {
 				sb.append(escape.apply(Authorization.getCurrentUser().getName()));
 			} else if(m.group(2).startsWith("channel")) {
-				String[] f = m.group(2).split("=", 2);
 				Channel channel = Events.getChannel(cause);
-				String c = (channel == null ? (f.length == 2 ? f[1] : "") : channel.getName());
+				String c = (channel == null ? defaultValue : channel.getName());
 				sb.append(escape.apply(c));
 			} else if(m.group(2).startsWith("{")) {
 				int from = (m.group(3).isEmpty() ? 0 : Integer.parseInt(m.group(3)));
@@ -69,9 +69,11 @@ public class AliasCommand extends AbstractReportingCommand {
 					sb.append(escape.apply(StringUtils.join(sub, " ")));
 				}
 			} else {
-				int i = Integer.parseInt(m.group(2));
+				int i = Integer.parseInt(m.group(5));
 				if(i < args.size())
 					sb.append(escape.apply(args.get(i)));
+				else
+					sb.append(escape.apply(defaultValue));
 			}
 			end = m.end();
 		}
