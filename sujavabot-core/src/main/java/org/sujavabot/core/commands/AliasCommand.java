@@ -18,7 +18,7 @@ import com.google.common.base.Function;
 import com.google.common.base.Functions;
 
 public class AliasCommand extends AbstractReportingCommand {
-	protected static final Pattern SUB = Pattern.compile("(\\$|%)(@|nick|user|channel|\\{([0-9]*):([0-9]*)\\}|([0-9]+))");
+	protected static final Pattern SUB = Pattern.compile("(\\$|%)(@|nick|user|channel(?:=.*)?|\\{([0-9]*):([0-9]*)\\}|([0-9]+))");
 
 	protected static final Function<String, String> DIRECT = Functions.identity();
 	protected static final Function<String, String> QUOTED = (s) -> ("\"" + s.replace("\\", "\\\\").replace("\"", "\\\"") + "\"");
@@ -56,9 +56,10 @@ public class AliasCommand extends AbstractReportingCommand {
 				sb.append(escape.apply(Events.getUser(cause).getNick()));
 			} else if("user".equals(m.group(2))) {
 				sb.append(escape.apply(Authorization.getCurrentUser().getName()));
-			} else if("channel".equals(m.group(2))) {
+			} else if(m.group(2).startsWith("channel")) {
+				String[] f = m.group(2).split("=", 2);
 				Channel channel = Events.getChannel(cause);
-				String c = (channel == null ? "" : channel.getName());
+				String c = (channel == null ? (f.length == 2 ? f[1] : "") : channel.getName());
 				sb.append(escape.apply(c));
 			} else if(m.group(2).startsWith("{")) {
 				int from = (m.group(3).isEmpty() ? 0 : Integer.parseInt(m.group(3)));
