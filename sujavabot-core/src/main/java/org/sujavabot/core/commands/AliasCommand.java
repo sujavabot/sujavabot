@@ -138,8 +138,11 @@ public class AliasCommand extends AbstractReportingCommand {
 				Channel channel = Events.getChannel(cause);
 				String c = (channel == null ? defaultValue : channel.getName());
 				sb.append(escape.apply(c));
-			} else if(m.group(2).startsWith("\"")) {
-				String expr = unescape(m.group(2).substring(1, m.group(2).length()-1));
+			} else if(m.group(2).startsWith("(")) {
+				String expr = m.group(2);
+				expr = expr.substring(1, expr.length() - 1);
+				if(expr.startsWith("\""))
+					expr = expr.substring(1, expr.length()-1);
 				String val = bot.getCommands().invoke(cause, expr);
 				sb.append(escape.apply(val));
 			} else if(m.group(2).startsWith("{")) {
@@ -150,7 +153,7 @@ public class AliasCommand extends AbstractReportingCommand {
 					sb.append(escape.apply(StringUtils.join(sub, " ")));
 				}
 			} else {
-				int i = Integer.parseInt(m.group(5));
+				int i = Integer.parseInt(m.group(2));
 				if(i < args.size())
 					sb.append(escape.apply(args.get(i)));
 				else
