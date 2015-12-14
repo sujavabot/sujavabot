@@ -10,6 +10,7 @@ import java.util.TreeMap;
 import java.util.regex.Pattern;
 
 import org.apache.commons.lang3.StringUtils;
+import org.pircbotx.User;
 import org.pircbotx.hooks.Event;
 import org.sujavabot.core.Authorization;
 import org.sujavabot.core.AuthorizedGroup;
@@ -25,11 +26,12 @@ public class UserAdminCommand extends AbstractReportingCommand {
 	protected Map<String, String> helpTopics() {
 		return buildHelp("authorization user control", 
 				"list", "list users",
+				"whois", "<nick>: show username of a nick",
 				"info", "<user> [<field>]: show user info",
 				"add", "<user>: create a user",
 				"remove", "<user>: delete a user",
 				"set_name", "<old_user> <new_user>: change a user name",
-				"set_nick", "<name> <new_nick>: change a user nick",
+				"set_nick", "<name> <new_nick>: change a user nick regex",
 				"add_alias", "<user> <name> <command>: add a command alias to a user",
 				"remove_alias", "<user> <name>: remove a command alias from a user",
 				"show_alias", "<user> <name>: show a command alias from a user",
@@ -44,6 +46,8 @@ public class UserAdminCommand extends AbstractReportingCommand {
 			return invokeHelp(bot, cause, args);
 		if ("list".equals(args.get(1)))
 			return _list(bot, cause, args);
+		else if("whois".equals(args.get(1)))
+			return _whois(bot, cause, args);
 		else if ("info".equals(args.get(1)))
 			return _info(bot, cause, args);
 		else if ("add".equals(args.get(1)))
@@ -77,6 +81,17 @@ public class UserAdminCommand extends AbstractReportingCommand {
 		return StringUtils.join(names, ", ");
 	}
 
+	protected String _whois(SujavaBot bot, Event<?> cause, List<String> args) {
+		if(args.size() != 3)
+			return invokeHelp(bot, cause, args, "whois");
+		String nick = args.get(2);
+		User user = bot.getUserChannelDao().getUser(nick);
+		if(user == null)
+			return "no such nick";
+		AuthorizedUser authUser = bot.getAuthorizedUser(user);
+		return authUser.getName();
+	}
+	
 	protected String _info(SujavaBot bot, Event<?> cause, List<String> args) {
 		if((args.size() != 3 && args.size() != 4))
 			return invokeHelp(bot, cause, args, "info");
