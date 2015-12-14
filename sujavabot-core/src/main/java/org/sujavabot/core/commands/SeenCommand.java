@@ -14,6 +14,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -201,6 +202,7 @@ public class SeenCommand extends AbstractReportingCommand {
 			s.remove(0);
 			s.add((c.get(Calendar.DAY_OF_YEAR) - 1) + " days");
 		}
+		Collections.reverse(s);
 		return StringUtils.join(s, ", ");
 	}
 	
