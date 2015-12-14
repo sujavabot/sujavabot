@@ -153,6 +153,8 @@ public class UserAdminCommand extends AbstractReportingCommand {
 		String name = args.get(2);
 		if(bot.getAuthorizedUsers().get(name) != null)
 			return "user " + name + " already exists";
+		if(!AuthorizedUser.CREATABLE_NAME.matcher(name).matches())
+			return "invalid user name";
 		Pattern nick;
 		try {
 			nick = Pattern.compile(args.get(3));
