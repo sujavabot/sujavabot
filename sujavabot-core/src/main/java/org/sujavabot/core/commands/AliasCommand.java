@@ -75,7 +75,7 @@ public class AliasCommand extends AbstractReportingCommand {
 		int end = 0;
 		StringBuilder sb = new StringBuilder();
 		while(m.find()) {
-			sb.append(alias.substring(0, end));
+			sb.append(alias.substring(end, m.start()));
 			if(ESCAPE.matcher(m.group()).matches()) {
 				if("\\t".equals(m.group()))
 					sb.append("\t");
