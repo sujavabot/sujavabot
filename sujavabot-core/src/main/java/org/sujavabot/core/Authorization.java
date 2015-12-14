@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.Callable;
+import java.util.regex.Matcher;
 
 public class Authorization {
 	
@@ -250,12 +251,26 @@ public class Authorization {
 		return getUser().equals(u) || isRootOwner();
 	}
 	
+	public boolean isUserOwned(String groupName) {
+		Matcher m = AuthorizedGroup.USER_OWNED.matcher(groupName);
+		if(m.find()) {
+			String groupOwner = m.group(1);
+			if(getUser().getName().equals(groupOwner))
+				return true;
+		}
+		return false;
+	}
+	
 	public boolean isOwner(AuthorizedGroup g) {
 		if(g == null)
 			return false;
 		List<AuthorizedGroup> ownables = new ArrayList<>();
 		ownables.add(g);
 		ownables.addAll(g.getAllParents());
+		for(AuthorizedGroup gg : ownables) {
+			if(isUserOwned(gg.getName()))
+				return true;
+		}
 		return !Collections.disjoint(ownables, getOwnedGroups());
 	}
 }

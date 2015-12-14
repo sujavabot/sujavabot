@@ -143,12 +143,13 @@ public class GroupAdminCommand extends AbstractReportingCommand {
 		if (args.size() != 3)
 			return invokeHelp(bot, cause, args, "add");
 		String name = args.get(2);
+		boolean userOwned = Authorization.getAuthorization().isUserOwned(name);
 		if (bot.getAuthorizedGroups().get(name) != null)
 			return "group " + name + " already exists";
 		AuthorizedGroup group = new AuthorizedGroup(name);
 		AuthorizedGroup root = bot.getAuthorizedGroups().get("@root");
 		if (root != null) {
-			if (!Authorization.isCurrentRootOwner())
+			if (!Authorization.isCurrentRootOwner() && !userOwned)
 				return "permission denied";
 			group.getParents().add(root);
 		}
