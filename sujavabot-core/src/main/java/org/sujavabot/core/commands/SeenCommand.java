@@ -8,6 +8,8 @@ import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.OutputStream;
+import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -164,8 +166,9 @@ public class SeenCommand extends AbstractReportingCommand {
 	}
 	
 	protected static synchronized void setSeen(Map<String, String> seen) {
+		File tmp = new File(SEEN_DB.getParentFile(), SEEN_DB.getName() + ".tmp");
 		try {
-			OutputStream out = new FileOutputStream(SEEN_DB);
+			OutputStream out = new FileOutputStream(tmp);
 			try {
 				ObjectOutputStream oout = new ObjectOutputStream(out);
 				oout.writeObject(seen);
@@ -173,6 +176,7 @@ public class SeenCommand extends AbstractReportingCommand {
 			} finally {
 				out.close();
 			}
+			Files.move(tmp.toPath(), SEEN_DB.toPath(), StandardCopyOption.REPLACE_EXISTING);
 		} catch(Exception e) {
 			e.printStackTrace();
 		}
