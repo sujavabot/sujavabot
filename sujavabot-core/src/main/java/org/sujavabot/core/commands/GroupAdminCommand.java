@@ -143,6 +143,8 @@ public class GroupAdminCommand extends AbstractReportingCommand {
 		AuthorizedGroup group = bot.getAuthorizedGroups().get(groupName);
 		if(group != null)
 			return group;
+		if(!AuthorizedGroup.CREATABLE_NAME.matcher(groupName).matches())
+			return null;
 		boolean permitCreate = false;
 		AuthorizedGroup rootGroup = bot.getAuthorizedGroups().get("@root");
 		if(Authorization.isCurrentOwner(rootGroup) || Authorization.isCurrentUserOwned(groupName))
@@ -164,6 +166,8 @@ public class GroupAdminCommand extends AbstractReportingCommand {
 		boolean userOwned = Authorization.getAuthorization().isUserOwned(name);
 		if (bot.getAuthorizedGroups().get(name) != null)
 			return "group " + name + " already exists";
+		if(!AuthorizedGroup.CREATABLE_NAME.matcher(name).matches())
+			return "invalid group name";
 		AuthorizedGroup group = new AuthorizedGroup(name);
 		AuthorizedGroup root = bot.getAuthorizedGroups().get("@root");
 		if (root != null) {
