@@ -73,7 +73,7 @@ public class SeenCommand extends AbstractReportingCommand {
 		
 		@Override
 		public void onQuit(QuitEvent<PircBotX> event) throws Exception {
-			for(Channel c : event.getDaoSnapshot().getUser(event.getUser().getNick()).getChannels()) {
+			for(Channel c : event.getDaoSnapshot().getChannels(event.getUser())) {
 				updateSeen(event.getBot(), c.getName(), event.getUser(), "quiting IRC (" + event.getReason() + ")");
 			}
 		}
