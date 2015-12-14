@@ -11,9 +11,9 @@ public class GreetingListener extends ListenerAdapter<PircBotX> {
 	@Override
 	public void onJoin(JoinEvent<PircBotX> event) throws Exception {
 		SujavaBot bot = (SujavaBot) event.getBot();
-		Command cmd = bot.getCommands().get(event, "_greeting");
+		Command cmd = bot.getCommands().get(event, "greeting");
 		if(cmd != null) {
-			bot.getCommands().perform(event, "_greeting");
+			bot.getCommands().perform(event, "greeting");
 		}
 	}
 	
