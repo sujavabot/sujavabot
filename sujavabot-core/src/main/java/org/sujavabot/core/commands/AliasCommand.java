@@ -23,6 +23,33 @@ public class AliasCommand extends AbstractReportingCommand {
 	protected static final Function<String, String> DIRECT = Functions.identity();
 	protected static final Function<String, String> QUOTED = (s) -> ("\"" + s.replace("\\", "\\\\").replace("\"", "\\\"") + "\"");
 	
+	public static class ApplyCommand extends AbstractReportingCommand {
+
+		@Override
+		public String invoke(SujavaBot bot, Event<?> cause, List<String> args) {
+			if(args.size() < 2)
+				return invokeHelp(bot, cause, args);
+			String name = args.get(1);
+			Command cmd = bot.getCommands().get(cause, name);
+			if(!(cmd instanceof AliasCommand))
+				return "not an alias";
+			AliasCommand aliasCmd = (AliasCommand) cmd;
+			List<String> aliasArgs = new ArrayList<>();
+			aliasArgs.add(name);
+			aliasArgs.addAll(args.subList(2, args.size()));
+			return applyAlias(bot, cause, aliasArgs, aliasCmd.alias);
+		}
+
+		@Override
+		protected Map<String, String> helpTopics() {
+			return buildHelp(
+					"<alias> [<args>...]: apply arguments for an alias and show the result"
+					);
+					
+		}
+		
+	}
+	
 	protected String alias;
 
 	protected transient Command reporter;
@@ -35,9 +62,8 @@ public class AliasCommand extends AbstractReportingCommand {
 	protected Map<String, String> helpTopics() {
 		return buildHelp("is an alias for: " + alias);
 	}
-
-	@Override
-	public String invoke(SujavaBot bot, Event<?> cause, List<String> args) {
+	
+	public static String applyAlias(SujavaBot bot, Event<?> cause, List<String> args, String alias) {
 		StringBuilder joined = new StringBuilder();
 		for(String arg : args.subList(1, args.size())) {
 			if(joined.length() > 0)
@@ -82,7 +108,13 @@ public class AliasCommand extends AbstractReportingCommand {
 			end = m.end();
 		}
 		sb.append(alias.substring(end, alias.length()));
-		Object[] parsed = bot.getCommands().parse(sb.toString());
+		return sb.toString();
+	}
+
+	@Override
+	public String invoke(SujavaBot bot, Event<?> cause, List<String> args) {
+		String applied = applyAlias(bot, cause, args, alias);
+		Object[] parsed = bot.getCommands().parse(applied);
 		String[] flat = flatten(bot, cause, parsed);
 		if(flat.length > 0) {
 			Command reporter = bot.getCommands().get(cause, flat[0]);
