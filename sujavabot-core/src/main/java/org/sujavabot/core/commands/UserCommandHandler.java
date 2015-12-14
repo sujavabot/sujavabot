@@ -32,20 +32,9 @@ public class UserCommandHandler extends AbstractCommandHandler {
 				if(c != null)
 					return c;
 			}
-			User user = getUser(cause);
-			if(user != null) {
-				AuthorizedGroup cugroup = bot.getAuthorizedGroups().get(channel.getName() + ":" + user.getNick());
-				if(cugroup != null) {
-					Command c = cugroup.getCommands().get(cause, name);
-					if(c != null)
-						return c;
-				}
-			}
-		}
-		if(!"@nobody".equals(user.getName())) {
-			AuthorizedUser nobody = bot.getAuthorizedUsers().get("@nobody");
-			if(nobody != null) {
-				Command c = nobody.getCommands().get(cause, name);
+			AuthorizedGroup cugroup = bot.getAuthorizedGroups().get(channel.getName() + ":" + user.getName());
+			if(cugroup != null) {
+				Command c = cugroup.getCommands().get(cause, name);
 				if(c != null)
 					return c;
 			}
