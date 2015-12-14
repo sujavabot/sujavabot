@@ -1,4 +1,4 @@
-package org.sujavabot.core.commands;
+package org.sujavabot.core.listener;
 
 import org.pircbotx.PircBotX;
 import org.pircbotx.hooks.ListenerAdapter;
