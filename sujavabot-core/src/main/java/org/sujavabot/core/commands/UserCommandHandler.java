@@ -1,5 +1,8 @@
 package org.sujavabot.core.commands;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.pircbotx.Channel;
 import org.pircbotx.User;
 import org.pircbotx.hooks.Event;
@@ -18,26 +21,22 @@ public class UserCommandHandler extends AbstractCommandHandler {
 
 	@Override
 	public Command getDefaultCommand(Event<?> cause, String name) {
-		for(AuthorizedGroup group : user.getGroups()) {
-			Command c = group.getCommands().get(cause, name);
-			if(c != null)
-				return c;
-		}
-		Channel channel = getChannel(cause);
 		SujavaBot bot = (SujavaBot) cause.getBot();
+		List<AuthorizedGroup> groups = new ArrayList<>();
+		groups.addAll(user.getGroups());
+		Channel channel = getChannel(cause);
 		if(channel != null) {
 			AuthorizedGroup cgroup = bot.getAuthorizedGroups().get(channel.getName());
-			if(cgroup != null) {
-				Command c = cgroup.getCommands().get(cause, name);
-				if(c != null)
-					return c;
-			}
+			if(cgroup != null)
+				groups.add(0, cgroup);
 			AuthorizedGroup cugroup = bot.getAuthorizedGroups().get(channel.getName() + ":" + user.getName());
-			if(cugroup != null) {
-				Command c = cugroup.getCommands().get(cause, name);
-				if(c != null)
-					return c;
-			}
+			if(cugroup != null)
+				groups.add(0, cugroup);
+		}
+		for(AuthorizedGroup group : groups) {
+			Command c = group.getAllCommands().get(name);
+			if(c != null)
+				return c;
 		}
 		return null;
 	}
