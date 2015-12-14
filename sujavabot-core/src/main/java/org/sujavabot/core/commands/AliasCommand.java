@@ -18,7 +18,7 @@ import com.google.common.base.Function;
 import com.google.common.base.Functions;
 
 public class AliasCommand extends AbstractReportingCommand {
-	protected static final Pattern SUB = Pattern.compile("(\\$|%)(@|nick|user|channel|\\{([0-9]*):([0-9]*)\\}|([0-9]+))(=.*)?");
+	protected static final Pattern SUB = Pattern.compile("(\\$|%)(@|nick|user|channel|\\{([0-9]*):([0-9]*)\\}|([0-9]+))(=(\\S+|\"([^\\\\]*\\\\[\\\\\"])*[^\\\\]*\"))?");
 
 	protected static final Function<String, String> DIRECT = Functions.identity();
 	protected static final Function<String, String> QUOTED = (s) -> ("\"" + s.replace("\\", "\\\\").replace("\"", "\\\"") + "\"");
@@ -49,6 +49,10 @@ public class AliasCommand extends AbstractReportingCommand {
 		Matcher m = SUB.matcher(alias);
 		while(m.find()) {
 			String defaultValue = (m.group(6) == null ? "" : m.group(6));
+			if(defaultValue.startsWith("\"")) {
+				defaultValue = defaultValue.substring(1, defaultValue.length()-1);
+				defaultValue = defaultValue.replaceAll("\\\\([\\\\\"])", "$1");
+			}
 			sb.append(alias.substring(end, m.start()));
 			Function<String, String> escape = ("$".equals(m.group(1)) ? DIRECT : QUOTED);
 			if("@".equals(m.group(2))) {
