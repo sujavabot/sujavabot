@@ -27,8 +27,8 @@ public class AliasCommand extends AbstractReportingCommand {
 			+ "channel|"
 			+ "\\{([0-9]*):([0-9]*)\\}|"
 			+ "([0-9]+)|"
-			+ "\"([^\\\\]*\\\\[\\\\\"])*[^\\\\]*\""
-			+ ")(=(\\S+|\"([^\\\\]*\\\\[\\\\\"])*[^\\\\]*\"))?");
+			+ "\"([^\\\\\"]*\\\\[\\\\\"])*[^\\\\\"]*\""
+			+ ")(=(\\S+|\"([^\\\\\"]*\\\\[\\\\\"])*[^\\\\\"]*\"))?");
 	protected static final Pattern SPLIT = Pattern.compile("(" + ESCAPE.pattern() + ")|(" + VAR.pattern() + ")");
 	
 	protected static final Function<String, String> DIRECT = Functions.identity();
@@ -70,6 +70,24 @@ public class AliasCommand extends AbstractReportingCommand {
 		return buildHelp("is an alias for: " + alias);
 	}
 	
+	protected static String unescape(String s) {
+		Matcher m = ESCAPE.matcher(s);
+		int end = 0;
+		StringBuilder sb = new StringBuilder();
+		while(m.find()) {
+			sb.append(s.substring(end, m.start()));
+			if("\\t".equals(m.group()))
+				sb.append("\t");
+			else if("\\n".equals(m.group()))
+				sb.append("\\n");
+			else
+				sb.append(m.group().substring(1));
+			end = m.end();
+		}
+		sb.append(s.substring(end));
+		return sb.toString();
+	}
+	
 	public static String applyAlias(SujavaBot bot, Event<?> cause, List<String> args, String alias) {
 		Matcher m = SPLIT.matcher(alias);
 		int end = 0;
@@ -106,7 +124,7 @@ public class AliasCommand extends AbstractReportingCommand {
 			String defaultValue = (m.group(6) == null ? "" : m.group(7));
 			if(defaultValue.startsWith("\"")) {
 				defaultValue = defaultValue.substring(1, defaultValue.length()-1);
-				defaultValue = defaultValue.replaceAll("\\\\([\\\\\"])", "$1");
+				defaultValue = unescape(defaultValue);
 			}
 			sb.append(alias.substring(end, m.start()));
 			Function<String, String> escape = ("$".equals(m.group(1)) ? DIRECT : QUOTED);
@@ -121,7 +139,7 @@ public class AliasCommand extends AbstractReportingCommand {
 				String c = (channel == null ? defaultValue : channel.getName());
 				sb.append(escape.apply(c));
 			} else if(m.group(2).startsWith("\"")) {
-				String expr = m.group(2).substring(1, m.group(2).length()-1);
+				String expr = unescape(m.group(2).substring(1, m.group(2).length()-1));
 				String val = bot.getCommands().invoke(cause, expr);
 				sb.append(escape.apply(val));
 			} else if(m.group(2).startsWith("{")) {
