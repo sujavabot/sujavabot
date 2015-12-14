@@ -22,8 +22,8 @@ public class AuthorizedGroup {
 		}
 	};
 	
-	public static final Pattern CREATABLE_NAME = Pattern.compile("#?[a-zA-Z0-9_\\.]+(:" + AuthorizedUser.VALID_NAME.pattern() +")?");
-	public static final Pattern VALID_NAME = Pattern.compile("@root|" + CREATABLE_NAME.pattern());
+	public static final Pattern CREATABLE_NAME = Pattern.compile("#?[a-zA-Z0-9_\\.]+(:(" + AuthorizedUser.VALID_NAME.pattern() +"))?");
+	public static final Pattern VALID_NAME = Pattern.compile("@root|(" + CREATABLE_NAME.pattern() + ")");
 	
 	public static final Pattern USER_OWNED = Pattern.compile(":([^:]+)$");
 	
