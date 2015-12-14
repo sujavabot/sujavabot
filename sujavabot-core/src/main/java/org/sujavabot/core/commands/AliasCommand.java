@@ -78,6 +78,9 @@ public class AliasCommand extends AbstractReportingCommand {
 			end = m.end();
 		}
 		sb.append(alias.substring(end, alias.length()));
+		
+		System.out.println("alias evaluated to: " + sb.toString());
+		
 		Object[] parsed = bot.getCommands().parse(sb.toString());
 		String[] flat = flatten(bot, cause, parsed);
 		if(flat.length > 0) {
