@@ -141,6 +141,10 @@ public class Authorization {
 		return getAuthorization().isOwner(g);
 	}
 	
+	public static boolean isCurrentUserOwned(String groupName) {
+		return getAuthorization().isUserOwned(groupName);
+	}
+	
 	private SujavaBot bot;
 	private AuthorizedUser user;
 	private List<AuthorizedGroup> groups;
