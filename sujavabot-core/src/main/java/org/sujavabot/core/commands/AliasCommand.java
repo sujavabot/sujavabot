@@ -86,6 +86,7 @@ public class AliasCommand extends AbstractReportingCommand {
 			} else {
 				sb.append(applyVars(bot, cause, args, m.group()));
 			}
+			end = m.end();
 		}
 		sb.append(alias.substring(end));
 		return sb.toString();
