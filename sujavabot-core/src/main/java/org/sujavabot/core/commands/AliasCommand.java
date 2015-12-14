@@ -29,7 +29,8 @@ public class AliasCommand extends AbstractReportingCommand {
 			+ "([0-9]+)|"
 			+ "\"([^\\\\]*\\\\[\\\\\"])*[^\\\\]*\""
 			+ ")(=(\\S+|\"([^\\\\]*\\\\[\\\\\"])*[^\\\\]*\"))?");
-
+	protected static final Pattern SPLIT = Pattern.compile("(" + ESCAPE.pattern() + ")|(" + VAR.pattern() + ")");
+	
 	protected static final Function<String, String> DIRECT = Functions.identity();
 	protected static final Function<String, String> QUOTED = (s) -> ("\"" + s.replace("\\", "\\\\").replace("\"", "\\\"") + "\"");
 	
@@ -70,20 +71,23 @@ public class AliasCommand extends AbstractReportingCommand {
 	}
 	
 	public static String applyAlias(SujavaBot bot, Event<?> cause, List<String> args, String alias) {
-		StringBuilder sb = new StringBuilder();
-		Matcher m = ESCAPE.matcher(alias);
+		Matcher m = SPLIT.matcher(alias);
 		int end = 0;
+		StringBuilder sb = new StringBuilder();
 		while(m.find()) {
-			sb.append(applyVars(bot, cause, args, alias.substring(end, m.start())));
-			if("\\n".equals(m.group()))
-				sb.append("\\n");
-			else if("\\t".equals(m.group()))
-				sb.append("\t");
-			else
-				sb.append(m.group().charAt(1));
-			end = m.end();
+			sb.append(alias.substring(0, end));
+			if(ESCAPE.matcher(m.group()).matches()) {
+				if("\\t".equals(m.group()))
+					sb.append("\t");
+				else if("\\n".equals(m.group()))
+					sb.append("\\n");
+				else
+					sb.append(m.group().substring(1));
+			} else {
+				sb.append(applyVars(bot, cause, args, m.group()));
+			}
 		}
-		sb.append(applyVars(bot, cause, args, alias.substring(end)));
+		sb.append(alias.substring(end));
 		return sb.toString();
 	}
 	
