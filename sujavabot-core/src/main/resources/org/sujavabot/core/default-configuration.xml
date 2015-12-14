@@ -36,7 +36,7 @@
 		<owns-group>@root</owns-group>
 		<commands />
 	</user>
-	<listener class="org.sujavabot.core.commands.CommandReceiverListener">
+	<listener class="org.sujavabot.core.listener.CommandReceiverListener">
 		<prefix>!</prefix>
 	</listener>
 </sujavabot>
