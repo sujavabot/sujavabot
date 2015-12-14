@@ -48,7 +48,7 @@ public class AliasCommand extends AbstractReportingCommand {
 		int end = 0;
 		Matcher m = SUB.matcher(alias);
 		while(m.find()) {
-			String defaultValue = (m.group(6) == null ? "" : m.group(6));
+			String defaultValue = (m.group(6) == null ? "" : m.group(7));
 			if(defaultValue.startsWith("\"")) {
 				defaultValue = defaultValue.substring(1, defaultValue.length()-1);
 				defaultValue = defaultValue.replaceAll("\\\\([\\\\\"])", "$1");
