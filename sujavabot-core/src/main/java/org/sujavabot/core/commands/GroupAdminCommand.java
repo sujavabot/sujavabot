@@ -138,6 +138,24 @@ public class GroupAdminCommand extends AbstractReportingCommand {
 
 		return info;
 	}
+	
+	protected AuthorizedGroup getOrCreateGroup(SujavaBot bot, Event<?> cause, String groupName) {
+		AuthorizedGroup group = bot.getAuthorizedGroups().get(groupName);
+		if(group != null)
+			return group;
+		boolean permitCreate = false;
+		AuthorizedGroup rootGroup = bot.getAuthorizedGroups().get("@root");
+		if(Authorization.isCurrentOwner(rootGroup) || Authorization.isCurrentUserOwned(groupName))
+			permitCreate = true;
+		if(!permitCreate)
+			return null;
+		group = new AuthorizedGroup(groupName);
+		if(rootGroup != null)
+			group.getParents().add(rootGroup);
+		Authorization.getCurrentUser().getOwnedGroups().add(group);
+		bot.getAuthorizedGroups().put(groupName, group);
+		return group;
+	}
 
 	protected String _add(SujavaBot bot, Event<?> cause, List<String> args) {
 		if (args.size() != 3)
@@ -200,7 +218,7 @@ public class GroupAdminCommand extends AbstractReportingCommand {
 	protected String _add_user(SujavaBot bot, Event<?> cause, List<String> args) {
 		if (args.size() != 4)
 			return invokeHelp(bot, cause, args, "add_user");
-		AuthorizedGroup group = bot.getAuthorizedGroups().get(args.get(2));
+		AuthorizedGroup group = getOrCreateGroup(bot, cause, args.get(2));
 		if (group == null)
 			return "group does not exist";
 		if (!Authorization.isCurrentOwner(group))
@@ -236,7 +254,7 @@ public class GroupAdminCommand extends AbstractReportingCommand {
 	protected String _add_parent(SujavaBot bot, Event<?> cause, List<String> args) {
 		if (args.size() != 4)
 			return invokeHelp(bot, cause, args, "add_parent");
-		AuthorizedGroup child = bot.getAuthorizedGroups().get(args.get(2));
+		AuthorizedGroup child = getOrCreateGroup(bot, cause, args.get(2));
 		if (child == null)
 			return "child does not exist";
 		if (!Authorization.isCurrentOwner(child))
@@ -272,7 +290,7 @@ public class GroupAdminCommand extends AbstractReportingCommand {
 	protected String _add_alias(SujavaBot bot, Event<?> cause, List<String> args) {
 		if (args.size() != 5)
 			return invokeHelp(bot, cause, args, "add_alias");
-		AuthorizedGroup group = bot.getAuthorizedGroups().get(args.get(2));
+		AuthorizedGroup group = getOrCreateGroup(bot, cause, args.get(2));
 		if (group == null)
 			return "group does not exist";
 		if (!Authorization.isCurrentOwner(group))
@@ -319,7 +337,7 @@ public class GroupAdminCommand extends AbstractReportingCommand {
 	protected String _set_property(SujavaBot bot, Event<?> cause, List<String> args) {
 		if (args.size() != 5)
 			return invokeHelp(bot, cause, args, "set_property");
-		AuthorizedGroup group = bot.getAuthorizedGroups().get(args.get(2));
+		AuthorizedGroup group = getOrCreateGroup(bot, cause, args.get(2));
 		if (group == null)
 			return "group does not exist";
 		if (!Authorization.isCurrentOwner(group))
