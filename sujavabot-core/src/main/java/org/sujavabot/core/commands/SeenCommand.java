@@ -246,7 +246,7 @@ public class SeenCommand extends AbstractReportingCommand {
 		String dmessage = parseDoingMessage(doing);
 		long delapsed = System.currentTimeMillis() - parseDoingDate(doing).getTime();
 		
-		return dname + " was last seen in " + dwhere + " " + formatElapsed(delapsed) + " ago " + dmessage;
+		return dname + " was last seen in " + dwhere + ", " + formatElapsed(delapsed) + " ago, " + dmessage;
 	}
 	
 	protected String _user(SujavaBot bot, Event<?> cause, List<String> args) {
@@ -272,7 +272,7 @@ public class SeenCommand extends AbstractReportingCommand {
 		String dmessage = parseDoingMessage(doing);
 		long delapsed = System.currentTimeMillis() - parseDoingDate(doing).getTime();
 		
-		return dname + " was last seen in " + dwhere + " " + formatElapsed(delapsed) + " ago " + dmessage;
+		return dname + " was last seen in " + dwhere + ", " + formatElapsed(delapsed) + " ago, " + dmessage;
 	}
 	
 }
