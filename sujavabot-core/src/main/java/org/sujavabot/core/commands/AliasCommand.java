@@ -27,7 +27,7 @@ public class AliasCommand extends AbstractReportingCommand {
 			+ "channel|"
 			+ "\\{([0-9]*):([0-9]*)\\}|"
 			+ "([0-9]+)|"
-			+ "\"([^\\\\\"]*\\\\[\\\\\"])*[^\\\\\"]*\""
+			+ "\\(([^\\\\\"]+|\"([^\\\\\"]*\\\\[\\\\\"])*[^\\\\\"]*\")\\)"
 			+ ")(=(\\S+|\"([^\\\\\"]*\\\\[\\\\\"])*[^\\\\\"]*\"))?");
 	protected static final Pattern SPLIT = Pattern.compile("(" + ESCAPE.pattern() + ")|(" + VAR.pattern() + ")");
 	
