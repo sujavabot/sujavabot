@@ -6,10 +6,13 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.ListIterator;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
@@ -213,19 +216,18 @@ public class SujavaBot extends PircBotX {
 			}
 			
 			File configFileOld = new File(configFile.getParentFile(), configFile.getName() + ".old");
-			int backups = 0;
+			List<File> backups = new ArrayList<>();
+			backups.add(configFileOld);
 			if(configFileOld.exists()) {
-				for(backups = 1; configFileOld.exists(); backups++)
-					configFileOld = new File(configFile.getParentFile(), configFile.getName() + ".old." + backups);
-				while(backups > 0) {
-					File configFilePrev;
-					if(backups == 1)
-						configFilePrev = new File(configFile.getParentFile(), configFile.getName() + ".old");
-					else
-						configFilePrev = new File(configFile.getParentFile(), configFile.getName() + ".old." + (backups - 1));
-					Files.move(configFilePrev.toPath(), configFileOld.toPath(), StandardCopyOption.REPLACE_EXISTING);
-					configFileOld = configFilePrev;
-					backups--;
+				File f = configFileOld;
+				for(int i = 1; f.exists(); i++)
+					backups.add(f = new File(configFile.getParentFile(), configFile.getName() + ".old." + i));
+				ListIterator<File> bi = backups.listIterator(backups.size());
+				File next = bi.previous();
+				while(bi.hasPrevious()) {
+					File prev = bi.previous();
+					Files.move(prev.toPath(), next.toPath(), StandardCopyOption.REPLACE_EXISTING);
+					next = prev;
 				}
 			}
 			Files.move(configFile.toPath(), configFileOld.toPath(), StandardCopyOption.REPLACE_EXISTING);
