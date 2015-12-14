@@ -105,6 +105,12 @@ public abstract class AbstractReportingCommand implements Command {
 			reportAction(bot, cause, result, Events.getChannel(cause) != null);
 		} else if(cause instanceof PrivateMessageEvent<?>) {
 			reportMessage(bot, cause, result, false);
+		} else {
+			Channel channel = Events.getChannel(cause);
+			if(channel != null)
+				reportMessage(bot, cause, result, true);
+			else
+				reportMessage(bot, cause, result, false);
 		}
 	}
 	
