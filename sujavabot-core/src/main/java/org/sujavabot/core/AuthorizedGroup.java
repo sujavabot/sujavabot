@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.TreeMap;
+import java.util.regex.Pattern;
 
 import org.sujavabot.core.commands.GroupCommandHandler;
 
@@ -20,6 +21,8 @@ public class AuthorizedGroup {
 			return String.CASE_INSENSITIVE_ORDER.compare(o1.getName(), o2.getName());
 		}
 	};
+	
+	public static final Pattern USER_OWNED = Pattern.compile(":([^:]+)$");
 	
 	protected String name;
 	protected GroupCommandHandler commands;
