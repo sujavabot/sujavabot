@@ -175,7 +175,7 @@ public class GroupAdminCommand extends AbstractReportingCommand {
 			u.getGroups().remove(group);
 			u.getOwnedGroups().remove(group);
 		}
-		bot.getAuthorizedGroups().remove(group);
+		bot.getAuthorizedGroups().remove(group.getName());
 		bot.saveConfiguration();
 		return "group deleted";
 	}
