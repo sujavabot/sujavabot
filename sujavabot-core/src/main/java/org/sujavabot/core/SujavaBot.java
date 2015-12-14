@@ -219,7 +219,7 @@ public class SujavaBot extends PircBotX {
 					configFileOld = new File(configFile.getParentFile(), configFile.getName() + ".old." + backups);
 				while(backups > 0) {
 					File configFilePrev;
-					if(backups == 1)
+					if(backups == 0)
 						configFilePrev = new File(configFile.getParentFile(), configFile.getName() + ".old");
 					else
 						configFilePrev = new File(configFile.getParentFile(), configFile.getName() + ".old." + (backups - 1));
