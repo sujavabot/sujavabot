@@ -7,16 +7,18 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.commons.lang3.StringUtils;
+import org.pircbotx.Channel;
 import org.pircbotx.hooks.Event;
 import org.sujavabot.core.Authorization;
 import org.sujavabot.core.Command;
 import org.sujavabot.core.SujavaBot;
+import org.sujavabot.core.util.Events;
 
 import com.google.common.base.Function;
 import com.google.common.base.Functions;
 
 public class AliasCommand extends AbstractReportingCommand {
-	protected static final Pattern SUB = Pattern.compile("(\\$|%)(@|nick|\\{([0-9]*):([0-9]*)\\}|([0-9]+))");
+	protected static final Pattern SUB = Pattern.compile("(\\$|%)(@|nick|user|channel|\\{([0-9]*):([0-9]*)\\}|([0-9]+))");
 
 	protected static final Function<String, String> DIRECT = Functions.identity();
 	protected static final Function<String, String> QUOTED = (s) -> ("\"" + s.replace("\\", "\\\\").replace("\"", "\\\"") + "\"");
@@ -51,7 +53,13 @@ public class AliasCommand extends AbstractReportingCommand {
 			if("@".equals(m.group(2))) {
 				sb.append(escape.apply(joined.toString()));
 			} else if("nick".equals(m.group(2))) {
+				sb.append(escape.apply(Events.getUser(cause).getNick()));
+			} else if("user".equals(m.group(2))) {
 				sb.append(escape.apply(Authorization.getCurrentUser().getName()));
+			} else if("channel".equals(m.group(2))) {
+				Channel channel = Events.getChannel(cause);
+				String c = (channel == null ? "" : channel.getName());
+				sb.append(escape.apply(c));
 			} else if(m.group(2).startsWith("{")) {
 				int from = (m.group(3).isEmpty() ? 0 : Integer.parseInt(m.group(3)));
 				int to = (m.group(4).isEmpty() ? args.size() : Integer.parseInt(m.group(4)));
