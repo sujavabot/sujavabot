@@ -25,6 +25,7 @@ public class AliasCommand extends AbstractReportingCommand {
 			+ "nick|"
 			+ "user|"
 			+ "channel|"
+			+ "count|"
 			+ "\\{([0-9]*):([0-9]*)\\}|"
 			+ "<([0-9]*):([0-9]*)>|"
 			+ "([0-9]+)|"
@@ -139,6 +140,8 @@ public class AliasCommand extends AbstractReportingCommand {
 				Channel channel = Events.getChannel(cause);
 				String c = (channel == null ? defaultValue : channel.getName());
 				sb.append(escape.apply(c));
+			} else if("count".equals(m.group(2))) {
+				sb.append(escape.apply(String.valueOf(args.size()-1)));
 			} else if(m.group(2).startsWith("(")) {
 				String expr = m.group(2);
 				expr = expr.substring(1, expr.length() - 1);
