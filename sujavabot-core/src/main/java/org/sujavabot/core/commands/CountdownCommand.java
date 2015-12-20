@@ -20,7 +20,7 @@ public class CountdownCommand extends AbstractReportingCommand {
 		return buildHelp("<from> [<finished_command> [<counting_command>]]: start a countdown");
 	}
 	
-	private Map<AuthorizedUser, Future<?>> countdowns = new HashMap<>();
+	private transient Map<AuthorizedUser, Future<?>> countdowns = new HashMap<>();
 
 	@Override
 	public String invoke(SujavaBot bot, Event<?> cause, List<String> args) {
