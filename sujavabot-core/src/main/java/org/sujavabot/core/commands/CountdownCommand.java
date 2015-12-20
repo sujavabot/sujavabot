@@ -60,7 +60,7 @@ public class CountdownCommand extends AbstractReportingCommand {
 		Future<?> f = countdowns.get(auth.getUser());
 		if(f != null)
 			f.cancel(true);
-		countdowns.put(auth.getUser(), SchedulerPool.get().scheduleAtFixedRate(countingTask, 1, 1, TimeUnit.SECONDS));
+		countdowns.put(auth.getUser(), SchedulerPool.get().scheduleAtFixedRate(() -> auth.run(countingTask), 1, 1, TimeUnit.SECONDS));
 		
 		return null;
 	}
