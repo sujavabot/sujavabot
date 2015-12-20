@@ -1,6 +1,7 @@
 package org.sujavabot.core.commands;
 
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Future;
@@ -9,6 +10,7 @@ import java.util.concurrent.TimeUnit;
 
 import org.pircbotx.hooks.Event;
 import org.sujavabot.core.Authorization;
+import org.sujavabot.core.AuthorizedUser;
 import org.sujavabot.core.SujavaBot;
 import org.sujavabot.core.util.SchedulerPool;
 
@@ -17,6 +19,8 @@ public class CountdownCommand extends AbstractReportingCommand {
 	protected Map<String, String> helpTopics() {
 		return buildHelp("<from> [<finished_command> [<counting_command>]]: start a countdown");
 	}
+	
+	private Map<AuthorizedUser, Future<?>> countdowns = new HashMap<>();
 
 	@Override
 	public String invoke(SujavaBot bot, Event<?> cause, List<String> args) {
@@ -35,8 +39,6 @@ public class CountdownCommand extends AbstractReportingCommand {
 		
 		Authorization auth = Authorization.getAuthorization();
 		
-		Future<?>[] ff = new Future<?>[1];
-		
 		Runnable countingTask = new Runnable() {
 			private int rc = from;
 			@Override
@@ -44,7 +46,9 @@ public class CountdownCommand extends AbstractReportingCommand {
 				if(rc == 0) {
 					String processed = AliasCommand.applyAlias(bot, cause, Arrays.asList(args.get(0)), finished);
 					bot.getCommands().perform(cause, processed);
-					ff[0].cancel(true);
+					Future<?> f = countdowns.get(auth.getUser());
+					if(f != null)
+						f.cancel(true);
 				} else {
 					String processed = AliasCommand.applyAlias(bot, cause, Arrays.asList(args.get(0), "" + rc), counting);
 					bot.getCommands().perform(cause, processed);
@@ -53,7 +57,11 @@ public class CountdownCommand extends AbstractReportingCommand {
 			}
 		};
 		
-		ff[0] = SchedulerPool.get().scheduleAtFixedRate(countingTask, 1, 1, TimeUnit.SECONDS);
+		Future<?> f = countdowns.get(auth.getUser());
+		if(f != null)
+			f.cancel(true);
+		countdowns.put(auth.getUser(), SchedulerPool.get().scheduleAtFixedRate(countingTask, 1, 1, TimeUnit.SECONDS));
+		
 		return null;
 	}
 
