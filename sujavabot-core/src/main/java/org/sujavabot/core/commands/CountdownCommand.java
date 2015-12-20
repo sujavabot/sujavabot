@@ -29,7 +29,7 @@ public class CountdownCommand extends AbstractReportingCommand {
 		int from;
 		try {
 			from = Integer.parseInt(args.get(1));
-			if(from <= 0 || from > 10)
+			if(from <= 0 || from > 20)
 				return "invalid from";
 		} catch(NumberFormatException e) {
 			return "invalid from";
