@@ -32,7 +32,12 @@ public class SudoCommand extends AbstractReportingCommand implements HelperConve
 	@Override
 	public String invoke(SujavaBot bot, Event<?> cause, List<String> args) {
 		AuthorizedUser a = bot.getAuthorizedUsers().get(name);
-		LimitedCallable<String, RuntimeException> task = () -> bot.getCommands().invoke(cause, command);
+		LimitedCallable<String, RuntimeException> task = new LimitedCallable<String, RuntimeException>() {
+			@Override
+			public String call() throws RuntimeException {
+				return bot.getCommands().invoke(cause, command);
+			}
+		}; 
 		return Authorization.limitedCall(a, task);
 	}
 
