@@ -122,7 +122,7 @@ public class AliasCommand extends AbstractReportingCommand {
 		int end = 0;
 		Matcher m = VAR.matcher(alias);
 		while(m.find()) {
-			String defaultValue = (m.group(8) == null ? "" : m.group(9));
+			String defaultValue = (m.group(10) == null ? "" : m.group(11));
 			if(defaultValue.startsWith("\"")) {
 				defaultValue = defaultValue.substring(1, defaultValue.length()-1);
 				defaultValue = unescape(defaultValue);
@@ -156,8 +156,8 @@ public class AliasCommand extends AbstractReportingCommand {
 					sb.append(escape.apply(StringUtils.join(sub, " ")));
 				}
 			} else if(m.group(2).startsWith("<")) {
-				int from = (m.group(3).isEmpty() ? 0 : Integer.parseInt(m.group(3)));
-				int to = (m.group(4).isEmpty() ? args.size() : Integer.parseInt(m.group(4)));
+				int from = (m.group(5).isEmpty() ? 0 : Integer.parseInt(m.group(5)));
+				int to = (m.group(6).isEmpty() ? args.size() : Integer.parseInt(m.group(6)));
 				if(from <= args.size() && to <= args.size() && from <= to) {
 					List<String> sub = new ArrayList<>(args.subList(from, to));
 					for(int i = 0; i < sub.size(); i++)
