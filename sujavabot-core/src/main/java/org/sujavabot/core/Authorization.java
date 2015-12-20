@@ -25,9 +25,13 @@ public class Authorization {
 			List<AuthorizedGroup> asGroups,
 			List<AuthorizedGroup> asOwnedGroups,
 			LimitedCallable<E, T> task) throws T {
+		return limitedCall(new Authorization(bot, asUser, asGroups, asOwnedGroups), task);
+	}
+	
+	public static <E, T extends Exception> E limitedCall(Authorization auth, LimitedCallable<E, T> task) throws T {
 		Authorization old = getAuthorization();
 		try {
-			setAuthorization(new Authorization(bot, asUser, asGroups, asOwnedGroups));
+			setAuthorization(auth);
 			return task.call();
 		} finally {
 			setAuthorization(old);
@@ -55,9 +59,13 @@ public class Authorization {
 			List<AuthorizedGroup> asGroups,
 			List<AuthorizedGroup> asOwnedGroups,
 			Callable<E> task) throws Exception {
+		return call(new Authorization(bot, asUser, asGroups, asOwnedGroups), task);
+	}
+	
+	public static <E> E call(Authorization auth, Callable<E> task) throws Exception {
 		Authorization old = getAuthorization();
 		try {
-			setAuthorization(new Authorization(bot, asUser, asGroups, asOwnedGroups));
+			setAuthorization(auth);
 			return task.call();
 		} finally {
 			setAuthorization(old);
@@ -85,9 +93,13 @@ public class Authorization {
 			List<AuthorizedGroup> asGroups,
 			List<AuthorizedGroup> asOwnedGroups,
 			Runnable task) {
+		run(new Authorization(bot, asUser, asGroups, asOwnedGroups), task);
+	}
+	
+	public static void run(Authorization auth, Runnable task) {
 		Authorization old = getAuthorization();
 		try {
-			setAuthorization(new Authorization(bot, asUser, asGroups, asOwnedGroups));
+			setAuthorization(auth);
 			task.run();
 		} finally {
 			setAuthorization(old);

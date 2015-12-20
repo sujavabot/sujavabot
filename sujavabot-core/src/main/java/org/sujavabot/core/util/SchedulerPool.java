@@ -17,8 +17,14 @@ import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
+import org.sujavabot.core.Authorization;
+
 public class SchedulerPool {
 	private static SchedulerPool instance = new SchedulerPool();
+	
+	public static ScheduledExecutorService get() {
+		return get(Authorization.getCurrentUser());
+	}
 	
 	public static ScheduledExecutorService get(Object sync) {
 		return instance.getScheduler(sync);
