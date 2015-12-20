@@ -16,6 +16,18 @@ public abstract class Events {
 	private static final Map<Class<?>, Object> getUserMethods = new ConcurrentHashMap<>();
 	private static final Map<Class<?>, Object> getChannelMethods = new ConcurrentHashMap<>();
 	
+	private static ThreadLocal<User> overrides = new ThreadLocal<>();
+	
+	public static void overrideUser(User u, Runnable task) {
+		User prev = overrides.get();
+		try {
+			overrides.set(u);
+			task.run();
+		} finally {
+			overrides.set(prev);
+		}
+	}
+	
 	public static User getUser(Event<?> e) {
 		if(!getUserMethods.containsKey(e.getClass())) {
 			try {
@@ -28,7 +40,10 @@ public abstract class Events {
 		if(m == NONE)
 			return null;
 		try {
-			return (User) ((Method) m).invoke(e);
+			User u = overrides.get();
+			if(u == null)
+				u = (User) ((Method) m).invoke(e);
+			return u;
 		} catch(Exception ex) {
 			throw Throwables.as(RuntimeException.class, ex);
 		}
