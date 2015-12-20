@@ -50,7 +50,7 @@ public abstract class AbstractConverter<T> implements Converter {
 
 			helper.write();
 		} catch(Exception e) {
-			throw Throwables.as(ConversionException.class, e);
+			throw Throwables.as(ConversionException.class, String.valueOf(source), e);
 		}
 	}
 
@@ -67,7 +67,7 @@ public abstract class AbstractConverter<T> implements Converter {
 			
 			return helper.read(current);
 		} catch(Exception e) {
-			throw Throwables.as(ConversionException.class, e);
+			throw Throwables.as(ConversionException.class, String.valueOf(context.getRequiredType()), e);
 		}
 	}
 
