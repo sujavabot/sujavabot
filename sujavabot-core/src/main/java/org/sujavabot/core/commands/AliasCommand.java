@@ -149,8 +149,10 @@ public class AliasCommand extends AbstractReportingCommand {
 				int from = (m.group(3).isEmpty() ? 0 : Integer.parseInt(m.group(3)));
 				int to = (m.group(4).isEmpty() ? args.size() : Integer.parseInt(m.group(4)));
 				if(from <= args.size() && to <= args.size() && from <= to) {
-					List<String> sub = args.subList(from, to);
-					sb.append(escape.apply(StringUtils.join(sub, " ")));
+					List<String> sub = new ArrayList<>(args.subList(from, to));
+					for(int i = 0; i < sub.size(); i++)
+						sub.set(i, escape.apply(sub.get(i)));
+					sb.append(StringUtils.join(sub, " "));
 				}
 			} else {
 				int i = Integer.parseInt(m.group(2));
