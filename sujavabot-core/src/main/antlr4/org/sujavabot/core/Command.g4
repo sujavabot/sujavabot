@@ -22,13 +22,13 @@ string returns [String s]:
 	qs=QUOTED_STRING { $s = $qs.getText()
 		.substring(1, $qs.getText().length()-1)
 		.replaceAll("\\\\\\\\", "\\\\")
-		.replaceAll("\\\\\"", "\"");
+		.replaceAll("\\\\(.)", "$1");
 	}
 |	nw=NON_WHITESPACE { $s = $nw.getText(); }
 ;
 
 QUOTED_STRING:
-	'"' (~('"' | '\\') | ('\\' ('\\' | '"')))* '"'
+	'"' (~('"' | '\\') | ('\\' . ))* '"'
 ;
 
 NON_WHITESPACE:
