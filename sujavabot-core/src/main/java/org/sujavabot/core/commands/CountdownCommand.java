@@ -56,6 +56,9 @@ public class CountdownCommand extends AbstractReportingCommand {
 				}
 			}
 		};
+
+		if(countdowns == null)
+			countdowns = new HashMap<>();
 		
 		Future<?> f = countdowns.get(auth.getUser());
 		if(f != null)
