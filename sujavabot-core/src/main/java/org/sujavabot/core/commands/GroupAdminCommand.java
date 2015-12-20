@@ -299,6 +299,8 @@ public class GroupAdminCommand extends AbstractReportingCommand {
 			return "group does not exist";
 		if (!Authorization.isCurrentOwner(group))
 			return "permission denied";
+		if(!args.get(3).matches("[a-zA-Z0-9_]+"))
+			return "invalid alias name";
 		if (group.getCommands().getCommands().get(args.get(3)) != null)
 			return "named command already exists";
 		group.getCommands().getCommands().put(args.get(3), new AliasCommand(args.get(4)));
