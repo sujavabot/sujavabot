@@ -37,20 +37,14 @@ public class CountdownCommand extends AbstractReportingCommand {
 		
 		Future<?>[] ff = new Future<?>[1];
 		
-		Runnable finishedTask = () -> {
-			auth.run(() -> {
-				String processed = AliasCommand.applyAlias(bot, cause, Arrays.asList(args.get(0)), finished);
-				bot.getCommands().perform(cause, processed);
-			});
-		};
-		
 		Runnable countingTask = new Runnable() {
 			private int rc = from;
 			@Override
 			public void run() {
 				if(rc == 0) {
+					String processed = AliasCommand.applyAlias(bot, cause, Arrays.asList(args.get(0)), finished);
+					bot.getCommands().perform(cause, processed);
 					ff[0].cancel(true);
-					finishedTask.run();
 				} else {
 					String processed = AliasCommand.applyAlias(bot, cause, Arrays.asList(args.get(0), "" + rc), counting);
 					bot.getCommands().perform(cause, processed);
