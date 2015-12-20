@@ -10,6 +10,7 @@ import org.pircbotx.hooks.Event;
 import org.sujavabot.core.Authorization;
 import org.sujavabot.core.AuthorizedUser;
 import org.sujavabot.core.SujavaBot;
+import org.sujavabot.core.Authorization.LimitedCallable;
 import org.sujavabot.core.util.Events;
 import org.sujavabot.core.xml.ConverterHelpers.MarshalHelper;
 import org.sujavabot.core.xml.ConverterHelpers.UnmarshalHelper;
@@ -31,7 +32,8 @@ public class SudoCommand extends AbstractReportingCommand implements HelperConve
 	@Override
 	public String invoke(SujavaBot bot, Event<?> cause, List<String> args) {
 		AuthorizedUser a = bot.getAuthorizedUsers().get(name);
-		return Authorization.limitedCall(a, () -> bot.getCommands().invoke(cause, command));
+		LimitedCallable<String, RuntimeException> task = () -> bot.getCommands().invoke(cause, command);
+		return Authorization.limitedCall(a, task);
 	}
 
 	@Override
