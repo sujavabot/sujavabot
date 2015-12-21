@@ -6,6 +6,7 @@ import org.pircbotx.hooks.events.MessageEvent;
 import org.pircbotx.hooks.events.PrivateMessageEvent;
 import org.sujavabot.core.Authorization;
 import org.sujavabot.core.SujavaBot;
+import org.sujavabot.core.util.SchedulerPool;
 import org.sujavabot.core.xml.ConverterHelpers.MarshalHelper;
 import org.sujavabot.core.xml.ConverterHelpers.UnmarshalHelper;
 import org.sujavabot.core.xml.HelperConvertable;
@@ -22,11 +23,16 @@ implements HelperConvertable<CommandReceiverListener> {
 	public void onMessage(MessageEvent<PircBotX> event) throws Exception {
 		SujavaBot bot = (SujavaBot) event.getBot();
 		Authorization.run(bot, bot.getAuthorizedUser(event.getUser()), null, null, () -> {
-			String m = event.getMessage();
-			if(!m.startsWith(prefix))
-				return;
-			m = m.substring(prefix.length());
-			bot.getCommands().perform(event, m);
+			Authorization auth = Authorization.getAuthorization();
+			SchedulerPool.get().execute(() -> {
+				auth.run(() -> {
+					String m = event.getMessage();
+					if(!m.startsWith(prefix))
+						return;
+					m = m.substring(prefix.length());
+					bot.getCommands().perform(event, m);
+				});
+			});
 		});
 	}
 	
@@ -34,11 +40,16 @@ implements HelperConvertable<CommandReceiverListener> {
 	public void onPrivateMessage(PrivateMessageEvent<PircBotX> event) throws Exception {
 		SujavaBot bot = (SujavaBot) event.getBot();
 		Authorization.run(bot, bot.getAuthorizedUser(event.getUser()), null, null, () -> {
-			String m = event.getMessage();
-			if(!m.startsWith(prefix))
-				return;
-			m = m.substring(prefix.length());
-			bot.getCommands().perform(event, m);
+			Authorization auth = Authorization.getAuthorization();
+			SchedulerPool.get().execute(() -> {
+				auth.run(() -> {
+					String m = event.getMessage();
+					if(!m.startsWith(prefix))
+						return;
+					m = m.substring(prefix.length());
+					bot.getCommands().perform(event, m);
+				});
+			});
 		});
 	}
 
