@@ -28,9 +28,7 @@ public class CountdownCommand extends AbstractReportingCommand {
 			return invokeHelp(bot, cause, args);
 		int from;
 		try {
-			from = Integer.parseInt(args.get(1));
-			if(from <= 0 || from > 20)
-				return "invalid from";
+			from = Math.max(Math.min(Integer.parseInt(args.get(1)), 20), 0);
 		} catch(NumberFormatException e) {
 			return "invalid from";
 		}
