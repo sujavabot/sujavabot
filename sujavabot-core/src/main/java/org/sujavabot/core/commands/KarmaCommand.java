@@ -83,6 +83,8 @@ public class KarmaCommand extends AbstractReportingCommand {
 	}
 	
 	public static synchronized void adjustUp(String context, String nick) {
+		context = context.toLowerCase();
+		nick = nick.toLowerCase();
 		String key = context + " " + nick;
 		Properties p = read();
 		p.setProperty(key, String.valueOf(getKarma(context, nick) + 1));
@@ -90,6 +92,8 @@ public class KarmaCommand extends AbstractReportingCommand {
 	}
 	
 	public static synchronized void adjustDown(String context, String nick) {
+		context = context.toLowerCase();
+		nick = nick.toLowerCase();
 		String key = context + " " + nick;
 		Properties p = read();
 		p.setProperty(key, String.valueOf(getKarma(context, nick) - 1));
@@ -97,6 +101,8 @@ public class KarmaCommand extends AbstractReportingCommand {
 	}
 	
 	public static synchronized int getKarma(String context, String nick) {
+		context = context.toLowerCase();
+		nick = nick.toLowerCase();
 		String key = context + " " + nick;
 		return Integer.parseInt(read().getProperty(key, "0"));
 	}
