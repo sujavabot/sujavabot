@@ -12,6 +12,7 @@ import java.util.Properties;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.pircbotx.Channel;
 import org.pircbotx.PircBotX;
 import org.pircbotx.hooks.Event;
 import org.pircbotx.hooks.ListenerAdapter;
@@ -102,14 +103,30 @@ public class KarmaCommand extends AbstractReportingCommand {
 	
 	@Override
 	protected Map<String, String> helpTopics() {
-		return buildHelp("<nick>: show karma for nick");
+		return buildHelp("[<channel>] <nick>: show karma for nick in channel");
 	}
 	
 	@Override
 	public String invoke(SujavaBot bot, Event<?> cause, List<String> args) {
-		if(args.size() != 2)
-			return invokeHelp(bot, cause, args);
-		return String.valueOf(getKarma(Events.getChannel(cause).getName(), args.get(1)));
+		Channel channel = Events.getChannel(cause);
+		String context;
+		String nick;
+		if(channel == null) {
+			if(args.size() != 3)
+				return invokeHelp(bot, cause, args);
+			context = args.get(1);
+			nick = args.get(2);
+		} else {
+			if(args.size() == 2) {
+				context = channel.getName();
+				nick = args.get(1);
+			} else if(args.size() == 3) {
+				context = args.get(1);
+				nick = args.get(2);
+			} else
+				return invokeHelp(bot, cause, args);
+		}
+		return String.valueOf(getKarma(context, nick));
 	}
 
 
