@@ -6,6 +6,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.math.BigInteger;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -87,7 +88,7 @@ public class KarmaCommand extends AbstractReportingCommand {
 		nick = nick.toLowerCase();
 		String key = context + " " + nick;
 		Properties p = read();
-		p.setProperty(key, String.valueOf(getKarma(context, nick) + 1));
+		p.setProperty(key, String.valueOf(getKarma(context, nick).add(BigInteger.ONE)));
 		write(p);
 	}
 	
@@ -96,15 +97,15 @@ public class KarmaCommand extends AbstractReportingCommand {
 		nick = nick.toLowerCase();
 		String key = context + " " + nick;
 		Properties p = read();
-		p.setProperty(key, String.valueOf(getKarma(context, nick) - 1));
+		p.setProperty(key, String.valueOf(getKarma(context, nick).subtract(BigInteger.ONE)));
 		write(p);
 	}
 	
-	public static synchronized int getKarma(String context, String nick) {
+	public static synchronized BigInteger getKarma(String context, String nick) {
 		context = context.toLowerCase();
 		nick = nick.toLowerCase();
 		String key = context + " " + nick;
-		return Integer.parseInt(read().getProperty(key, "0"));
+		return new BigInteger(read().getProperty(key, "0"));
 	}
 	
 	@Override
