@@ -64,7 +64,6 @@ public class KarmaCommand extends AbstractReportingCommand {
 				in.close();
 			}
 		} catch(IOException e) {
-			throw new RuntimeException(e);
 		}
 		return p;
 	}
