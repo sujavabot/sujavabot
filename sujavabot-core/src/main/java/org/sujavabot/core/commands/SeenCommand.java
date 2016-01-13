@@ -80,7 +80,7 @@ public class SeenCommand extends AbstractReportingCommand {
 		
 	}
 	
-	private static final SimpleDateFormat DF = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
+	private static final SimpleDateFormat DF = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 	static {
 		DF.setTimeZone(TimeZone.getTimeZone("UTC"));
 	}
