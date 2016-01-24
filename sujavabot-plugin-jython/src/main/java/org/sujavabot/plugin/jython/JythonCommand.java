@@ -57,6 +57,8 @@ public class JythonCommand extends AbstractReportingCommand implements HelperCon
 				}
 			}
 			
+			interp.close();
+			
 			return new String(bytes.toByteArray(), Charset.forName("UTF-8"));
 		} catch(Exception e) {
 			throw new RuntimeException(e);
