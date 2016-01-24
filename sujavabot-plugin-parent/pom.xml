@@ -23,5 +23,6 @@
 		
 		<module>../sujavabot-plugin-markov</module>
 		<module>../sujavabot-plugin-jython</module>
+		<module>../sujavabot-plugin-google</module>
 	</modules>
 </project>
