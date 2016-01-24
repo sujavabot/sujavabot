@@ -39,8 +39,8 @@ public class JythonCommand extends AbstractReportingCommand implements HelperCon
 			PythonInterpreter interp = new PythonInterpreter(null, state);
 			
 			ByteArrayOutputStream bytes = new ByteArrayOutputStream();
-			Writer out = new OutputStreamWriter(bytes, Charset.forName("UTF-8"));
-			interp.setOut(out);
+			interp.setOut(bytes);
+			interp.setErr(System.err);
 			
 			interp.set("bot", bot);
 			interp.set("cause", cause);
