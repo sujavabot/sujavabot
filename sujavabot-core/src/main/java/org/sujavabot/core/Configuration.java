@@ -3,11 +3,14 @@ package org.sujavabot.core;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.pircbotx.PircBotX;
 import org.pircbotx.hooks.Listener;
+import org.sujavabot.core.Scheduler.ScheduledCommand;
 
 public class Configuration extends org.pircbotx.Configuration<PircBotX> {
 	
@@ -16,6 +19,7 @@ public class Configuration extends org.pircbotx.Configuration<PircBotX> {
 	protected Map<String, AuthorizedGroup> groups = new LinkedHashMap<>();
 	protected Map<String, AuthorizedUser> users = new LinkedHashMap<>();
 	protected List<Listener<?>> botListeners = new ArrayList<>();
+	protected Set<ScheduledCommand> schedule = new LinkedHashSet<>();
 
 	public Configuration(File configFile, ConfigurationBuilder builder) {
 		super(builder);
@@ -24,8 +28,13 @@ public class Configuration extends org.pircbotx.Configuration<PircBotX> {
 		groups.putAll(builder.getGroups());
 		users.putAll(builder.getUsers());
 		botListeners.addAll(builder.getBotListeners());
+		schedule.addAll(builder.getSchedule());
 	}
 
+	public Set<ScheduledCommand> getSchedule() {
+		return schedule;
+	}
+	
 	public List<File> getPluginConfigs() {
 		return pluginConfigs;
 	}

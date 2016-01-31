@@ -15,6 +15,8 @@ import org.pircbotx.hooks.Listener;
 import org.sujavabot.core.AuthorizedGroup;
 import org.sujavabot.core.AuthorizedUser;
 import org.sujavabot.core.ConfigurationBuilder;
+import org.sujavabot.core.Scheduler;
+import org.sujavabot.core.Scheduler.ScheduledCommand;
 import org.sujavabot.core.SujavaBot.UnverifyListener;
 import org.sujavabot.core.xml.ConverterHelpers.MarshalHelper;
 import org.sujavabot.core.xml.ConverterHelpers.UnmarshalHelper;
@@ -153,6 +155,10 @@ public class ConfigurationBuilderConverter extends AbstractConverter<Configurati
 		for(Listener<?> l : current.getBotListeners()) {
 			helper.field("listener", () -> l);
 		}
+		
+		for(ScheduledCommand sc : Scheduler.get().getCommands()) {
+			helper.field("scheduled", ScheduledCommand.class, () -> sc);
+		}
 	}
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
@@ -262,6 +268,10 @@ public class ConfigurationBuilderConverter extends AbstractConverter<Configurati
 			current.addListener((Listener) l);
 			current.getBotListeners().add((Listener) l);
 		} );
+		
+		helper.field("scheduled", ScheduledCommand.class, (sc) -> {
+			current.getSchedule().add(sc);
+		});
 	}
 
 }

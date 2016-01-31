@@ -31,6 +31,7 @@ import org.pircbotx.hooks.events.QuitEvent;
 import org.pircbotx.hooks.events.ServerResponseEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.sujavabot.core.Scheduler.ScheduledCommand;
 import org.sujavabot.core.commands.CommandHandler;
 import org.sujavabot.core.commands.DefaultCommandHandler;
 import org.sujavabot.core.util.Messages;
@@ -61,7 +62,12 @@ public class SujavaBot extends PircBotX {
 		commands = new DefaultCommandHandler(this);
 		authorizedGroups.putAll(configuration.getGroups());
 		authorizedUsers.putAll(configuration.getUsers());
-		
+		for(ScheduledCommand sc : configuration.getSchedule()) {
+			Scheduler.get().getCommands().add(sc);
+			sc.bot = this;
+			sc.schedule();
+		}
+			
 	}
 
 	public Map<File, Plugin> getPlugins() {
