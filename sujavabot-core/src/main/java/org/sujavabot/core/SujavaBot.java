@@ -63,11 +63,10 @@ public class SujavaBot extends PircBotX {
 		authorizedGroups.putAll(configuration.getGroups());
 		authorizedUsers.putAll(configuration.getUsers());
 		for(ScheduledCommand sc : configuration.getSchedule()) {
-			Scheduler.get().getCommands().add(sc);
-			sc.bot = this;
-			sc.schedule();
+			AuthorizedUser user = getAuthorizedUsers().get(sc.user);
+			Authorization auth = new Authorization(this, user, user.getAllGroups(), user.getOwnedGroups());
+			auth.run(() -> Scheduler.get().add(this, sc.target, sc.name, sc.alias));
 		}
-			
 	}
 
 	public Map<File, Plugin> getPlugins() {
