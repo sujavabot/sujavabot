@@ -24,8 +24,6 @@ public class SchedulerCommand extends AbstractReportingCommand {
 			if(args.size() != 2)
 				return invokeHelp(bot, cause, args, "list");
 			for(ScheduledCommand sc : Scheduler.get().getCommands()) {
-				if(!target.equals(sc.target))
-					continue;
 				report(bot, cause, sc.name + " " + sc.delay + ":" + sc.alias);
 			}
 			return null;

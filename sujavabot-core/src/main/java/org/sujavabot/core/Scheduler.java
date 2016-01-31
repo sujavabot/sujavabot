@@ -93,7 +93,11 @@ public class Scheduler implements HelperConvertable<Scheduler> {
 
 		@Override
 		public int compareTo(ScheduledCommand o) {
-			return String.CASE_INSENSITIVE_ORDER.compare(name, o.name);
+			int c = 0;
+			c = String.CASE_INSENSITIVE_ORDER.compare(target, o.target);
+			if(c == 0)
+				c = String.CASE_INSENSITIVE_ORDER.compare(name, o.name);
+			return c;
 		}
 
 	}
@@ -111,7 +115,7 @@ public class Scheduler implements HelperConvertable<Scheduler> {
 		}
 		ScheduledCommand cmd = new ScheduledCommand();
 		Authorization auth = Authorization.getAuthorization();
-		cmd.name = name;
+		cmd.name = target + "/" + name;
 		cmd.user = auth.getUser().getName();
 		for(AuthorizedGroup g : auth.getGroups())
 			cmd.groups.add(g.getName());
