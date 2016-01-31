@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.TreeSet;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
@@ -28,7 +29,7 @@ public class Scheduler implements HelperConvertable<Scheduler> {
 
 	private Scheduler() {}
 
-	public static class ScheduledCommand implements HelperConvertable<ScheduledCommand> {
+	public static class ScheduledCommand implements HelperConvertable<ScheduledCommand>, Comparable<ScheduledCommand> {
 
 		public String name;
 		public String user;
@@ -90,9 +91,14 @@ public class Scheduler implements HelperConvertable<Scheduler> {
 			future.cancel(true);
 		}
 
+		@Override
+		public int compareTo(ScheduledCommand o) {
+			return String.CASE_INSENSITIVE_ORDER.compare(name, o.name);
+		}
+
 	}
 
-	protected Set<ScheduledCommand> commands = new LinkedHashSet<>();
+	protected Set<ScheduledCommand> commands = new TreeSet<>();
 
 	public Set<ScheduledCommand> getCommands() {
 		return commands;
@@ -139,7 +145,7 @@ public class Scheduler implements HelperConvertable<Scheduler> {
 
 	@Override
 	public void configure(UnmarshalHelper helper) {
-		commands = new LinkedHashSet<>();
+		commands = new TreeSet<>();
 		helper.field("command", ScheduledCommand.class, (c) -> commands.add(c));
 	}
 }
