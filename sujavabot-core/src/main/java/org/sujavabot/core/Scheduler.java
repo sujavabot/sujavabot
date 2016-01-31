@@ -77,7 +77,7 @@ public class Scheduler implements HelperConvertable<Scheduler> {
 						e = new MessageEvent<>(bot, bot.getUserChannelDao().getChannel(target), bot.getUserChannelDao().getUser(user), "");
 					else
 						e = new PrivateMessageEvent<>(bot, bot.getUserChannelDao().getUser(target), "");
-					bot.getCommands().invoke(e, alias);
+					bot.getCommands().perform(e, alias);
 				} catch(Throwable t) {
 					t.printStackTrace();
 					if(t instanceof Error)
