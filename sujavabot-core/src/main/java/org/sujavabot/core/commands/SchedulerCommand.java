@@ -15,6 +15,8 @@ public class SchedulerCommand extends AbstractReportingCommand {
 
 	@Override
 	public String invoke(SujavaBot bot, Event<?> cause, List<String> args) {
+		if(args.size() < 2)
+			return invokeHelp(bot, cause, args);
 		String target;
 		if(Events.getChannel(cause) != null)
 			target = Events.getChannel(cause).getName();
