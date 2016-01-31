@@ -77,7 +77,7 @@ public class Scheduler implements HelperConvertable<Scheduler> {
 					e = new PrivateMessageEvent<>(bot, bot.getUserChannelDao().getUser(target), "");
 				bot.getCommands().invoke(e, alias);
 			});
-			future = SchedulerPool.get(au).scheduleAtFixedRate(task, delay, delay, TimeUnit.MILLISECONDS);
+			future = SchedulerPool.get(au).scheduleAtFixedRate(task, 0, delay, TimeUnit.MILLISECONDS);
 		}
 
 		public void cancel() {
@@ -107,8 +107,8 @@ public class Scheduler implements HelperConvertable<Scheduler> {
 		cmd.target = target;
 		cmd.delay = delay;
 		cmd.bot = bot;
-		cmd.schedule();
 		commands.add(cmd);
+		cmd.schedule();
 		return true;
 	}
 	

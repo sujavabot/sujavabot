@@ -21,6 +21,7 @@ import java.util.WeakHashMap;
 import org.pircbotx.Channel;
 import org.pircbotx.PircBotX;
 import org.pircbotx.User;
+import org.pircbotx.exception.IrcException;
 import org.pircbotx.hooks.Event;
 import org.pircbotx.hooks.ListenerAdapter;
 import org.pircbotx.hooks.WaitForQueue;
@@ -62,11 +63,6 @@ public class SujavaBot extends PircBotX {
 		commands = new DefaultCommandHandler(this);
 		authorizedGroups.putAll(configuration.getGroups());
 		authorizedUsers.putAll(configuration.getUsers());
-		for(ScheduledCommand sc : configuration.getSchedule()) {
-			AuthorizedUser user = getAuthorizedUsers().get(sc.user);
-			Authorization auth = new Authorization(this, user, user.getAllGroups(), user.getOwnedGroups());
-			auth.run(() -> Scheduler.get().add(this, sc.target, sc.name, sc.alias, sc.delay));
-		}
 	}
 
 	public Map<File, Plugin> getPlugins() {
@@ -280,6 +276,16 @@ public class SujavaBot extends PircBotX {
 			commands.addAll(user.getAllCommands().values());
 		for(Command c : commands)
 			c.init(this);
+	}
+	
+	@Override
+	public void startBot() throws IOException, IrcException {
+		super.startBot();
+		for(ScheduledCommand sc : ((Configuration) configuration).getSchedule()) {
+			AuthorizedUser user = getAuthorizedUsers().get(sc.user);
+			Authorization auth = new Authorization(this, user, user.getAllGroups(), user.getOwnedGroups());
+			auth.run(() -> Scheduler.get().add(this, sc.target, sc.name, sc.alias, sc.delay));
+		}
 	}
 	
 	public static class UnverifyListener extends ListenerAdapter<PircBotX> {
