@@ -69,12 +69,12 @@ public class Scheduler implements HelperConvertable<Scheduler> {
 			for(String g : groups)
 				ags.add(bot.getAuthorizedGroups().get(g));
 			Authorization auth = new Authorization(bot, au, ags, au.getOwnedGroups());
-			Event<?> e;
-			if(target.startsWith("#"))
-				e = new MessageEvent<>(bot, bot.getUserChannelDao().getChannel(target), bot.getUserBot(), "");
-			else
-				e = new PrivateMessageEvent<>(bot, bot.getUserChannelDao().getUser(target), "");
 			Runnable task = auth.runnable(() -> {
+				Event<?> e;
+				if(target.startsWith("#"))
+					e = new MessageEvent<>(bot, bot.getUserChannelDao().getChannel(target), bot.getUserBot(), "");
+				else
+					e = new PrivateMessageEvent<>(bot, bot.getUserChannelDao().getUser(target), "");
 				bot.getCommands().invoke(e, alias);
 			});
 			future = SchedulerPool.get(au).scheduleAtFixedRate(task, delay, delay, TimeUnit.MILLISECONDS);
