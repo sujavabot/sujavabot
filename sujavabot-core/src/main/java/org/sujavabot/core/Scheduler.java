@@ -71,7 +71,6 @@ public class Scheduler implements HelperConvertable<Scheduler> {
 			Authorization auth = new Authorization(bot, au, ags, au.getOwnedGroups());
 			Runnable task = auth.runnable(() -> {
 				try {
-					System.out.println("Running" + this);
 					Event<?> e;
 					if(target.startsWith("#"))
 						e = new MessageEvent<>(bot, bot.getUserChannelDao().getChannel(target), bot.getUserChannelDao().getUser(user), "");
@@ -85,7 +84,6 @@ public class Scheduler implements HelperConvertable<Scheduler> {
 				}
 			});
 			future = SchedulerPool.get(au).scheduleAtFixedRate(task, 0, delay, TimeUnit.MILLISECONDS);
-			System.out.println("Scheduled " + this);
 		}
 
 		public void cancel() {
