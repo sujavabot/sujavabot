@@ -72,7 +72,7 @@ public class Scheduler implements HelperConvertable<Scheduler> {
 			Runnable task = auth.runnable(() -> {
 				Event<?> e;
 				if(target.startsWith("#"))
-					e = new MessageEvent<>(bot, bot.getUserChannelDao().getChannel(target), bot.getUserChannelDao().getUser(target), "");
+					e = new MessageEvent<>(bot, bot.getUserChannelDao().getChannel(target), bot.getUserChannelDao().getUser(user), "");
 				else
 					e = new PrivateMessageEvent<>(bot, bot.getUserChannelDao().getUser(target), "");
 				bot.getCommands().invoke(e, alias);
