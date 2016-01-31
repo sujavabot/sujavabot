@@ -92,7 +92,7 @@ public class Scheduler implements HelperConvertable<Scheduler> {
 		return commands;
 	}
 	
-	public synchronized boolean add(SujavaBot bot, String target, String name, String alias) {
+	public synchronized boolean add(SujavaBot bot, String target, String name, String alias, long delay) {
 		for(ScheduledCommand cmd : commands) {
 			if(name.equals(cmd.name))
 				return false;
@@ -105,6 +105,7 @@ public class Scheduler implements HelperConvertable<Scheduler> {
 			cmd.groups.add(g.getName());
 		cmd.alias = alias;
 		cmd.target = target;
+		cmd.delay = delay;
 		cmd.bot = bot;
 		cmd.schedule();
 		commands.add(cmd);
