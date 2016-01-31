@@ -63,6 +63,13 @@ public class SujavaBot extends PircBotX {
 		commands = new DefaultCommandHandler(this);
 		authorizedGroups.putAll(configuration.getGroups());
 		authorizedUsers.putAll(configuration.getUsers());
+		configuration.getListenerManager().addListener(new ListenerAdapter<PircBotX>() {
+			@Override
+			public void onConnect(ConnectEvent<PircBotX> event) throws Exception {
+				configuration.getListenerManager().removeListener(this);
+				schedule();
+			}
+		});
 	}
 
 	public Map<File, Plugin> getPlugins() {
@@ -278,9 +285,9 @@ public class SujavaBot extends PircBotX {
 			c.init(this);
 	}
 	
-	@Override
-	public void startBot() throws IOException, IrcException {
-		super.startBot();
+	
+	
+	public void schedule() {
 		for(ScheduledCommand sc : ((Configuration) configuration).getSchedule()) {
 			AuthorizedUser user = getAuthorizedUsers().get(sc.user);
 			Authorization auth = new Authorization(this, user, user.getAllGroups(), user.getOwnedGroups());
