@@ -97,6 +97,8 @@ public class Configuration extends org.pircbotx.Configuration<PircBotX> {
 		
 		builder.getBotListeners().addAll(botListeners);
 		
+		builder.getSchedule().addAll(schedule);
+		
 		return builder;
 	}
 }
