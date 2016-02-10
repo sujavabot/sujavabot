@@ -25,6 +25,7 @@ import org.pircbotx.hooks.Event;
 import org.pircbotx.hooks.ListenerAdapter;
 import org.pircbotx.hooks.WaitForQueue;
 import org.pircbotx.hooks.events.ConnectEvent;
+import org.pircbotx.hooks.events.JoinEvent;
 import org.pircbotx.hooks.events.NickChangeEvent;
 import org.pircbotx.hooks.events.PartEvent;
 import org.pircbotx.hooks.events.QuitEvent;
@@ -95,44 +96,48 @@ public class SujavaBot extends PircBotX {
 	}
 	
 	public AuthorizedUser getAuthorizedUser(User user) {
-		if(user == null)
-			return null;
-		for(AuthorizedUser u : authorizedUsers.values()) {
-			if(u.getNick().matcher(user.getNick()).matches()) {
-				if(!isVerified(user)) {
-					LOG.info("nick {} not verified", user.getNick());
-					return getAuthorizedUsers().get("@nobody");
+		synchronized(verified) {
+			if(user == null)
+				return null;
+			for(AuthorizedUser u : authorizedUsers.values()) {
+				if(u.getNick().matcher(user.getNick()).matches()) {
+					if(!isVerified(user)) {
+						LOG.info("nick {} not verified", user.getNick());
+						return getAuthorizedUsers().get("@nobody");
+					}
+					return u;
 				}
-				return u;
 			}
+			return getAuthorizedUsers().get("@nobody");
 		}
-		return getAuthorizedUsers().get("@nobody");
 	}
 	
 	public boolean isVerified(User user) {
-		if(verified.contains(user))
-			return true;
-		if(user.isVerified()) {
-			verified.add(user);
-			return true;
-		}
-		try {
-			sendRaw().rawLine("WHOIS " + user.getNick() + " " + user.getNick());
-			WaitForQueue waitForQueue = new WaitForQueue(this);
-			while (true) {
-				ServerResponseEvent<?> event = waitForQueue.waitFor(ServerResponseEvent.class);
-				if (!event.getParsedResponse().get(1).equals(user.getNick()))
-					continue;
-
-				if(event.getCode() == 318 || event.getCode() == 307) {
-					waitForQueue.close();
-					if(event.getCode() == 307)
-						verified.add(user);
-					return event.getCode() == 307;
-				}
+		synchronized(verified) {
+			if(verified.contains(user))
+				return true;
+			if(user.isVerified()) {
+				verified.add(user);
+				return true;
 			}
-		} catch (InterruptedException ex) {
-			throw new RuntimeException("Couldn't finish querying user for verified status", ex);
+			try {
+				sendRaw().rawLine("WHOIS " + user.getNick() + " " + user.getNick());
+				WaitForQueue waitForQueue = new WaitForQueue(this);
+				while (true) {
+					ServerResponseEvent<?> event = waitForQueue.waitFor(ServerResponseEvent.class);
+					if (!event.getParsedResponse().get(1).equals(user.getNick()))
+						continue;
+	
+					if(event.getCode() == 318 || event.getCode() == 307) {
+						waitForQueue.close();
+						if(event.getCode() == 307)
+							verified.add(user);
+						return event.getCode() == 307;
+					}
+				}
+			} catch (InterruptedException ex) {
+				throw new RuntimeException("Couldn't finish querying user for verified status", ex);
+			}
 		}
 	}
 
@@ -286,6 +291,11 @@ public class SujavaBot extends PircBotX {
 	public static class UnverifyListener extends ListenerAdapter<PircBotX> {
 		protected Set<User> verified(Event<?> event) {
 			return ((SujavaBot) event.getBot()).getVerified();
+		}
+		
+		@Override
+		public void onJoin(JoinEvent<PircBotX> event) throws Exception {
+			((SujavaBot) event.getBot()).getAuthorizedUser(event.getUser());
 		}
 		
 		@Override
