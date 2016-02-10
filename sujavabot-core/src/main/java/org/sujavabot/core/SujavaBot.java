@@ -15,6 +15,7 @@ import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.concurrent.TimeUnit;
 import java.util.Set;
 import java.util.WeakHashMap;
 
@@ -123,7 +124,8 @@ public class SujavaBot extends PircBotX {
 			try {
 				sendRaw().rawLine("WHOIS " + user.getNick() + " " + user.getNick());
 				WaitForQueue waitForQueue = new WaitForQueue(this);
-				while (true) {
+				long timeout = System.currentTimeMillis() + TimeUnit.MILLISECONDS.convert(30, TimeUnit.SECONDS);
+				while (System.currentTimeMillis() < timeout) {
 					ServerResponseEvent<?> event = waitForQueue.waitFor(ServerResponseEvent.class);
 					if (!event.getParsedResponse().get(1).equals(user.getNick()))
 						continue;
@@ -135,6 +137,8 @@ public class SujavaBot extends PircBotX {
 						return event.getCode() == 307;
 					}
 				}
+				waitForQueue.close();
+				return false;
 			} catch (InterruptedException ex) {
 				throw new RuntimeException("Couldn't finish querying user for verified status", ex);
 			}
