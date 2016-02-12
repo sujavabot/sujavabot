@@ -1,5 +1,8 @@
 package org.sujavabot.core.listener;
 
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
+
 import org.pircbotx.PircBotX;
 import org.pircbotx.hooks.ListenerAdapter;
 import org.pircbotx.hooks.events.MessageEvent;
@@ -13,6 +16,8 @@ import org.sujavabot.core.xml.HelperConvertable;
 
 public class CommandReceiverListener extends ListenerAdapter<PircBotX>
 implements HelperConvertable<CommandReceiverListener> {
+	private static final Executor exec = Executors.newCachedThreadPool();
+	
 	protected String prefix;
 	
 	public CommandReceiverListener(String prefix) {
@@ -24,7 +29,7 @@ implements HelperConvertable<CommandReceiverListener> {
 		SujavaBot bot = (SujavaBot) event.getBot();
 		Authorization.run(bot, bot.getAuthorizedUser(event.getUser()), null, null, () -> {
 			Authorization auth = Authorization.getAuthorization();
-			SchedulerPool.get().execute(() -> {
+			exec.execute(() -> {
 				auth.run(() -> {
 					String m = event.getMessage();
 					if(!m.startsWith(prefix))
@@ -41,7 +46,7 @@ implements HelperConvertable<CommandReceiverListener> {
 		SujavaBot bot = (SujavaBot) event.getBot();
 		Authorization.run(bot, bot.getAuthorizedUser(event.getUser()), null, null, () -> {
 			Authorization auth = Authorization.getAuthorization();
-			SchedulerPool.get().execute(() -> {
+			exec.execute(() -> {
 				auth.run(() -> {
 					String m = event.getMessage();
 					if(!m.startsWith(prefix))
