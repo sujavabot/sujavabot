@@ -36,20 +36,22 @@ public class KarmaCommand extends AbstractReportingCommand {
 			String context = event.getChannel().getName();
 			Matcher m;
 			
+			String nick = event.getUser().getNick();
+			
 			m = ADJUSTMENT_UP_PRE.matcher(s);
-			while(m.find())
+			while(m.find() && !nick.equals(m.group(1)))
 				adjustUp(context, m.group(1));
 			
 			m = ADJUSTMENT_UP_POST.matcher(s);
-			while(m.find())
+			while(m.find() && !nick.equals(m.group(1)))
 				adjustUp(context, m.group(1));
 			
 			m = ADJUSTMENT_DOWN_PRE.matcher(s);
-			while(m.find())
+			while(m.find() && !nick.equals(m.group(1)))
 				adjustDown(context, m.group(1));
 			
 			m = ADJUSTMENT_DOWN_POST.matcher(s);
-			while(m.find())
+			while(m.find() && !nick.equals(m.group(1)))
 				adjustDown(context, m.group(1));
 		}
 	}
