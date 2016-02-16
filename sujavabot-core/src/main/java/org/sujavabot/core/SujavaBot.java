@@ -123,11 +123,11 @@ public class SujavaBot extends PircBotX {
 			}
 			try {
 				WaitForQueue waitForQueue = new WaitForQueue(this);
-				sendRaw().rawLine("WHOIS " + user.getNick() + " " + user.getNick());
+				sendRaw().rawLine("WHOIS " + user.getNick() + " " + user.getNick() + "\r\n");
 				long timeout = System.currentTimeMillis() + TimeUnit.MILLISECONDS.convert(30, TimeUnit.SECONDS);
 				while (System.currentTimeMillis() < timeout) {
 					ServerResponseEvent<?> event = waitForQueue.waitFor(ServerResponseEvent.class);
-					if (!event.getParsedResponse().get(2).equals(user.getNick()))
+					if (!event.getParsedResponse().get(1).equals(user.getNick()))
 						continue;
 	
 					if(event.getCode() == 318 || event.getCode() == 307) {
