@@ -124,12 +124,12 @@ public class SujavaBot extends PircBotX {
 				return true;
 			}
 			try {
-				sendRaw().rawLine("WHOIS " + user.getNick() + " " + user.getNick());
 				WaitForQueue waitForQueue = new WaitForQueue(this);
+				sendRaw().rawLine("WHOIS " + user.getNick() + " " + user.getNick());
 				long timeout = System.currentTimeMillis() + TimeUnit.MILLISECONDS.convert(30, TimeUnit.SECONDS);
 				while (System.currentTimeMillis() < timeout) {
 					ServerResponseEvent<?> event = waitForQueue.waitFor(ServerResponseEvent.class);
-					if (!event.getParsedResponse().get(1).equals(user.getNick()))
+					if (!event.getParsedResponse().get(2).equals(user.getNick()))
 						continue;
 	
 					if(event.getCode() == 318 || event.getCode() == 307) {
