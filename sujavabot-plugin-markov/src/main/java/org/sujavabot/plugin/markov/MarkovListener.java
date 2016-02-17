@@ -115,7 +115,7 @@ public class MarkovListener extends ListenerAdapter<PircBotX> {
 		if(identified)
 			r = event.getUser().getNick() + " is " + r;
 		else
-			r = event.getUser().getNick() + ", a fucking unidentified impersonation, is " + r;
+			r = "a fucking unidentified impersonation of " + event.getUser().getNick() + " is " + r;
 		event.getChannel().send().message(r);
 	}
 	
