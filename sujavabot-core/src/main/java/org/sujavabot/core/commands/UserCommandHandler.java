@@ -23,7 +23,7 @@ public class UserCommandHandler extends AbstractCommandHandler {
 	public Command getDefaultCommand(Event<?> cause, String name) {
 		SujavaBot bot = (SujavaBot) cause.getBot();
 		List<AuthorizedGroup> groups = new ArrayList<>();
-		groups.addAll(user.getGroups());
+		groups.addAll(user.getAllGroups());
 		Channel channel = getChannel(cause);
 		if(channel != null) {
 			AuthorizedGroup cgroup = bot.getAuthorizedGroups().get(channel.getName());
