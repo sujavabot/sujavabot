@@ -99,51 +99,47 @@ public class SujavaBot extends PircBotX {
 	}
 	
 	public AuthorizedUser getAuthorizedUser(User user) {
-		synchronized(verified) {
-			if(user == null)
-				return null;
-			for(AuthorizedUser u : authorizedUsers.values()) {
-				if(u.getNick().matcher(user.getNick()).matches()) {
-					if(!isVerified(user)) {
-						LOG.info("nick {} not verified", user.getNick());
-						return getAuthorizedUsers().get("@nobody");
-					}
-					return u;
+		if(user == null)
+			return null;
+		for(AuthorizedUser u : authorizedUsers.values()) {
+			if(u.getNick().matcher(user.getNick()).matches()) {
+				if(!isVerified(user)) {
+					LOG.info("nick {} not verified", user.getNick());
+					return getAuthorizedUsers().get("@nobody");
 				}
+				return u;
 			}
-			return getAuthorizedUsers().get("@nobody");
 		}
+		return getAuthorizedUsers().get("@nobody");
 	}
 	
 	public boolean isVerified(User user) {
-		synchronized(verified) {
-			if(verified.contains(user))
-				return true;
-			if(user.isVerified()) {
-				verified.add(user);
-				return true;
-			}
-			try {
-				WaitForQueue waitForQueue = new WaitForQueue(this);
-				sendRaw().rawLine("WHOIS " + user.getNick() + " " + user.getNick() + "\r\n");
-				long timeout = System.currentTimeMillis() + TimeUnit.MILLISECONDS.convert(30, TimeUnit.SECONDS);
-				while (System.currentTimeMillis() < timeout) {
-					ServerResponseEvent<?> event = waitForQueue.waitFor(ServerResponseEvent.class);
-					if (!event.getParsedResponse().get(1).equals(user.getNick()))
-						continue;
-	
-					if(event.getCode() == 318 || event.getCode() == 307) {
-						waitForQueue.close();
-						if(event.getCode() == 307)
-							verified.add(user);
-						return event.getCode() == 307;
-					}
+		if(verified.contains(user))
+			return true;
+		if(user.isVerified()) {
+			verified.add(user);
+			return true;
+		}
+		try {
+			WaitForQueue waitForQueue = new WaitForQueue(this);
+			sendRaw().rawLine("WHOIS " + user.getNick() + " " + user.getNick() + "\r\n");
+			long timeout = System.currentTimeMillis() + TimeUnit.MILLISECONDS.convert(30, TimeUnit.SECONDS);
+			while (System.currentTimeMillis() < timeout) {
+				ServerResponseEvent<?> event = waitForQueue.waitFor(ServerResponseEvent.class);
+				if (!event.getParsedResponse().get(1).equals(user.getNick()))
+					continue;
+
+				if(event.getCode() == 318 || event.getCode() == 307) {
+					waitForQueue.close();
+					if(event.getCode() == 307)
+						verified.add(user);
+					return event.getCode() == 307;
 				}
-				waitForQueue.close();
-				return false;
-			} catch (InterruptedException ex) {
-				throw new RuntimeException("Couldn't finish querying user for verified status", ex);
 			}
+			waitForQueue.close();
+			return false;
+		} catch (InterruptedException ex) {
+			throw new RuntimeException("Couldn't finish querying user for verified status", ex);
 		}
 	}
 
