@@ -1,5 +1,6 @@
 package org.sujavabot.core.listener;
 
+import java.util.List;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
@@ -8,6 +9,8 @@ import org.pircbotx.hooks.ListenerAdapter;
 import org.pircbotx.hooks.events.MessageEvent;
 import org.pircbotx.hooks.events.PrivateMessageEvent;
 import org.sujavabot.core.Authorization;
+import org.sujavabot.core.AuthorizedGroup;
+import org.sujavabot.core.AuthorizedUser;
 import org.sujavabot.core.SujavaBot;
 import org.sujavabot.core.util.SchedulerPool;
 import org.sujavabot.core.xml.ConverterHelpers.MarshalHelper;
@@ -27,7 +30,10 @@ implements HelperConvertable<CommandReceiverListener> {
 	@Override
 	public void onMessage(MessageEvent<PircBotX> event) throws Exception {
 		SujavaBot bot = (SujavaBot) event.getBot();
-		Authorization.run(bot, bot.getAuthorizedUser(event.getUser()), null, null, () -> {
+		AuthorizedUser user = bot.getAuthorizedUser(event.getUser());
+		List<AuthorizedGroup> groups = user.getAllGroups();
+		List<AuthorizedGroup> ownedGroups = user.getOwnedGroups();
+		Authorization.run(bot, user, groups, ownedGroups, () -> {
 			Authorization auth = Authorization.getAuthorization();
 			exec.execute(() -> {
 				auth.run(() -> {
@@ -44,7 +50,10 @@ implements HelperConvertable<CommandReceiverListener> {
 	@Override
 	public void onPrivateMessage(PrivateMessageEvent<PircBotX> event) throws Exception {
 		SujavaBot bot = (SujavaBot) event.getBot();
-		Authorization.run(bot, bot.getAuthorizedUser(event.getUser()), null, null, () -> {
+		AuthorizedUser user = bot.getAuthorizedUser(event.getUser());
+		List<AuthorizedGroup> groups = user.getAllGroups();
+		List<AuthorizedGroup> ownedGroups = user.getOwnedGroups();
+		Authorization.run(bot, user, groups, ownedGroups, () -> {
 			Authorization auth = Authorization.getAuthorization();
 			exec.execute(() -> {
 				auth.run(() -> {
