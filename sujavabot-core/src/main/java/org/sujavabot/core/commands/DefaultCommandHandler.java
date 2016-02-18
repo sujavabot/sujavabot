@@ -1,6 +1,7 @@
 package org.sujavabot.core.commands;
 
 import org.pircbotx.hooks.Event;
+import org.sujavabot.core.Authorization;
 import org.sujavabot.core.AuthorizedUser;
 import org.sujavabot.core.Command;
 import org.sujavabot.core.SujavaBot;
@@ -14,7 +15,7 @@ public class DefaultCommandHandler extends AbstractCommandHandler {
 
 	@Override
 	public Command getDefaultCommand(Event<?> cause, String name) {
-		AuthorizedUser user = bot.getAuthorizedUser(Events.getUser(cause));
+		AuthorizedUser user = Authorization.getCurrentUser();
 		Command c = null;
 		if(user != null)
 			c = user.getCommands().get(cause, name);
