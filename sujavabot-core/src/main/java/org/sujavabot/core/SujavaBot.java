@@ -120,7 +120,7 @@ public class SujavaBot extends PircBotX {
 		}
 		try {
 			WaitForQueue waitForQueue = new WaitForQueue(this);
-			sendRaw().rawLine("WHOIS " + user.getNick() + " " + user.getNick() + "\r\n");
+			sendRaw().rawLine("WHOIS " + user.getNick() + "\r\n");
 			long timeout = System.currentTimeMillis() + TimeUnit.MILLISECONDS.convert(30, TimeUnit.SECONDS);
 			while (System.currentTimeMillis() < timeout) {
 				ServerResponseEvent<?> event = waitForQueue.waitFor(ServerResponseEvent.class);
