@@ -7,6 +7,7 @@ import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -122,18 +123,21 @@ public class SujavaBot extends PircBotX {
 		}
 		try {
 			WaitForQueue waitForQueue = new WaitForQueue(this);
-			sendRaw().rawLine("WHOIS " + user.getNick() + " " + user.getNick() + "\r\n");
+			sendRaw().rawLine("WHOIS " + user.getNick() + "\r\n");
 			long timeout = System.currentTimeMillis() + TimeUnit.MILLISECONDS.convert(30, TimeUnit.SECONDS);
 			while (System.currentTimeMillis() < timeout) {
-				ServerResponseEvent<?> event = waitForQueue.waitFor(ServerResponseEvent.class);
-				if (!event.getParsedResponse().get(1).equals(user.getNick()))
+				Event<?> event = waitForQueue.waitFor(Arrays.asList(ServerResponseEvent.class), 5L, TimeUnit.SECONDS);
+				if(!ServerResponseEvent.class.isInstance(event))
+					continue;
+				ServerResponseEvent<?> sre = (ServerResponseEvent<?>) event;
+				if (!sre.getParsedResponse().get(1).equals(user.getNick()))
 					continue;
 
-				if(event.getCode() == 318 || event.getCode() == 307) {
+				if(sre.getCode() == 318 || sre.getCode() == 307) {
 					waitForQueue.close();
-					if(event.getCode() == 307)
+					if(sre.getCode() == 307)
 						verified.add(user);
-					return event.getCode() == 307;
+					return sre.getCode() == 307;
 				}
 			}
 			waitForQueue.close();
