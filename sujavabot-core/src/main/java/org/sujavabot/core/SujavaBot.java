@@ -117,10 +117,6 @@ public class SujavaBot extends PircBotX {
 	public boolean isVerified(User user) {
 		if(verified.contains(user))
 			return true;
-		if(user.isVerified()) {
-			verified.add(user);
-			return true;
-		}
 		try {
 			WaitForQueue waitForQueue = new WaitForQueue(this);
 			sendRaw().rawLine("WHOIS " + user.getNick() + "\r\n");
