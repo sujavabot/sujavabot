@@ -41,7 +41,11 @@ implements HelperConvertable<CommandReceiverListener> {
 					if(!m.startsWith(prefix))
 						return;
 					m = m.substring(prefix.length());
-					bot.getCommands().perform(event, m);
+					try {
+						bot.getCommands().perform(event, m);
+					} catch(Exception e) {
+						bot.getCommands().perform(event, "_exception " + e);
+					}
 				});
 			});
 		});
