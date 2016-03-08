@@ -18,7 +18,7 @@ public class DefaultCommandHandler extends AbstractCommandHandler {
 		AuthorizedUser user = Authorization.getCurrentUser();
 		Command c = null;
 		if(user != null)
-			c = user.getCommands().get(cause, name);
+			c = user.getAllCommands().get(name);
 		if(c == null)
 			c = bot.getRootCommands().get(cause, name);
 		if(c == null && !"_unrecognized".equals(name))
