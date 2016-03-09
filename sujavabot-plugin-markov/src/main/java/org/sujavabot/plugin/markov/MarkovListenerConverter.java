@@ -53,6 +53,8 @@ public class MarkovListenerConverter extends AbstractConverter<MarkovListener> {
 			helper.field("channel", String.class, () -> channel);
 		for(Pattern p : current.getIgnore())
 			helper.field("ignore", String.class, () -> p.pattern());
+		for(Pattern p : current.getListen())
+			helper.field("listen", String.class, () -> p.pattern());
 		helper.field("shutdown-port", Integer.class, () -> current.getShutdownPort());
 		for(Entry<Pattern, String> e : current.getContexts().entrySet()) {
 			if(e.getKey().equals(current.getPrefix()))
@@ -78,6 +80,8 @@ public class MarkovListenerConverter extends AbstractConverter<MarkovListener> {
 			MarkovListener ml = new MarkovListener();
 			ml.setIgnore(new ArrayList<>());
 			
+			ml.setListen(new ArrayList<>());
+			
 			UnmarshalHelper helper = new UnmarshalHelper(x, reader, context);
 
 			helper.field("markov", (o) -> m.put("markov", o));
@@ -88,6 +92,7 @@ public class MarkovListenerConverter extends AbstractConverter<MarkovListener> {
 			helper.field("learn", Boolean.class, b -> m.put("learn", b));
 			helper.field("channel", String.class, s -> ch.add(s));
 			helper.field("ignore", String.class, s -> ml.getIgnore().add(Pattern.compile(s)));
+			helper.field("listen", String.class, s -> ml.getListen().add(Pattern.compile(s)));
 			helper.field("thesaurus", Boolean.class, b -> m.put("thesaurus", b));
 			helper.field("shutdown-port", Integer.class, i -> m.put("shutdown-port", i));
 			helper.field("extensions", Integer.class, i -> m.put("extensions", i));
@@ -100,6 +105,9 @@ public class MarkovListenerConverter extends AbstractConverter<MarkovListener> {
 			
 			helper.read(ml);
 
+			if(ml.getListen().size() == 0)
+				ml.getListen().add(Pattern.compile(".*"));
+			
 			Markov markov = (Markov) m.get("markov");
 			markov.setPrefixPower((Double) m.getOrDefault("prefix-power", 5.));
 			Markov im = (Markov) m.get("inverse-markov");
