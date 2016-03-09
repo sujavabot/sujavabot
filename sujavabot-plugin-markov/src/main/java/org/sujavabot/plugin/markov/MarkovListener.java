@@ -47,6 +47,7 @@ public class MarkovListener extends ListenerAdapter<PircBotX> {
 	protected boolean learn;
 	protected Pattern prefix;
 	protected List<Pattern> ignore;
+	protected List<Pattern> listen;
 	protected int shutdownPort = -1;
 	
 	protected int extensions = 10;
@@ -83,6 +84,15 @@ public class MarkovListener extends ListenerAdapter<PircBotX> {
 			if(p.matcher(event.getUser().getNick()).matches())
 				return;
 		}
+		boolean listening = false;
+		for(Pattern p : listen) {
+			if(p.matcher(event.getUser().getNick()).matches()) {
+				listening = true;
+				break;
+			}
+		}
+		if(!listening)
+			return;
 		String m = event.getMessage();
 		String context = null;
 		boolean found = false;
@@ -203,6 +213,15 @@ public class MarkovListener extends ListenerAdapter<PircBotX> {
 				if(p.matcher(event.getUser().getNick()).matches())
 					return;
 			}
+			boolean listening = false;
+			for(Pattern p : listen) {
+				if(p.matcher(event.getUser().getNick()).matches()) {
+					listening = true;
+					break;
+				}
+			}
+			if(!listening)
+				return;
 			String m = event.getUser().getNick() + " " + event.getAction();
 
 			m = m.replaceAll("^\\S+:", "");
@@ -300,5 +319,13 @@ public class MarkovListener extends ListenerAdapter<PircBotX> {
 
 	public void setExtensions(int extensions) {
 		this.extensions = extensions;
+	}
+
+	public List<Pattern> getListen() {
+		return listen;
+	}
+
+	public void setListen(List<Pattern> listen) {
+		this.listen = listen;
 	}
 }
