@@ -28,8 +28,8 @@ public class GroupAdminCommand extends AbstractReportingCommand {
 				"add", "<group>: create a group", 
 				"remove", "<group>: delete a group", 
 				"set_name", "<old_group> <new_group>: change a group name", 
-				"add_user", "<group> <user>: add a user to a group", 
-				"remove_user", "<group> <user>: remove a user from a group",
+				"add_user", "<group> <users...>: add a users to a group", 
+				"remove_user", "<group> <users...>: remove a users from a group",
 				"add_parent", "<child_group> <parent_group>: add a parent to a group", 
 				"remove_parent", "<child_group> <parent_group>: remove a parent from a group", 
 				"add_alias", "<group> <name> <command>: add a command alias to a group", 
@@ -220,21 +220,37 @@ public class GroupAdminCommand extends AbstractReportingCommand {
 	}
 
 	protected String _add_user(SujavaBot bot, Event<?> cause, List<String> args) {
-		if (args.size() != 4)
+		if (args.size() < 4)
 			return invokeHelp(bot, cause, args, "add_user");
 		AuthorizedGroup group = getOrCreateGroup(bot, cause, args.get(2));
 		if (group == null)
 			return "group does not exist";
 		if (!Authorization.isCurrentOwner(group))
 			return "permission denied";
-		AuthorizedUser user = bot.getAuthorizedUsers().get(args.get(3));
-		if (user == null)
-			return "user does not exist";
-		if (user.getGroups().contains(group))
-			return "user " + user.getName() + " is already a member of group " + group.getName();
-		user.getGroups().add(group);
+		List<String> added = new ArrayList<>();
+		List<String> notAdded = new ArrayList<>();
+		for(int i = 3; i < args.size(); i++) {
+			String uname = args.get(i);
+			AuthorizedUser user = bot.getAuthorizedUsers().get(uname);
+			if(user == null || user.getGroups().contains(group)) {
+				notAdded.add(uname);
+				continue;
+			}
+			user.getGroups().add(group);
+			added.add(uname);
+		}
 		bot.saveConfiguration();
-		return "user added";
+		if(added.size() > 0) {
+			if(notAdded.size() > 0)
+				return "Added " + added + ", did not add " + notAdded;
+			else
+				return "Added " + added;
+		} else {
+			if(notAdded.size() > 0)
+				return "Did not add " + notAdded;
+			else
+				return "Group unchanged";
+		}
 	}
 
 	protected String _remove_user(SujavaBot bot, Event<?> cause, List<String> args) {
@@ -245,14 +261,30 @@ public class GroupAdminCommand extends AbstractReportingCommand {
 			return "group does not exist";
 		if (!Authorization.isCurrentOwner(group))
 			return "permission denied";
-		AuthorizedUser user = bot.getAuthorizedUsers().get(args.get(3));
-		if (user == null)
-			return "user does not exist";
-		if (!user.getGroups().contains(group))
-			return "user " + user.getName() + " is not a member of group " + group.getName();
-		user.getGroups().remove(group);
+		List<String> removed = new ArrayList<>();
+		List<String> notRemoved = new ArrayList<>();
+		for(int i = 3; i < args.size(); i++) {
+			String uname = args.get(i);
+			AuthorizedUser user = bot.getAuthorizedUsers().get(uname);
+			if(user == null || !user.getGroups().contains(group)) {
+				notRemoved.add(uname);
+				continue;
+			}
+			user.getGroups().remove(group);
+			removed.add(uname);
+		}
 		bot.saveConfiguration();
-		return "user removed";
+		if(removed.size() > 0) {
+			if(notRemoved.size() > 0)
+				return "Removed " + removed + ", did not remove " + notRemoved;
+			else
+				return "Removed " + removed;
+		} else {
+			if(notRemoved.size() > 0)
+				return "Did not remove " + notRemoved;
+			else
+				return "Group unchanged";
+		}
 	}
 
 	protected String _add_parent(SujavaBot bot, Event<?> cause, List<String> args) {
