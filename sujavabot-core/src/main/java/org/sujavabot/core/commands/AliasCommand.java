@@ -97,12 +97,7 @@ public class AliasCommand extends AbstractReportingCommand {
 		while(m.find()) {
 			sb.append(alias.substring(end, m.start()));
 			if(ESCAPE.matcher(m.group()).matches()) {
-				if("\\t".equals(m.group()))
-					sb.append("\t");
-				else if("\\n".equals(m.group()))
-					sb.append("\\n");
-				else
-					sb.append(m.group().substring(1));
+				sb.append(m.group());
 			} else {
 				sb.append(applyVars(bot, cause, args, m.group()));
 			}
