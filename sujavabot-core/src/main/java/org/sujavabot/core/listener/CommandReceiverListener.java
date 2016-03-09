@@ -19,7 +19,7 @@ import org.sujavabot.core.xml.HelperConvertable;
 
 public class CommandReceiverListener extends ListenerAdapter<PircBotX>
 implements HelperConvertable<CommandReceiverListener> {
-	private static final Executor exec = Executors.newCachedThreadPool();
+	public static final Executor exec = Executors.newCachedThreadPool();
 	
 	protected String prefix;
 	
