@@ -13,8 +13,13 @@ import org.sujavabot.core.Authorization;
 import org.sujavabot.core.AuthorizedUser;
 import org.sujavabot.core.SujavaBot;
 import org.sujavabot.core.util.SchedulerPool;
+import org.sujavabot.core.xml.ConverterHelpers.MarshalHelper;
+import org.sujavabot.core.xml.ConverterHelpers.UnmarshalHelper;
+import org.sujavabot.core.xml.HelperConvertable;
 
-public class CountdownCommand extends AbstractReportingCommand {
+public class CountdownCommand extends AbstractReportingCommand implements HelperConvertable<CountdownCommand> {
+	public static final int DEFAULT_MAX = 20;
+	
 	@Override
 	protected Map<String, String> helpTopics() {
 		return buildHelp("<from> [<finished_command> [<counting_command>]]: start a countdown");
@@ -22,13 +27,15 @@ public class CountdownCommand extends AbstractReportingCommand {
 	
 	private transient Map<AuthorizedUser, Future<?>> countdowns = new HashMap<>();
 
+	private int max = 20;
+	
 	@Override
 	public String invoke(SujavaBot bot, Event<?> cause, List<String> args) {
 		if(args.size() < 2 || args.size() > 4)
 			return invokeHelp(bot, cause, args);
 		int from;
 		try {
-			from = Math.max(Math.min(Integer.parseInt(args.get(1)), 20), 0);
+			from = Math.max(Math.min(Integer.parseInt(args.get(1)), max), 0);
 		} catch(NumberFormatException e) {
 			return "invalid from";
 		}
@@ -64,6 +71,17 @@ public class CountdownCommand extends AbstractReportingCommand {
 		countdowns.put(auth.getUser(), SchedulerPool.get().scheduleAtFixedRate(() -> auth.run(countingTask), 1, 1, TimeUnit.SECONDS));
 		
 		return null;
+	}
+
+	@Override
+	public void configure(MarshalHelper helper, CountdownCommand defaults) {
+		helper.field("max", Integer.class, () -> max);
+	}
+
+	@Override
+	public void configure(UnmarshalHelper helper) {
+		max = DEFAULT_MAX;
+		helper.field("max", Integer.class, (i) -> max = i);
 	}
 
 
