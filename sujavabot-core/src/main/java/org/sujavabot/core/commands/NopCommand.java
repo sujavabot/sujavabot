@@ -14,6 +14,10 @@ public class NopCommand extends AbstractReportingCommand {
 	}
 	
 	@Override
+	public void report(SujavaBot bot, Event<?> cause, String result) {
+	}
+	
+	@Override
 	public String invoke(SujavaBot bot, Event<?> cause, List<String> args) {
 		return null;
 	}
