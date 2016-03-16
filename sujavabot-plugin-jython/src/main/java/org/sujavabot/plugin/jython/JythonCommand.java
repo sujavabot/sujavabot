@@ -41,6 +41,7 @@ public class JythonCommand extends AbstractReportingCommand implements HelperCon
 			ByteArrayOutputStream bytes = new ByteArrayOutputStream();
 			Writer out = new OutputStreamWriter(bytes, Charset.forName("UTF-8"));
 			interp.setOut(out);
+			interp.setErr(new OutputStreamWriter(System.err, Charset.forName("UTF-8")));
 			
 			interp.set("bot", bot);
 			interp.set("cause", cause);
@@ -56,6 +57,8 @@ public class JythonCommand extends AbstractReportingCommand implements HelperCon
 					in.close();
 				}
 			}
+			
+			interp.close();
 			
 			return new String(bytes.toByteArray(), Charset.forName("UTF-8"));
 		} catch(Exception e) {

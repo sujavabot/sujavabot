@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.TreeSet;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
@@ -25,10 +26,10 @@ public class Scheduler implements HelperConvertable<Scheduler> {
 	public static Scheduler get() {
 		return instance;
 	}
-	
+
 	private Scheduler() {}
-	
-	public static class ScheduledCommand implements HelperConvertable<ScheduledCommand> {
+
+	public static class ScheduledCommand implements HelperConvertable<ScheduledCommand>, Comparable<ScheduledCommand> {
 
 		public String name;
 		public String user;
@@ -36,10 +37,10 @@ public class Scheduler implements HelperConvertable<Scheduler> {
 		public String alias;
 		public long delay;
 		public String target;
-		
+
 		public SujavaBot bot;
 		public ScheduledFuture<?> future;
-		
+
 		@Override
 		public void configure(MarshalHelper helper, ScheduledCommand defaults) {
 			helper.field("name", String.class, () -> name);
@@ -49,7 +50,7 @@ public class Scheduler implements HelperConvertable<Scheduler> {
 			helper.field("alias", String.class, () -> alias);
 			helper.field("delay", Long.class, () -> delay);
 			helper.field("target", String.class, () -> target);
-			
+
 		}
 
 		@Override
@@ -69,48 +70,64 @@ public class Scheduler implements HelperConvertable<Scheduler> {
 			for(String g : groups)
 				ags.add(bot.getAuthorizedGroups().get(g));
 			Authorization auth = new Authorization(bot, au, ags, au.getOwnedGroups());
-			Event<?> e;
-			if(target.startsWith("#"))
-				e = new MessageEvent<>(bot, bot.getUserChannelDao().getChannel(target), bot.getUserBot(), "");
-			else
-				e = new PrivateMessageEvent<>(bot, bot.getUserChannelDao().getUser(target), "");
 			Runnable task = auth.runnable(() -> {
-				bot.getCommands().invoke(e, alias);
+				try {
+					Event<?> e;
+					if(target.startsWith("#"))
+						e = new MessageEvent<>(bot, bot.getUserChannelDao().getChannel(target), bot.getUserChannelDao().getUser(user), "");
+					else
+						e = new PrivateMessageEvent<>(bot, bot.getUserChannelDao().getUser(target), "");
+					bot.getCommands().perform(e, alias);
+				} catch(Throwable t) {
+					t.printStackTrace();
+					if(t instanceof Error)
+						throw (Error) t;
+				}
 			});
-			future = SchedulerPool.get(au).scheduleAtFixedRate(task, delay, delay, TimeUnit.MILLISECONDS);
+			future = SchedulerPool.get(au).scheduleAtFixedRate(task, 0, delay, TimeUnit.MILLISECONDS);
 		}
 
 		public void cancel() {
 			future.cancel(true);
 		}
-		
+
+		@Override
+		public int compareTo(ScheduledCommand o) {
+			int c = 0;
+			c = String.CASE_INSENSITIVE_ORDER.compare(target, o.target);
+			if(c == 0)
+				c = String.CASE_INSENSITIVE_ORDER.compare(name, o.name);
+			return c;
+		}
+
 	}
 
-	protected Set<ScheduledCommand> commands = new LinkedHashSet<>();
-	
+	protected Set<ScheduledCommand> commands = new TreeSet<>();
+
 	public Set<ScheduledCommand> getCommands() {
 		return commands;
 	}
-	
-	public synchronized boolean add(SujavaBot bot, String target, String name, String alias) {
+
+	public synchronized boolean add(SujavaBot bot, String target, String name, String alias, long delay) {
 		for(ScheduledCommand cmd : commands) {
 			if(name.equals(cmd.name))
 				return false;
 		}
 		ScheduledCommand cmd = new ScheduledCommand();
 		Authorization auth = Authorization.getAuthorization();
-		cmd.name = name;
+		cmd.name = target + "/" + name;
 		cmd.user = auth.getUser().getName();
 		for(AuthorizedGroup g : auth.getGroups())
 			cmd.groups.add(g.getName());
 		cmd.alias = alias;
 		cmd.target = target;
+		cmd.delay = delay;
 		cmd.bot = bot;
-		cmd.schedule();
 		commands.add(cmd);
+		cmd.schedule();
 		return true;
 	}
-	
+
 	public synchronized boolean remove(String name) {
 		boolean changed = false;
 		Iterator<ScheduledCommand> sci = commands.iterator();
@@ -122,7 +139,7 @@ public class Scheduler implements HelperConvertable<Scheduler> {
 		}
 		return changed;
 	}
-	
+
 	@Override
 	public void configure(MarshalHelper helper, Scheduler defaults) {
 		for(ScheduledCommand c : commands) {
@@ -132,7 +149,7 @@ public class Scheduler implements HelperConvertable<Scheduler> {
 
 	@Override
 	public void configure(UnmarshalHelper helper) {
-		commands = new LinkedHashSet<>();
+		commands = new TreeSet<>();
 		helper.field("command", ScheduledCommand.class, (c) -> commands.add(c));
 	}
 }
