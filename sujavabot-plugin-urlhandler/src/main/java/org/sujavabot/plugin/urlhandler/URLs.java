@@ -27,6 +27,7 @@ public abstract class URLs {
 			if(count == 0)
 				return null;
 			String title = null;
+			tag = "";
 			while(count-- > 0 && !"</TITLE>".equals(tag.toUpperCase())) {
 				int ch = reader.read();
 				if(ch < 0)

@@ -27,7 +27,7 @@ public class URLTitleListener extends ListenerAdapter<PircBotX> {
 			}
 			if(title == null)
 				continue;
-			event.getChannel().send().message(title + " [ " + url + " ]");
+			event.getChannel().send().message(title + " - " + url);
 		}
 	}
 	
