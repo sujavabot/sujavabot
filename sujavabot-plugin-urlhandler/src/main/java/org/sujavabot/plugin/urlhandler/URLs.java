@@ -21,9 +21,11 @@ public abstract class URLs {
 				if(ch < 0)
 					return null;
 				tag += (char) ch;
-				if(!"<TITLE>".startsWith(tag))
+				if(!"<TITLE>".startsWith(tag.toUpperCase()))
 					tag = "";
 			}
+			if(count == 0)
+				return null;
 			String title = null;
 			while(count-- > 0 && !"</TITLE>".equals(tag)) {
 				int ch = reader.read();
