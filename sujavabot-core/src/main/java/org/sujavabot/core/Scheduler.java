@@ -115,7 +115,7 @@ public class Scheduler implements HelperConvertable<Scheduler> {
 		}
 		ScheduledCommand cmd = new ScheduledCommand();
 		Authorization auth = Authorization.getAuthorization();
-		cmd.name = target + "/" + name;
+		cmd.name = name;
 		cmd.user = auth.getUser().getName();
 		for(AuthorizedGroup g : auth.getGroups())
 			cmd.groups.add(g.getName());
