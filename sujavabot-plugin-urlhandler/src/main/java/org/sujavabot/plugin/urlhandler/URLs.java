@@ -24,13 +24,15 @@ public abstract class URLs {
 				if(!"<TITLE>".startsWith(tag))
 					tag = "";
 			}
-			String title = "";
+			String title = null;
 			while(count-- > 0 && !"</TITLE>".equals(tag)) {
 				int ch = reader.read();
 				if(ch < 0)
 					return title;
 				tag += (char) ch;
 				if(!"</TITLE>".startsWith(tag.toUpperCase())) {
+					if(title == null)
+						title = "";
 					title += tag;
 					tag = "";
 				}
