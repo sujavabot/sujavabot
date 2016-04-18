@@ -29,13 +29,18 @@ public class CollectionCommand extends AbstractReportingCommand implements Helpe
 		if(args.size() < 2)
 			return invokeHelp(bot, cause, args);
 		String cmd = args.get(1);
-		if("join".equals(cmd) && args.size() == 3) {
+		if("join".equals(cmd) && (args.size() == 3 || args.size() == 4)) {
 			String sep = "";
 			StringBuilder sb = new StringBuilder();
+			int index = 0;
 			for(String s : read()) {
 				sb.append(sep);
+				if(args.size() == 4) {
+					sb.append(args.get(3).replace("$", String.valueOf(index)));
+				}
 				sb.append(s);
 				sep = args.get(2);
+				index++;
 			}
 			return sb.toString();
 		}
@@ -48,36 +53,45 @@ public class CollectionCommand extends AbstractReportingCommand implements Helpe
 					while(index-- > 0)
 						i.next();
 					return i.next();
-				}
+				} else
+					return "index out of bounds";
 			} catch(NumberFormatException e) {
+				return "index not an integer";
 			}
 		}
 		if("add".equals(cmd) && args.size() == 3) {
 			Collection<String> c = read();
-			c.add(args.get(2));
-			write(c);
-			return null;
+			if(c.add(args.get(2))) {
+				write(c);
+				return "added";
+			}
+			return "already added";
 		}
 		if("remove".equals(cmd) && args.size() == 3) {
+			Collection<String> c = read();
+			if(c.remove(args.get(2))) {
+				write(c);
+				return "removed";
+			}
 			try {
 				int index = Integer.parseInt(args.get(2));
-				Collection<String> c = read();
 				if(index >= 0 && index < c.size()) {
 					Iterator<String> i = c.iterator();
 					while(index-- >= 0)
 						i.next();
 					i.remove();
 					write(c);
-					return null;
+					return "removed";
 				}
 			} catch(NumberFormatException e) {
 			}
+			return "not found, not removed";
 		}
 		if("clear".equals(cmd) && args.size() == 2) {
 			Collection<String> c = read();
 			c.clear();
 			write(c);
-			return null;
+			return "cleared";
 		}
 		return invokeHelp(bot, cause, args, cmd);
 	}
@@ -130,10 +144,10 @@ public class CollectionCommand extends AbstractReportingCommand implements Helpe
 	protected Map<String, String> helpTopics() {
 		return buildHelp(
 				"commands for collections",
-				"join", "<separator>: return all values joined with separator",
+				"join", "<separator> [<prefix>]: return all values joined with separator",
 				"get", "<index>: return value at index",
 				"add", "<value>: append value",
-				"remove", "<index>: remove value at index",
+				"remove", "<value> | <index>: remove a value, or if not found, remove at index",
 				"clear", ": remove all values");
 	}
 
