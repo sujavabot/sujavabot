@@ -56,7 +56,7 @@ public class PropertiesCommand extends AbstractReportingCommand implements Helpe
 			String value = read().getProperty(args.get(2));
 			if(value == null && args.size() == 4)
 				value = args.get(3);
-			return value == null ? "key not found" : value;
+			return value;
 		}
 		if("set".equals(cmd) && args.size() == 4) {
 			Properties p = read();
