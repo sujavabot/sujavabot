@@ -17,6 +17,7 @@ import java.util.ListIterator;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.TimeUnit;
+import java.util.regex.Pattern;
 import java.util.Set;
 import java.util.WeakHashMap;
 
@@ -110,6 +111,22 @@ public class SujavaBot extends PircBotX {
 				}
 				return u;
 			}
+		}
+		if(isVerified(user)) {
+			String uname = user.getNick();
+			while(authorizedUsers.containsKey(uname)) {
+				uname += "_";
+			}
+			AuthorizedUser auser = new AuthorizedUser(uname);
+			auser.setNick(Pattern.compile(Pattern.quote(user.getNick())));
+			List<AuthorizedGroup> groups = new ArrayList<>();
+			AuthorizedGroup root = authorizedGroups.get("@root");
+			if(root != null)
+				groups.add(root);
+			auser.setGroups(groups);
+			authorizedUsers.put(auser.getName(), auser);
+			saveConfiguration();
+			return auser;
 		}
 		return getAuthorizedUsers().get("@nobody");
 	}
