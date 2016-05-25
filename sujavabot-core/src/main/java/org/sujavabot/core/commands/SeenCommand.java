@@ -20,7 +20,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.TimeZone;
-import java.util.TreeMap;
 import java.util.Map.Entry;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
@@ -35,9 +34,7 @@ import org.pircbotx.hooks.events.ActionEvent;
 import org.pircbotx.hooks.events.JoinEvent;
 import org.pircbotx.hooks.events.KickEvent;
 import org.pircbotx.hooks.events.MessageEvent;
-import org.pircbotx.hooks.events.NoticeEvent;
 import org.pircbotx.hooks.events.PartEvent;
-import org.pircbotx.hooks.events.PrivateMessageEvent;
 import org.pircbotx.hooks.events.QuitEvent;
 import org.sujavabot.core.AuthorizedUser;
 import org.sujavabot.core.SujavaBot;
@@ -112,7 +109,7 @@ public class SeenCommand extends AbstractReportingCommand {
 	protected static synchronized void updateSeen(PircBotX bot, String where, User user, String doing) {
 		doing = DF.format(System.currentTimeMillis()) + "/" + doing;
 		
-		AuthorizedUser authUser = ((SujavaBot) bot).getAuthorizedUser(user);
+		AuthorizedUser authUser = ((SujavaBot) bot).getAuthorizedUser(user, true);
 		Map<String, String> seen = getSeen();
 		seen.remove(where + "/nick/" + user.getNick());
 		seen.remove(where + "/user/" + authUser.getName());

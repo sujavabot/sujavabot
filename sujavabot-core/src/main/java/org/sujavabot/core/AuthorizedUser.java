@@ -21,6 +21,8 @@ public class AuthorizedUser {
 	protected List<AuthorizedGroup> ownedGroups;
 	protected Map<String, String> properties;
 	
+	protected transient boolean ephemeral;
+	
 	public AuthorizedUser() {
 		commands = new UserCommandHandler(this);
 		groups = new ArrayList<>();
@@ -31,6 +33,20 @@ public class AuthorizedUser {
 	public AuthorizedUser(String name) {
 		this();
 		this.name = name;
+	}
+	
+	public boolean isEphemeral() {
+		return ephemeral;
+	}
+	
+	public void setEphemeral(boolean ephemeral) {
+		this.ephemeral = ephemeral;
+	}
+	
+	public boolean checkEmptyEphemeral() {
+		if(ephemeral && !isEmpty())
+			ephemeral = false;
+		return ephemeral;
 	}
 	
 	public String getName() {
@@ -44,6 +60,12 @@ public class AuthorizedUser {
 	}
 	public List<AuthorizedGroup> getGroups() {
 		return groups;
+	}
+	
+	public boolean isEmpty() {
+		if(!commands.getCommands().isEmpty() || !ownedGroups.isEmpty() || !properties.isEmpty())
+			return false;
+		return groups.size() == 1 && groups.get(0).getName().equals("@root");
 	}
 	
 	public List<AuthorizedGroup> getAllGroups() {

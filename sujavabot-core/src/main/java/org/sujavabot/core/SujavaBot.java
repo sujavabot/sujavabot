@@ -8,6 +8,7 @@ import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -17,13 +18,13 @@ import java.util.ListIterator;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.TimeUnit;
+import java.util.regex.Pattern;
 import java.util.Set;
 import java.util.WeakHashMap;
 
 import org.pircbotx.Channel;
 import org.pircbotx.PircBotX;
 import org.pircbotx.User;
-import org.pircbotx.exception.IrcException;
 import org.pircbotx.hooks.Event;
 import org.pircbotx.hooks.ListenerAdapter;
 import org.pircbotx.hooks.WaitForQueue;
@@ -54,7 +55,7 @@ public class SujavaBot extends PircBotX {
 	
 	protected CommandHandler commands;
 	
-	protected Set<User> verified = Collections.synchronizedSet(new HashSet<>());
+	protected Set<String> verified = Collections.synchronizedSet(new HashSet<>());
 	
 	protected Map<Channel, Map<User, String>> outputBuffers = Collections.synchronizedMap(new WeakHashMap<>());
 
@@ -83,6 +84,22 @@ public class SujavaBot extends PircBotX {
 		return commands;
 	}
 	
+	public Map<String, AuthorizedUser> getRawAuthorizedUsers() {
+		return authorizedUsers;
+	}
+	
+	public Map<String, AuthorizedGroup> getRawAuthorizedGroups() {
+		return authorizedGroups;
+	}
+	
+	private Map<String, AuthorizedUser> getAuthorizedUsers() {
+		return getRawAuthorizedUsers();
+	}
+	
+	private Map<String, AuthorizedGroup> getAuthorizedGroups() {
+		return getRawAuthorizedGroups();
+	}
+	
 	public AuthorizedGroup getRootGroup() {
 		return getAuthorizedGroups().get("@root");
 	}
@@ -90,49 +107,133 @@ public class SujavaBot extends PircBotX {
 	public CommandHandler getRootCommands() {
 		return getRootGroup().getCommands();
 	}
-
-	public Map<String, AuthorizedUser> getAuthorizedUsers() {
-		return authorizedUsers;
-	}
 	
-	public Map<String, AuthorizedGroup> getAuthorizedGroups() {
-		return authorizedGroups;
-	}
-	
-	public AuthorizedUser getAuthorizedUser(User user) {
-		if(user == null)
-			return null;
-		for(AuthorizedUser u : authorizedUsers.values()) {
-			if(u.getNick().matcher(user.getNick()).matches()) {
-				if(!isVerified(user)) {
-					LOG.info("nick {} not verified", user.getNick());
-					return getAuthorizedUsers().get("@nobody");
-				}
-				return u;
-			}
+	public AuthorizedGroup getAuthorizedGroupByName(String name) {
+		synchronized(authorizedGroups) {
+			return getAuthorizedGroups().get(name);
 		}
-		return getAuthorizedUsers().get("@nobody");
+	}
+	
+	public Set<AuthorizedGroup> getSubgroups(Collection<AuthorizedGroup> parents) {
+		synchronized(authorizedGroups) {
+			Set<AuthorizedGroup> subgroups = new HashSet<>();
+			for(AuthorizedGroup g : authorizedGroups.values()) {
+				if(!Collections.disjoint(parents, g.getAllParents()))
+					subgroups.add(g);
+			}
+			return subgroups;
+		}
+	}
+
+	public boolean addAuthorizedGroup(AuthorizedGroup group) {
+		synchronized(authorizedGroups) {
+			if(authorizedGroups.containsKey(group.getName()))
+				return false;
+			authorizedGroups.put(group.getName(), group);
+			return true;
+		}
+	}
+	
+	public boolean addAuthorizedUser(AuthorizedUser user) {
+		synchronized(authorizedUsers) {
+			if(authorizedUsers.containsKey(user.getName()))
+				return false;
+			authorizedUsers.put(user.getName(), user);
+			return true;
+		}
+	}
+	
+	public boolean removeAuthorizedGroup(AuthorizedGroup group) {
+		synchronized(authorizedGroups) {
+			return authorizedGroups.remove(group.getName()) != null;
+		}
+	}
+	
+	public boolean removeAuthorizedUser(AuthorizedUser user) {
+		synchronized(authorizedUsers) {
+			return authorizedUsers.remove(user.getName()) != null;
+		}
+	}
+	
+	public Set<AuthorizedUser> getAuthorizedUsersByGroup(AuthorizedGroup group) {
+		synchronized(authorizedUsers) {
+			Set<AuthorizedUser> users = new HashSet<>();
+			for(AuthorizedUser u : authorizedUsers.values()) {
+				if(u.getAllGroups().contains(group))
+					users.add(u);
+			}
+			return users;
+		}
+	}
+	
+	public AuthorizedUser getAuthorizedUser(User user, boolean createIfMissing) {
+		synchronized(authorizedUsers) {
+			return getAuthorizedUserByNick(user == null ? null : user.getNick(), createIfMissing);
+		}
+	}
+	
+	public AuthorizedUser getAuthorizedUserByName(String name) {
+		synchronized(authorizedUsers) {
+			return authorizedUsers.getOrDefault(name, authorizedUsers.get("@nobody"));
+		}
+	}
+
+	public AuthorizedUser getAuthorizedUserByNick(String nick, boolean createIfMissing) {
+		synchronized(authorizedUsers) {
+			if(nick == null)
+				return null;
+			for(AuthorizedUser u : authorizedUsers.values()) {
+				if(u.getNick().matcher(nick).matches()) {
+					if(!isVerified(nick)) {
+						LOG.info("nick {} not verified", nick);
+						return authorizedUsers.get("@nobody");
+					}
+					return u;
+				}
+			}
+			if(createIfMissing && isVerified(nick)) {
+				String uname = nick;
+				while(authorizedUsers.containsKey(uname)) {
+					uname += "_";
+				}
+				AuthorizedUser auser = new AuthorizedUser(uname);
+				auser.setEphemeral(true);
+				auser.setNick(Pattern.compile(Pattern.quote(nick)));
+				List<AuthorizedGroup> groups = new ArrayList<>();
+				AuthorizedGroup root = authorizedGroups.get("@root");
+				if(root != null)
+					groups.add(root);
+				auser.setGroups(groups);
+				authorizedUsers.put(auser.getName(), auser);
+				return auser;
+			}
+			return authorizedUsers.get("@nobody");
+		}
 	}
 	
 	public boolean isVerified(User user) {
-		if(verified.contains(user))
+		return isVerified(user.getNick());
+	}
+	
+	public boolean isVerified(String nick) {
+		if(verified.contains(nick))
 			return true;
 		try {
 			WaitForQueue waitForQueue = new WaitForQueue(this);
-			sendRaw().rawLine("WHOIS " + user.getNick() + "\r\n");
+			sendRaw().rawLine("WHOIS " + nick + "\r\n");
 			long timeout = System.currentTimeMillis() + TimeUnit.MILLISECONDS.convert(30, TimeUnit.SECONDS);
 			while (System.currentTimeMillis() < timeout) {
 				Event<?> event = waitForQueue.waitFor(Arrays.asList(ServerResponseEvent.class), 5L, TimeUnit.SECONDS);
 				if(!ServerResponseEvent.class.isInstance(event))
 					continue;
 				ServerResponseEvent<?> sre = (ServerResponseEvent<?>) event;
-				if (!sre.getParsedResponse().get(1).equals(user.getNick()))
+				if (!sre.getParsedResponse().get(1).equals(nick))
 					continue;
 
 				if(sre.getCode() == 318 || sre.getCode() == 307) {
 					waitForQueue.close();
 					if(sre.getCode() == 307)
-						verified.add(user);
+						verified.add(nick);
 					return sre.getCode() == 307;
 				}
 			}
@@ -143,7 +244,7 @@ public class SujavaBot extends PircBotX {
 		}
 	}
 
-	public Set<User> getVerified() {
+	public Set<String> getVerified() {
 		return verified;
 	}
 	
@@ -301,13 +402,13 @@ public class SujavaBot extends PircBotX {
 	}
 	
 	public static class UnverifyListener extends ListenerAdapter<PircBotX> {
-		protected Set<User> verified(Event<?> event) {
+		protected Set<String> verified(Event<?> event) {
 			return ((SujavaBot) event.getBot()).getVerified();
 		}
 		
 		@Override
 		public void onJoin(JoinEvent<PircBotX> event) throws Exception {
-			((SujavaBot) event.getBot()).getAuthorizedUser(event.getUser());
+			((SujavaBot) event.getBot()).getAuthorizedUser(event.getUser(), false);
 		}
 		
 		@Override
@@ -317,7 +418,7 @@ public class SujavaBot extends PircBotX {
 
 		@Override
 		public void onNickChange(NickChangeEvent<PircBotX> event) throws Exception {
-			verified(event).remove(event.getUser());
+			verified(event).remove(event.getUser().getNick());
 		}
 
 		@Override
@@ -325,7 +426,7 @@ public class SujavaBot extends PircBotX {
 			if(event.getUser().getNick().equals(event.getBot().getNick()))
 				verified(event).clear();
 			else
-				verified(event).remove(event.getUser());
+				verified(event).remove(event.getUser().getNick());
 		}
 
 		@Override
@@ -333,7 +434,7 @@ public class SujavaBot extends PircBotX {
 			if(event.getUser().getNick().equals(event.getBot().getNick()))
 				verified(event).clear();
 			else
-				verified(event).remove(event.getUser());
+				verified(event).remove(event.getUser().getNick());
 		}
 		
 	}

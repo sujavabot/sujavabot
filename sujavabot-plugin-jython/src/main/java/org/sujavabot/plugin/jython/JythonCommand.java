@@ -45,7 +45,7 @@ public class JythonCommand extends AbstractReportingCommand implements HelperCon
 			
 			interp.set("bot", bot);
 			interp.set("cause", cause);
-			interp.set("caller", bot.getAuthorizedUser(Events.getUser(cause)));
+			interp.set("caller", bot.getAuthorizedUser(Events.getUser(cause), true));
 			
 			if(source != null)
 				interp.exec(source);

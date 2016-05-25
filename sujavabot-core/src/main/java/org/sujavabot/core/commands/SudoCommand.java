@@ -2,16 +2,11 @@ package org.sujavabot.core.commands;
 
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.FutureTask;
-
-import org.pircbotx.User;
 import org.pircbotx.hooks.Event;
 import org.sujavabot.core.Authorization;
 import org.sujavabot.core.AuthorizedUser;
 import org.sujavabot.core.SujavaBot;
 import org.sujavabot.core.Authorization.LimitedCallable;
-import org.sujavabot.core.util.Events;
 import org.sujavabot.core.xml.ConverterHelpers.MarshalHelper;
 import org.sujavabot.core.xml.ConverterHelpers.UnmarshalHelper;
 import org.sujavabot.core.xml.HelperConvertable;
@@ -31,7 +26,7 @@ public class SudoCommand extends AbstractReportingCommand implements HelperConve
 	
 	@Override
 	public String invoke(SujavaBot bot, Event<?> cause, List<String> args) {
-		AuthorizedUser a = bot.getAuthorizedUsers().get(name);
+		AuthorizedUser a = bot.getAuthorizedUserByName(name);
 		LimitedCallable<String, RuntimeException> task = new LimitedCallable<String, RuntimeException>() {
 			@Override
 			public String call() throws RuntimeException {

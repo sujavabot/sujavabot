@@ -3,10 +3,8 @@ package org.sujavabot.plugin.jruby;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileReader;
-import java.io.OutputStreamWriter;
 import java.io.PrintStream;
 import java.io.Reader;
-import java.io.Writer;
 import java.nio.charset.Charset;
 import java.util.List;
 import java.util.Map;
@@ -42,7 +40,7 @@ public class JRubyCommand extends AbstractReportingCommand implements HelperConv
 			
 			container.put("bot", bot);
 			container.put("cause", cause);
-			container.put("caller", bot.getAuthorizedUser(Events.getUser(cause)));
+			container.put("caller", bot.getAuthorizedUser(Events.getUser(cause), true));
 
 			if(source != null)
 				container.runScriptlet(source);
