@@ -7,8 +7,6 @@ import java.util.concurrent.ScheduledExecutorService;
 import org.sujavabot.core.Authorization;
 
 public class SchedulerPool {
-	private static ScheduledExecutorService instance = Executors.newSingleThreadScheduledExecutor();
-	
 	private static Map<Object, ScheduledExecutorService> instances = new HashMap<>();
 	
 	public static ScheduledExecutorService get() {

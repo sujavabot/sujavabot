@@ -180,7 +180,6 @@ public class UserAdminCommand extends AbstractReportingCommand {
 	protected String _remove(SujavaBot bot, Event<?> cause, List<String> args) {
 		if(args.size() != 3)
 			return invokeHelp(bot, cause, args, "remove");
-		AuthorizedGroup root = bot.getAuthorizedGroupByName("@root");
 		if(!Authorization.isCurrentRootOwner())
 			return "permission denied";
 		String name = args.get(2);

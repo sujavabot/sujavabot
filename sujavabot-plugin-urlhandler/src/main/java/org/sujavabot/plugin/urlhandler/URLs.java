@@ -18,8 +18,13 @@ public abstract class URLs {
 			String tag = "";
 			while(count-- > 0 && !"<TITLE>".equals(tag.toUpperCase())) {
 				int ch = reader.read();
-				if(ch < 0)
-					return null;
+				if(ch < 0) {
+					try {
+						return null;
+					} finally {
+						reader.close();
+					}
+				}
 				tag += (char) ch;
 				if(!"<TITLE>".startsWith(tag.toUpperCase()))
 					tag = "";
@@ -30,8 +35,13 @@ public abstract class URLs {
 			tag = "";
 			while(count-- > 0 && !"</TITLE>".equals(tag.toUpperCase())) {
 				int ch = reader.read();
-				if(ch < 0)
-					return title;
+				if(ch < 0) {
+					try {
+						return title;
+					} finally {
+						reader.close();
+					}
+				}
 				tag += (char) ch;
 				if(!"</TITLE>".startsWith(tag.toUpperCase())) {
 					if(title == null)

@@ -21,7 +21,7 @@ import org.sujavabot.core.xml.HelperConvertable;
 public class CollectionCommand extends AbstractReportingCommand implements HelperConvertable<CollectionCommand> {
 
 	protected File file;
-	protected Class<? extends Collection> type;
+	protected Class<? extends Collection<String>> type;
 	
 	@Override
 	public String invoke(SujavaBot bot, Event<?> cause, List<String> args) {
@@ -156,12 +156,13 @@ public class CollectionCommand extends AbstractReportingCommand implements Helpe
 		helper.field("type", String.class, () -> type.getName());
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public void configure(UnmarshalHelper helper) {
 		helper.field("file", String.class, (s) -> file = new File(s));
 		helper.field("type", String.class, (s) -> {
 			try {
-				type = Class.forName(s).asSubclass(Collection.class);
+				type = (Class<? extends Collection<String>>) Class.forName(s).asSubclass(Collection.class);
 			} catch(ClassNotFoundException e) {
 				throw new RuntimeException(e);
 			}
