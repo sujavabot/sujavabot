@@ -55,7 +55,7 @@ public class SujavaBot extends PircBotX {
 	
 	protected CommandHandler commands;
 	
-	protected Set<User> verified = Collections.synchronizedSet(new HashSet<>());
+	protected Set<String> verified = Collections.synchronizedSet(new HashSet<>());
 	
 	protected Map<Channel, Map<User, String>> outputBuffers = Collections.synchronizedMap(new WeakHashMap<>());
 
@@ -101,24 +101,28 @@ public class SujavaBot extends PircBotX {
 	}
 	
 	public AuthorizedUser getAuthorizedUser(User user) {
-		if(user == null)
+		return getAuthorizedUser(user == null ? null : user.getNick());
+	}
+	
+	public AuthorizedUser getAuthorizedUser(String nick) {
+		if(nick == null)
 			return null;
 		for(AuthorizedUser u : authorizedUsers.values()) {
-			if(u.getNick().matcher(user.getNick()).matches()) {
-				if(!isVerified(user)) {
-					LOG.info("nick {} not verified", user.getNick());
+			if(u.getNick().matcher(nick).matches()) {
+				if(!isVerified(nick)) {
+					LOG.info("nick {} not verified", nick);
 					return getAuthorizedUsers().get("@nobody");
 				}
 				return u;
 			}
 		}
-		if(isVerified(user)) {
-			String uname = user.getNick();
+		if(isVerified(nick)) {
+			String uname = nick;
 			while(authorizedUsers.containsKey(uname)) {
 				uname += "_";
 			}
 			AuthorizedUser auser = new AuthorizedUser(uname);
-			auser.setNick(Pattern.compile(Pattern.quote(user.getNick())));
+			auser.setNick(Pattern.compile(Pattern.quote(nick)));
 			List<AuthorizedGroup> groups = new ArrayList<>();
 			AuthorizedGroup root = authorizedGroups.get("@root");
 			if(root != null)
@@ -132,24 +136,28 @@ public class SujavaBot extends PircBotX {
 	}
 	
 	public boolean isVerified(User user) {
-		if(verified.contains(user))
+		return isVerified(user.getNick());
+	}
+	
+	public boolean isVerified(String nick) {
+		if(verified.contains(nick))
 			return true;
 		try {
 			WaitForQueue waitForQueue = new WaitForQueue(this);
-			sendRaw().rawLine("WHOIS " + user.getNick() + "\r\n");
+			sendRaw().rawLine("WHOIS " + nick + "\r\n");
 			long timeout = System.currentTimeMillis() + TimeUnit.MILLISECONDS.convert(30, TimeUnit.SECONDS);
 			while (System.currentTimeMillis() < timeout) {
 				Event<?> event = waitForQueue.waitFor(Arrays.asList(ServerResponseEvent.class), 5L, TimeUnit.SECONDS);
 				if(!ServerResponseEvent.class.isInstance(event))
 					continue;
 				ServerResponseEvent<?> sre = (ServerResponseEvent<?>) event;
-				if (!sre.getParsedResponse().get(1).equals(user.getNick()))
+				if (!sre.getParsedResponse().get(1).equals(nick))
 					continue;
 
 				if(sre.getCode() == 318 || sre.getCode() == 307) {
 					waitForQueue.close();
 					if(sre.getCode() == 307)
-						verified.add(user);
+						verified.add(nick);
 					return sre.getCode() == 307;
 				}
 			}
@@ -160,7 +168,7 @@ public class SujavaBot extends PircBotX {
 		}
 	}
 
-	public Set<User> getVerified() {
+	public Set<String> getVerified() {
 		return verified;
 	}
 	
@@ -318,7 +326,7 @@ public class SujavaBot extends PircBotX {
 	}
 	
 	public static class UnverifyListener extends ListenerAdapter<PircBotX> {
-		protected Set<User> verified(Event<?> event) {
+		protected Set<String> verified(Event<?> event) {
 			return ((SujavaBot) event.getBot()).getVerified();
 		}
 		
@@ -334,7 +342,7 @@ public class SujavaBot extends PircBotX {
 
 		@Override
 		public void onNickChange(NickChangeEvent<PircBotX> event) throws Exception {
-			verified(event).remove(event.getUser());
+			verified(event).remove(event.getUser().getNick());
 		}
 
 		@Override
@@ -342,7 +350,7 @@ public class SujavaBot extends PircBotX {
 			if(event.getUser().getNick().equals(event.getBot().getNick()))
 				verified(event).clear();
 			else
-				verified(event).remove(event.getUser());
+				verified(event).remove(event.getUser().getNick());
 		}
 
 		@Override
@@ -350,7 +358,7 @@ public class SujavaBot extends PircBotX {
 			if(event.getUser().getNick().equals(event.getBot().getNick()))
 				verified(event).clear();
 			else
-				verified(event).remove(event.getUser());
+				verified(event).remove(event.getUser().getNick());
 		}
 		
 	}
