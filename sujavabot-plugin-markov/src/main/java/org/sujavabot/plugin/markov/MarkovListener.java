@@ -83,8 +83,6 @@ public class MarkovListener extends ListenerAdapter<PircBotX> {
 		for(Pattern p : ignore) {
 			if(p.matcher(event.getUser().getNick()).matches())
 				return;
-			if(p.matcher(event.getMessage()).matches())
-				return;
 		}
 		boolean listening = false;
 		for(Pattern p : listen) {
@@ -187,6 +185,10 @@ public class MarkovListener extends ListenerAdapter<PircBotX> {
 				event.getChannel().send().message(line);
 			}
 		} else if(learn && listening) {
+			for(Pattern p : ignore) {
+				if(p.matcher(event.getMessage()).matches())
+					return;
+			}
 			m = m.replaceAll("^(\\S+:\\s*|<\\S+>\\s*)*", "");
 			List<String> content = StringContent.parse(m);
 			Iterator<String> ci = content.iterator();
