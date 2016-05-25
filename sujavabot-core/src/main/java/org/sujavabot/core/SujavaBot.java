@@ -230,9 +230,9 @@ public class SujavaBot extends PircBotX {
 				if (!sre.getParsedResponse().get(1).equals(nick))
 					continue;
 
-				if(sre.getCode() == 318 || sre.getCode() == 307) {
+				if(sre.getCode() == 318 || sre.getCode() == 307 || sre.getCode() == 330) {
 					waitForQueue.close();
-					if(sre.getCode() == 307)
+					if(sre.getCode() == 307 || sre.getCode() == 330)
 						verified.add(nick);
 					return sre.getCode() == 307;
 				}
