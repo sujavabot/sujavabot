@@ -16,18 +16,15 @@ public class GreetingListener extends ListenerAdapter<PircBotX> {
 	@Override
 	public void onJoin(JoinEvent<PircBotX> event) throws Exception {
 		SujavaBot bot = (SujavaBot) event.getBot();
-		AuthorizedUser user = bot.getAuthorizedUser(event.getUser(), true);
+		AuthorizedUser user = bot.getAuthorizedUser(event.getUser(), false);
 		List<AuthorizedGroup> groups = user.getAllGroups();
 		List<AuthorizedGroup> ownedGroups = user.getOwnedGroups();
 		Authorization.run(bot, user, groups, ownedGroups, () -> {
-			Authorization auth = Authorization.getAuthorization();
-			CommandReceiverListener.exec.execute(() -> {
-				auth.run(() -> {
-					Command cmd = bot.getCommands().get(event, "greeting");
-					if(cmd != null && cmd != bot.getCommands().get(event, "_unrecognized")) {
-						bot.getCommands().perform(event, "greeting");
-					}
-				});
+			CommandReceiverListener.run(bot, () -> {
+				Command cmd = bot.getCommands().get(event, "greeting");
+				if(cmd != null && cmd != bot.getCommands().get(event, "_unrecognized")) {
+					bot.getCommands().perform(event, "greeting");
+				}
 			});
 		});
 	}

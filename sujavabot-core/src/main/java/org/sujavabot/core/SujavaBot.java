@@ -109,86 +109,106 @@ public class SujavaBot extends PircBotX {
 	}
 	
 	public AuthorizedGroup getAuthorizedGroupByName(String name) {
-		return getAuthorizedGroups().get(name);
+		synchronized(authorizedGroups) {
+			return getAuthorizedGroups().get(name);
+		}
 	}
 	
 	public Set<AuthorizedGroup> getSubgroups(Collection<AuthorizedGroup> parents) {
-		Set<AuthorizedGroup> subgroups = new HashSet<>();
-		for(AuthorizedGroup g : authorizedGroups.values()) {
-			if(!Collections.disjoint(parents, g.getAllParents()))
-				subgroups.add(g);
+		synchronized(authorizedGroups) {
+			Set<AuthorizedGroup> subgroups = new HashSet<>();
+			for(AuthorizedGroup g : authorizedGroups.values()) {
+				if(!Collections.disjoint(parents, g.getAllParents()))
+					subgroups.add(g);
+			}
+			return subgroups;
 		}
-		return subgroups;
 	}
 
 	public boolean addAuthorizedGroup(AuthorizedGroup group) {
-		if(authorizedGroups.containsKey(group.getName()))
-			return false;
-		authorizedGroups.put(group.getName(), group);
-		return true;
+		synchronized(authorizedGroups) {
+			if(authorizedGroups.containsKey(group.getName()))
+				return false;
+			authorizedGroups.put(group.getName(), group);
+			return true;
+		}
 	}
 	
 	public boolean addAuthorizedUser(AuthorizedUser user) {
-		if(authorizedUsers.containsKey(user.getName()))
-			return false;
-		authorizedUsers.put(user.getName(), user);
-		return true;
+		synchronized(authorizedUsers) {
+			if(authorizedUsers.containsKey(user.getName()))
+				return false;
+			authorizedUsers.put(user.getName(), user);
+			return true;
+		}
 	}
 	
 	public boolean removeAuthorizedGroup(AuthorizedGroup group) {
-		return authorizedGroups.remove(group.getName()) != null;
+		synchronized(authorizedGroups) {
+			return authorizedGroups.remove(group.getName()) != null;
+		}
 	}
 	
 	public boolean removeAuthorizedUser(AuthorizedUser user) {
-		return authorizedUsers.remove(user.getName()) != null;
+		synchronized(authorizedUsers) {
+			return authorizedUsers.remove(user.getName()) != null;
+		}
 	}
 	
 	public Set<AuthorizedUser> getAuthorizedUsersByGroup(AuthorizedGroup group) {
-		Set<AuthorizedUser> users = new HashSet<>();
-		for(AuthorizedUser u : authorizedUsers.values()) {
-			if(u.getAllGroups().contains(group))
-				users.add(u);
+		synchronized(authorizedUsers) {
+			Set<AuthorizedUser> users = new HashSet<>();
+			for(AuthorizedUser u : authorizedUsers.values()) {
+				if(u.getAllGroups().contains(group))
+					users.add(u);
+			}
+			return users;
 		}
-		return users;
 	}
 	
 	public AuthorizedUser getAuthorizedUser(User user, boolean createIfMissing) {
-		return getAuthorizedUserByNick(user == null ? null : user.getNick(), createIfMissing);
+		synchronized(authorizedUsers) {
+			return getAuthorizedUserByNick(user == null ? null : user.getNick(), createIfMissing);
+		}
 	}
 	
 	public AuthorizedUser getAuthorizedUserByName(String name) {
-		return authorizedUsers.getOrDefault(name, authorizedUsers.get("@nobody"));
+		synchronized(authorizedUsers) {
+			return authorizedUsers.getOrDefault(name, authorizedUsers.get("@nobody"));
+		}
 	}
 
 	public AuthorizedUser getAuthorizedUserByNick(String nick, boolean createIfMissing) {
-		if(nick == null)
-			return null;
-		for(AuthorizedUser u : authorizedUsers.values()) {
-			if(u.getNick().matcher(nick).matches()) {
-				if(!isVerified(nick)) {
-					LOG.info("nick {} not verified", nick);
-					return authorizedUsers.get("@nobody");
+		synchronized(authorizedUsers) {
+			if(nick == null)
+				return null;
+			for(AuthorizedUser u : authorizedUsers.values()) {
+				if(u.getNick().matcher(nick).matches()) {
+					if(!isVerified(nick)) {
+						LOG.info("nick {} not verified", nick);
+						return authorizedUsers.get("@nobody");
+					}
+					return u;
 				}
-				return u;
 			}
-		}
-		if(createIfMissing && isVerified(nick)) {
-			String uname = nick;
-			while(authorizedUsers.containsKey(uname)) {
-				uname += "_";
+			if(createIfMissing && isVerified(nick)) {
+				String uname = nick;
+				while(authorizedUsers.containsKey(uname)) {
+					uname += "_";
+				}
+				AuthorizedUser auser = new AuthorizedUser(uname);
+				auser.setEphemeral(true);
+				auser.setNick(Pattern.compile(Pattern.quote(nick)));
+				List<AuthorizedGroup> groups = new ArrayList<>();
+				AuthorizedGroup root = authorizedGroups.get("@root");
+				if(root != null)
+					groups.add(root);
+				auser.setGroups(groups);
+				authorizedUsers.put(auser.getName(), auser);
+				return auser;
 			}
-			AuthorizedUser auser = new AuthorizedUser(uname);
-			auser.setNick(Pattern.compile(Pattern.quote(nick)));
-			List<AuthorizedGroup> groups = new ArrayList<>();
-			AuthorizedGroup root = authorizedGroups.get("@root");
-			if(root != null)
-				groups.add(root);
-			auser.setGroups(groups);
-			authorizedUsers.put(auser.getName(), auser);
-			saveConfiguration();
-			return auser;
+			return authorizedUsers.get("@nobody");
 		}
-		return authorizedUsers.get("@nobody");
 	}
 	
 	public boolean isVerified(User user) {

@@ -149,15 +149,8 @@ public class ConfigurationBuilderConverter extends AbstractConverter<Configurati
 		for(AuthorizedGroup group : groups)
 			helper.field("group", AuthorizedGroup.class, () -> group);
 		
-		for(AuthorizedUser user : current.getUsers().values()) {
-			if(
-					user.getCommands().getCommands().isEmpty() 
-					&& user.getProperties().isEmpty()
-					&& user.getOwnedGroups().isEmpty()
-					)
-				continue;
+		for(AuthorizedUser user : current.getUsers().values())
 			helper.field("user", AuthorizedUser.class, () -> user);
-		}
 		
 		for(Listener<?> l : current.getBotListeners()) {
 			helper.field("listener", () -> l);

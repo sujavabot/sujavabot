@@ -1,8 +1,11 @@
 package org.sujavabot.core.listener;
 
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.pircbotx.PircBotX;
 import org.pircbotx.hooks.ListenerAdapter;
@@ -18,7 +21,36 @@ import org.sujavabot.core.xml.HelperConvertable;
 
 public class CommandReceiverListener extends ListenerAdapter<PircBotX>
 implements HelperConvertable<CommandReceiverListener> {
-	public static final Executor exec = Executors.newCachedThreadPool();
+	private static final Executor exec = Executors.newCachedThreadPool();
+	
+	private static final Map<AuthorizedUser, AtomicInteger> runningCount = new ConcurrentHashMap<>();
+	
+	public static void run(SujavaBot bot, Runnable task) {
+		run(bot, Authorization.getAuthorization(), task);
+	}
+	
+	public static void run(SujavaBot bot, Authorization auth, Runnable task) {
+		AuthorizedUser user = auth.getUser();
+		exec.execute(() -> {
+			try {
+				synchronized(runningCount) {
+					if(!runningCount.containsKey(user))
+						runningCount.put(user, new AtomicInteger(1));
+					else
+						runningCount.get(user).incrementAndGet();
+				}
+				auth.run(task);
+			} finally {
+				synchronized(runningCount) {
+					if(runningCount.get(user).decrementAndGet() == 0) {
+						runningCount.remove(user);
+						if(user.isEphemeral() && user.isEmpty())
+							bot.removeAuthorizedUser(user);
+					}
+				}
+			}
+		});
+	}
 	
 	protected String prefix;
 	
@@ -35,17 +67,14 @@ implements HelperConvertable<CommandReceiverListener> {
 		List<AuthorizedGroup> groups = user.getAllGroups();
 		List<AuthorizedGroup> ownedGroups = user.getOwnedGroups();
 		Authorization.run(bot, user, groups, ownedGroups, () -> {
-			Authorization auth = Authorization.getAuthorization();
-			exec.execute(() -> {
-				auth.run(() -> {
-					String m = event.getMessage();
-					m = m.substring(prefix.length());
-					try {
-						bot.getCommands().perform(event, m);
-					} catch(Exception e) {
-						bot.getCommands().perform(event, "_exception " + e);
-					}
-				});
+			run(bot, () -> {
+				String m = event.getMessage();
+				m = m.substring(prefix.length());
+				try {
+					bot.getCommands().perform(event, m);
+				} catch(Exception e) {
+					bot.getCommands().perform(event, "_exception " + e);
+				}
 			});
 		});
 	}
