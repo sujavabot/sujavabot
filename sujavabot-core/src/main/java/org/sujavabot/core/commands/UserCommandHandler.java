@@ -29,10 +29,10 @@ public class UserCommandHandler extends AbstractCommandHandler {
 		groups.addAll(user.getGroups());
 		Channel channel = getChannel(cause);
 		if(channel != null) {
-			AuthorizedGroup cgroup = bot.getAuthorizedGroups().get(channel.getName());
+			AuthorizedGroup cgroup = bot.getAuthorizedGroupByName(channel.getName());
 			if(cgroup != null)
 				groups.add(0, cgroup);
-			AuthorizedGroup cugroup = bot.getAuthorizedGroups().get(channel.getName() + ":" + user.getName());
+			AuthorizedGroup cugroup = bot.getAuthorizedGroupByName(channel.getName() + ":" + user.getName());
 			if(cugroup != null)
 				groups.add(0, cugroup);
 		}

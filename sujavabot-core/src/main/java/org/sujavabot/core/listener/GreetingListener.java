@@ -16,7 +16,7 @@ public class GreetingListener extends ListenerAdapter<PircBotX> {
 	@Override
 	public void onJoin(JoinEvent<PircBotX> event) throws Exception {
 		SujavaBot bot = (SujavaBot) event.getBot();
-		AuthorizedUser user = bot.getAuthorizedUser(event.getUser());
+		AuthorizedUser user = bot.getAuthorizedUser(event.getUser(), true);
 		List<AuthorizedGroup> groups = user.getAllGroups();
 		List<AuthorizedGroup> ownedGroups = user.getOwnedGroups();
 		Authorization.run(bot, user, groups, ownedGroups, () -> {

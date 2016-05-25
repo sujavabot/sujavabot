@@ -8,6 +8,7 @@ import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -84,6 +85,22 @@ public class SujavaBot extends PircBotX {
 		return commands;
 	}
 	
+	public Map<String, AuthorizedUser> getRawAuthorizedUsers() {
+		return authorizedUsers;
+	}
+	
+	public Map<String, AuthorizedGroup> getRawAuthorizedGroups() {
+		return authorizedGroups;
+	}
+	
+	private Map<String, AuthorizedUser> getAuthorizedUsers() {
+		return getRawAuthorizedUsers();
+	}
+	
+	private Map<String, AuthorizedGroup> getAuthorizedGroups() {
+		return getRawAuthorizedGroups();
+	}
+	
 	public AuthorizedGroup getRootGroup() {
 		return getAuthorizedGroups().get("@root");
 	}
@@ -91,32 +108,72 @@ public class SujavaBot extends PircBotX {
 	public CommandHandler getRootCommands() {
 		return getRootGroup().getCommands();
 	}
+	
+	public AuthorizedGroup getAuthorizedGroupByName(String name) {
+		return getAuthorizedGroups().get(name);
+	}
+	
+	public Set<AuthorizedGroup> getSubgroups(Collection<AuthorizedGroup> parents) {
+		Set<AuthorizedGroup> subgroups = new HashSet<>();
+		for(AuthorizedGroup g : authorizedGroups.values()) {
+			if(!Collections.disjoint(parents, g.getAllParents()))
+				subgroups.add(g);
+		}
+		return subgroups;
+	}
 
-	public Map<String, AuthorizedUser> getAuthorizedUsers() {
-		return authorizedUsers;
+	public boolean addAuthorizedGroup(AuthorizedGroup group) {
+		if(authorizedGroups.containsKey(group.getName()))
+			return false;
+		authorizedGroups.put(group.getName(), group);
+		return true;
 	}
 	
-	public Map<String, AuthorizedGroup> getAuthorizedGroups() {
-		return authorizedGroups;
+	public boolean addAuthorizedUser(AuthorizedUser user) {
+		if(authorizedUsers.containsKey(user.getName()))
+			return false;
+		authorizedUsers.put(user.getName(), user);
+		return true;
 	}
 	
-	public AuthorizedUser getAuthorizedUser(User user) {
-		return getAuthorizedUser(user == null ? null : user.getNick());
+	public boolean removeAuthorizedGroup(AuthorizedGroup group) {
+		return authorizedGroups.remove(group.getName()) != null;
 	}
 	
-	public AuthorizedUser getAuthorizedUser(String nick) {
+	public boolean removeAuthorizedUser(AuthorizedUser user) {
+		return authorizedUsers.remove(user.getName()) != null;
+	}
+	
+	public Set<AuthorizedUser> getAuthorizedUsersByGroup(AuthorizedGroup group) {
+		Set<AuthorizedUser> users = new HashSet<>();
+		for(AuthorizedUser u : authorizedUsers.values()) {
+			if(u.getAllGroups().contains(group))
+				users.add(u);
+		}
+		return users;
+	}
+	
+	public AuthorizedUser getAuthorizedUser(User user, boolean createIfMissing) {
+		return getAuthorizedUserByNick(user == null ? null : user.getNick(), createIfMissing);
+	}
+	
+	public AuthorizedUser getAuthorizedUserByName(String name) {
+		return authorizedUsers.getOrDefault(name, authorizedUsers.get("@nobody"));
+	}
+
+	public AuthorizedUser getAuthorizedUserByNick(String nick, boolean createIfMissing) {
 		if(nick == null)
 			return null;
 		for(AuthorizedUser u : authorizedUsers.values()) {
 			if(u.getNick().matcher(nick).matches()) {
 				if(!isVerified(nick)) {
 					LOG.info("nick {} not verified", nick);
-					return getAuthorizedUsers().get("@nobody");
+					return authorizedUsers.get("@nobody");
 				}
 				return u;
 			}
 		}
-		if(isVerified(nick)) {
+		if(createIfMissing && isVerified(nick)) {
 			String uname = nick;
 			while(authorizedUsers.containsKey(uname)) {
 				uname += "_";
@@ -132,7 +189,7 @@ public class SujavaBot extends PircBotX {
 			saveConfiguration();
 			return auser;
 		}
-		return getAuthorizedUsers().get("@nobody");
+		return authorizedUsers.get("@nobody");
 	}
 	
 	public boolean isVerified(User user) {
@@ -332,7 +389,7 @@ public class SujavaBot extends PircBotX {
 		
 		@Override
 		public void onJoin(JoinEvent<PircBotX> event) throws Exception {
-			((SujavaBot) event.getBot()).getAuthorizedUser(event.getUser());
+			((SujavaBot) event.getBot()).getAuthorizedUser(event.getUser(), false);
 		}
 		
 		@Override

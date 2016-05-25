@@ -29,8 +29,10 @@ implements HelperConvertable<CommandReceiverListener> {
 	
 	@Override
 	public void onMessage(MessageEvent<PircBotX> event) throws Exception {
+		if(!event.getMessage().startsWith(prefix))
+			return;
 		SujavaBot bot = (SujavaBot) event.getBot();
-		AuthorizedUser user = bot.getAuthorizedUser(event.getUser());
+		AuthorizedUser user = bot.getAuthorizedUser(event.getUser(), true);
 		List<AuthorizedGroup> groups = user.getAllGroups();
 		List<AuthorizedGroup> ownedGroups = user.getOwnedGroups();
 		Authorization.run(bot, user, groups, ownedGroups, () -> {
@@ -38,8 +40,6 @@ implements HelperConvertable<CommandReceiverListener> {
 			exec.execute(() -> {
 				auth.run(() -> {
 					String m = event.getMessage();
-					if(!m.startsWith(prefix))
-						return;
 					m = m.substring(prefix.length());
 					try {
 						bot.getCommands().perform(event, m);
@@ -53,8 +53,10 @@ implements HelperConvertable<CommandReceiverListener> {
 	
 	@Override
 	public void onPrivateMessage(PrivateMessageEvent<PircBotX> event) throws Exception {
+		if(!event.getMessage().startsWith(prefix))
+			return;
 		SujavaBot bot = (SujavaBot) event.getBot();
-		AuthorizedUser user = bot.getAuthorizedUser(event.getUser());
+		AuthorizedUser user = bot.getAuthorizedUser(event.getUser(), true);
 		List<AuthorizedGroup> groups = user.getAllGroups();
 		List<AuthorizedGroup> ownedGroups = user.getOwnedGroups();
 		Authorization.run(bot, user, groups, ownedGroups, () -> {
@@ -62,8 +64,6 @@ implements HelperConvertable<CommandReceiverListener> {
 			exec.execute(() -> {
 				auth.run(() -> {
 					String m = event.getMessage();
-					if(!m.startsWith(prefix))
-						return;
 					m = m.substring(prefix.length());
 					bot.getCommands().perform(event, m);
 				});

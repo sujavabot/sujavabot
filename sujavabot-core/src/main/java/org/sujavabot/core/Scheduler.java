@@ -65,10 +65,10 @@ public class Scheduler implements HelperConvertable<Scheduler> {
 		}
 
 		public void schedule() {
-			AuthorizedUser au = bot.getAuthorizedUsers().get(user);
+			AuthorizedUser au = bot.getAuthorizedUserByName(user);
 			List<AuthorizedGroup> ags = new ArrayList<>();
 			for(String g : groups)
-				ags.add(bot.getAuthorizedGroups().get(g));
+				ags.add(bot.getAuthorizedGroupByName(g));
 			Authorization auth = new Authorization(bot, au, ags, au.getOwnedGroups());
 			Runnable task = auth.runnable(() -> {
 				try {

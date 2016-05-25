@@ -185,17 +185,13 @@ public class Authorization {
 			}
 		}
 		if(ownedGroups != null) {
-			for(AuthorizedGroup g : ownedGroups)
+			for(AuthorizedGroup g : ownedGroups) {
 				if(!this.ownedGroups.contains(g))
 					this.ownedGroups.add(g);
+			}
 		}
 		if(bot != null) {
-			for(AuthorizedGroup g : bot.getAuthorizedGroups().values()) {
-				if(!this.ownedGroups.contains(g)) {
-					if(!Collections.disjoint(g.getAllParents(), this.ownedGroups))
-						this.ownedGroups.add(g);
-				}
-			}
+			this.ownedGroups.addAll(bot.getSubgroups(this.ownedGroups));
 		}
 	}
 	

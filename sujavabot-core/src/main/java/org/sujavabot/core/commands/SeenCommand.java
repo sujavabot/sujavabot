@@ -112,7 +112,7 @@ public class SeenCommand extends AbstractReportingCommand {
 	protected static synchronized void updateSeen(PircBotX bot, String where, User user, String doing) {
 		doing = DF.format(System.currentTimeMillis()) + "/" + doing;
 		
-		AuthorizedUser authUser = ((SujavaBot) bot).getAuthorizedUser(user);
+		AuthorizedUser authUser = ((SujavaBot) bot).getAuthorizedUser(user, true);
 		Map<String, String> seen = getSeen();
 		seen.remove(where + "/nick/" + user.getNick());
 		seen.remove(where + "/user/" + authUser.getName());
