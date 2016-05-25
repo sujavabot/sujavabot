@@ -83,6 +83,8 @@ public class MarkovListener extends ListenerAdapter<PircBotX> {
 		for(Pattern p : ignore) {
 			if(p.matcher(event.getUser().getNick()).matches())
 				return;
+			if(p.matcher(event.getMessage()).matches())
+				return;
 		}
 		boolean listening = false;
 		for(Pattern p : listen) {
@@ -202,43 +204,6 @@ public class MarkovListener extends ListenerAdapter<PircBotX> {
 		}
 	}
 	
-	@Override
-	public void onAction(ActionEvent<PircBotX> event) throws Exception {
-		if(learn) {
-			if(!channels.contains(event.getChannel().getName()))
-				return;
-			for(Pattern p : ignore) {
-				if(p.matcher(event.getUser().getNick()).matches())
-					return;
-			}
-			boolean listening = false;
-			for(Pattern p : listen) {
-				if(p.matcher(event.getUser().getNick()).matches()) {
-					listening = true;
-					break;
-				}
-			}
-			if(!listening)
-				return;
-			String m = event.getUser().getNick() + " " + event.getAction();
-
-			m = m.replaceAll("^\\S+:", "");
-			List<String> content = StringContent.parse(m);
-			Iterator<String> ci = content.iterator();
-			while(ci.hasNext()) {
-				if(StringContent.LINK.matcher(ci.next()).matches())
-					ci.remove();
-			}
-			if(content.size() > 0) {
-				markov.consume(event.getUser().getNick(), content, maxlen);
-				if(inverseMarkov != null) {
-					Collections.reverse(content);
-					inverseMarkov.consume(event.getUser().getNick(), content, maxlen);
-				}
-			}
-		}
-	}
-
 	public void setMarkov(Markov markov) {
 		this.markov = markov;
 	}
