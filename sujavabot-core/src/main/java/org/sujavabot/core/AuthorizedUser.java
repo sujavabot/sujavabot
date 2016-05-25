@@ -43,6 +43,12 @@ public class AuthorizedUser {
 		this.ephemeral = ephemeral;
 	}
 	
+	public boolean checkEmptyEphemeral() {
+		if(ephemeral && !isEmpty())
+			ephemeral = false;
+		return ephemeral;
+	}
+	
 	public String getName() {
 		return name;
 	}

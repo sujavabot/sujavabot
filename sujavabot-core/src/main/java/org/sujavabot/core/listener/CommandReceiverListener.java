@@ -44,7 +44,7 @@ implements HelperConvertable<CommandReceiverListener> {
 				synchronized(runningCount) {
 					if(runningCount.get(user).decrementAndGet() == 0) {
 						runningCount.remove(user);
-						if(user.isEphemeral() && user.isEmpty())
+						if(user.checkEmptyEphemeral())
 							bot.removeAuthorizedUser(user);
 					}
 				}
