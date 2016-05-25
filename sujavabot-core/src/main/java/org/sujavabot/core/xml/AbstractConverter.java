@@ -2,7 +2,6 @@ package org.sujavabot.core.xml;
 
 import java.util.Objects;
 
-import org.sujavabot.core.util.Throwables;
 import org.sujavabot.core.xml.ConverterHelpers.MarshalHelper;
 import org.sujavabot.core.xml.ConverterHelpers.UnmarshalHelper;
 

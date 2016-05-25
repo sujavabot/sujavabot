@@ -5,7 +5,6 @@ import org.sujavabot.core.Authorization;
 import org.sujavabot.core.AuthorizedUser;
 import org.sujavabot.core.Command;
 import org.sujavabot.core.SujavaBot;
-import org.sujavabot.core.util.Events;
 
 public class DefaultCommandHandler extends AbstractCommandHandler {
 

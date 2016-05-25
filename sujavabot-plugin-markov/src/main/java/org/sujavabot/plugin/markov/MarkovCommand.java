@@ -1,25 +1,11 @@
 package org.sujavabot.plugin.markov;
 
-import java.net.ServerSocket;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
-import java.util.TreeSet;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
 import org.apache.commons.lang3.StringUtils;
-import org.pircbotx.PircBotX;
 import org.pircbotx.hooks.Event;
-import org.pircbotx.hooks.ListenerAdapter;
-import org.pircbotx.hooks.events.ActionEvent;
-import org.pircbotx.hooks.events.MessageEvent;
 import org.sujavabot.core.SujavaBot;
 import org.sujavabot.core.commands.AbstractReportingCommand;
 import org.sujavabot.core.xml.ConverterHelpers.MarshalHelper;

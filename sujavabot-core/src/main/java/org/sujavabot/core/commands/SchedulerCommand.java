@@ -2,9 +2,6 @@ package org.sujavabot.core.commands;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
-import java.util.TreeSet;
-
 import org.pircbotx.hooks.Event;
 import org.sujavabot.core.Scheduler;
 import org.sujavabot.core.Scheduler.ScheduledCommand;

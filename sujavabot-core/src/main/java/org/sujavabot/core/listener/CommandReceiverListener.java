@@ -12,7 +12,6 @@ import org.sujavabot.core.Authorization;
 import org.sujavabot.core.AuthorizedGroup;
 import org.sujavabot.core.AuthorizedUser;
 import org.sujavabot.core.SujavaBot;
-import org.sujavabot.core.util.SchedulerPool;
 import org.sujavabot.core.xml.ConverterHelpers.MarshalHelper;
 import org.sujavabot.core.xml.ConverterHelpers.UnmarshalHelper;
 import org.sujavabot.core.xml.HelperConvertable;
