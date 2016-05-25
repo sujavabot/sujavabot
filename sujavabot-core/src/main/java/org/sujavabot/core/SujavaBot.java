@@ -234,7 +234,7 @@ public class SujavaBot extends PircBotX {
 					waitForQueue.close();
 					if(sre.getCode() == 307 || sre.getCode() == 330)
 						verified.add(nick);
-					return sre.getCode() == 307;
+					return verified.contains(nick);
 				}
 			}
 			waitForQueue.close();
