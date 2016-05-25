@@ -260,7 +260,9 @@ public class Authorization {
 	public boolean isOwner(AuthorizedUser u) {
 		if(u == null || getUser() == null)
 			return false;
-		return getUser().equals(u) || isRootOwner();
+		if(isRootOwner())
+			return true;
+		return !"@nobody".equals(getUser().getName()) && getUser().equals(u);
 	}
 	
 	public boolean isUserOwned(String groupName) {
