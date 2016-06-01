@@ -94,7 +94,7 @@ public class UserAdminCommand extends AbstractReportingCommand {
 			return invokeHelp(bot, cause, args, "info");
 		String name = args.get(2);
 		AuthorizedUser user = bot.getAuthorizedUserByName(name);
-		if(user == null)
+		if("@nobody".equals(bot.getAuthorizedUserByName(name).getName()))
 			return "user " + name + " does not exist";
 		
 		List<String> commands = new ArrayList<>();
@@ -148,7 +148,7 @@ public class UserAdminCommand extends AbstractReportingCommand {
 		if(args.size() < 3)
 			return invokeHelp(bot, cause, args, "add");
 		String name = args.get(2);
-		if(bot.getAuthorizedUserByName(name) != null)
+		if(!"@nobody".equals(bot.getAuthorizedUserByName(name).getName()))
 			return "user " + name + " already exists";
 		if(!AuthorizedUser.CREATABLE_NAME.matcher(name).matches())
 			return "invalid user name";
@@ -183,7 +183,7 @@ public class UserAdminCommand extends AbstractReportingCommand {
 		if(!Authorization.isCurrentRootOwner())
 			return "permission denied";
 		String name = args.get(2);
-		if(bot.getAuthorizedUserByName(name) == null)
+		if("@nobody".equals(bot.getAuthorizedUserByName(name).getName()))
 			return "user " + name + " does not exist";
 		AuthorizedUser user = bot.getAuthorizedUserByName(name);
 		bot.removeAuthorizedUser(user);
@@ -196,7 +196,7 @@ public class UserAdminCommand extends AbstractReportingCommand {
 			return invokeHelp(bot, cause, args, "set_nick");
 		String name = args.get(2);
 		AuthorizedUser user = bot.getAuthorizedUserByName(name);
-		if(user == null)
+		if("@nobody".equals(user.getName()))
 			return "user with name " + name + " does not exist";
 		if(!Authorization.isCurrentOwner(user))
 			return "permission denied";
@@ -216,7 +216,7 @@ public class UserAdminCommand extends AbstractReportingCommand {
 		if(args.size() != 5)
 			return invokeHelp(bot, cause, args, "add_alias");
 		AuthorizedUser user = bot.getAuthorizedUserByName(args.get(2));
-		if(user == null)
+		if("@nobody".equals(user.getName()))
 			return "user with name " + args.get(2) + " does not exist";
 		if(!Authorization.isCurrentOwner(user))
 			return "permission denied";
@@ -233,7 +233,7 @@ public class UserAdminCommand extends AbstractReportingCommand {
 		if(args.size() != 4)
 			return invokeHelp(bot, cause, args, "remove_alias");
 		AuthorizedUser user = bot.getAuthorizedUserByName(args.get(2));
-		if(user == null)
+		if("@nobody".equals(user.getName()))
 			return "user with name " + args.get(2) + " does not exist";
 		if(!Authorization.isCurrentOwner(user))
 			return "permission denied";
@@ -251,7 +251,7 @@ public class UserAdminCommand extends AbstractReportingCommand {
 		if(args.size() != 4)
 			return invokeHelp(bot, cause, args, "show_alias");
 		AuthorizedUser user = bot.getAuthorizedUserByName(args.get(2));
-		if(user == null)
+		if("@nobody".equals(user.getName()))
 			return "user does not exist";
 		Command c = user.getAllCommands().get(args.get(3));
 		if(c == null)
@@ -265,7 +265,7 @@ public class UserAdminCommand extends AbstractReportingCommand {
 		if(args.size() != 5)
 			return invokeHelp(bot, cause, args, "set_property");
 		AuthorizedUser user = bot.getAuthorizedUserByName(args.get(2));
-		if(user == null)
+		if("@nobody".equals(user.getName()))
 			return "user with name " + args.get(2) + " does not exist";
 		if(!Authorization.isCurrentOwner(user))
 			return "permission denied";
@@ -280,7 +280,7 @@ public class UserAdminCommand extends AbstractReportingCommand {
 		if(args.size() != 4)
 			return invokeHelp(bot, cause, args, "unset_property");
 		AuthorizedUser user = bot.getAuthorizedUserByName(args.get(2));
-		if(user == null)
+		if("@nobody".equals(user.getName()))
 			return "user with name " + args.get(2) + " does not exist";
 		if(!Authorization.isCurrentOwner(user))
 			return "permission denied";
