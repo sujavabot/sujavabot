@@ -11,6 +11,8 @@ import org.pircbotx.Channel;
 import org.pircbotx.hooks.Event;
 import org.sujavabot.core.Authorization;
 import org.sujavabot.core.Command;
+import org.sujavabot.core.CommandComponent;
+import org.sujavabot.core.CommandComponent.LiteralString;
 import org.sujavabot.core.SujavaBot;
 import org.sujavabot.core.util.Events;
 
@@ -178,10 +180,10 @@ public class AliasCommand extends AbstractReportingCommand {
 	@Override
 	public String invoke(SujavaBot bot, Event<?> cause, List<String> args) {
 		String applied = applyAlias(bot, cause, args, alias);
-		Object[] parsed = bot.getCommands().parse(applied);
-		String[] flat = flatten(bot, cause, parsed);
-		if(flat.length > 0) {
-			Command reporter = bot.getCommands().get(cause, flat[0]);
+		CommandComponent.Expression parsed = bot.getCommands().parse(applied);
+		CommandComponent.Expression flat = flatten(bot, cause, parsed);
+		if(flat.getValue().length > 0) {
+			Command reporter = bot.getCommands().get(cause, flat.getValue()[0].toString());
 			String result = bot.getCommands().invoke(cause, flat);
 			this.reporter = reporter;
 			return result;
@@ -197,20 +199,25 @@ public class AliasCommand extends AbstractReportingCommand {
 			reporter.report(bot, cause, result);
 	}
 	
-	protected String[] flatten(SujavaBot bot, Event<?> cause, Object[] cmd) {
+	protected CommandComponent.Expression flatten(SujavaBot bot, Event<?> cause, CommandComponent.Expression cmd) {
 		List<String> args = new ArrayList<>();
-		for(int i = 0; i < cmd.length; i++) {
+		for(int i = 0; i < cmd.getValue().length; i++) {
+			CommandComponent cc = cmd.getValue()[i];
 			String arg;
-			if(cmd[i] instanceof Object[]) {
-				String[] subcmd = flatten(bot, cause, (Object[]) cmd[i]);
+			if(cc instanceof CommandComponent.Expression) {
+				CommandComponent.Expression subcmd = flatten(bot, cause, (CommandComponent.Expression) cc);
 				arg = bot.getCommands().invoke(cause, subcmd);
 			}
 			else
-				arg = (String) cmd[i];
+				arg = cc.toString();
 			if(arg != null)
 				args.add(arg);
 		}
-		return args.toArray(new String[args.size()]);
+		List<CommandComponent> ccl = new ArrayList<>();
+		for(String s : args) {
+			ccl.add(new CommandComponent.LiteralString(s));
+		}
+		return new CommandComponent.Expression(ccl.toArray(new CommandComponent[ccl.size()]));
 	}
 	
 	@Override

@@ -12,9 +12,11 @@ import org.pircbotx.Channel;
 import org.pircbotx.User;
 import org.pircbotx.hooks.Event;
 import org.sujavabot.core.Command;
+import org.sujavabot.core.CommandComponent;
 import org.sujavabot.core.CommandLexer;
 import org.sujavabot.core.CommandParser;
 import org.sujavabot.core.SujavaBot;
+import org.sujavabot.core.CommandComponent.LiteralString;
 
 public abstract class AbstractCommandHandler implements CommandHandler {
 	protected static User getUser(Event<?> event) {
@@ -68,13 +70,17 @@ public abstract class AbstractCommandHandler implements CommandHandler {
 		return c;
 	}
 	
-	public Object[] parse(String unparsed) {
+	public CommandComponent.Expression parse(String unparsed) {
 		CommandParser parser = new CommandParser(new CommonTokenStream(new CommandLexer(new ANTLRInputStream(unparsed))));
 		parser.setErrorHandler(new BailErrorStrategy());
 		try {
 			return parser.command().c;
 		} catch(RuntimeException re) {
-			return new Object[] {"_parse-error", unparsed};
+			CommandComponent[] cc = {
+				new CommandComponent.LiteralString("_parse-error"),
+				new CommandComponent.LiteralString(unparsed),
+			};
+			return new CommandComponent.Expression(cc);
 		}
 	}
 	
@@ -88,14 +94,15 @@ public abstract class AbstractCommandHandler implements CommandHandler {
 		return invoke(cause, parse(unparsed));
 	}
 	
-	public void perform(Event<?> cause, Object[] cmd) {
+	public void perform(Event<?> cause, CommandComponent.Expression cmd) {
 		List<String> args = new ArrayList<>();
-		for(int i = 0; i < cmd.length; i++) {
+		for(int i = 0; i < cmd.getValue().length; i++) {
 			String arg;
-			if(cmd[i] instanceof Object[])
-				arg = invoke(cause, (Object[]) cmd[i]);
+			CommandComponent cc = cmd.getValue()[i];
+			if(cc instanceof CommandComponent.Expression)
+				arg = invoke(cause, (CommandComponent.Expression) cc);
 			else
-				arg = (String) cmd[i];
+				arg = cc.toString();
 			if(arg != null)
 				args.add(arg);
 		}
@@ -107,14 +114,15 @@ public abstract class AbstractCommandHandler implements CommandHandler {
 		}
 	}
 	
-	public String invoke(Event<?> cause, Object[] cmd) {
+	public String invoke(Event<?> cause, CommandComponent.Expression cmd) {
 		List<String> args = new ArrayList<>();
-		for(int i = 0; i < cmd.length; i++) {
+		for(int i = 0; i < cmd.getValue().length; i++) {
 			String arg;
-			if(cmd[i] instanceof Object[])
-				arg = invoke(cause, (Object[]) cmd[i]);
+			CommandComponent cc = cmd.getValue()[i];
+			if(cc instanceof CommandComponent.Expression)
+				arg = invoke(cause, (CommandComponent.Expression) cc);
 			else
-				arg = (String) cmd[i];
+				arg = cc.toString();
 			if(arg != null)
 				args.add(arg);
 		}

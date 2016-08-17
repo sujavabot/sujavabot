@@ -2,6 +2,7 @@ package org.sujavabot.core.commands;
 
 import org.pircbotx.hooks.Event;
 import org.sujavabot.core.Command;
+import org.sujavabot.core.CommandComponent;
 
 public interface CommandHandler {
 
@@ -9,11 +10,11 @@ public interface CommandHandler {
 	
 	Command get(Event<?> cause, String name);
 
-	public Object[] parse(String unparsed);
+	public CommandComponent.Expression parse(String unparsed);
 
 	public String invoke(Event<?> cause, String unparsed);
-	public String invoke(Event<?> cause, Object[] parsed);
+	public String invoke(Event<?> cause, CommandComponent.Expression parsed);
 	void perform(Event<?> cause, String unparsed);
-	void perform(Event<?> cause, Object[] parsed);
+	void perform(Event<?> cause, CommandComponent.Expression parsed);
 
 }
