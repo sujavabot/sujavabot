@@ -16,7 +16,6 @@ import org.sujavabot.core.CommandComponent;
 import org.sujavabot.core.CommandLexer;
 import org.sujavabot.core.CommandParser;
 import org.sujavabot.core.SujavaBot;
-import org.sujavabot.core.CommandComponent.LiteralString;
 
 public abstract class AbstractCommandHandler implements CommandHandler {
 	protected static User getUser(Event<?> event) {
@@ -76,9 +75,9 @@ public abstract class AbstractCommandHandler implements CommandHandler {
 		try {
 			return parser.command().c;
 		} catch(RuntimeException re) {
-			CommandComponent[] cc = {
-				new CommandComponent.LiteralString("_parse-error"),
-				new CommandComponent.LiteralString(unparsed),
+			Object[] cc = {
+				"_parse-error",
+				unparsed,
 			};
 			return new CommandComponent.Expression(cc);
 		}
@@ -98,7 +97,7 @@ public abstract class AbstractCommandHandler implements CommandHandler {
 		List<String> args = new ArrayList<>();
 		for(int i = 0; i < cmd.getValue().length; i++) {
 			String arg;
-			CommandComponent cc = cmd.getValue()[i];
+			Object cc = cmd.getValue()[i];
 			if(cc instanceof CommandComponent.Expression)
 				arg = invoke(cause, (CommandComponent.Expression) cc);
 			else
@@ -118,7 +117,7 @@ public abstract class AbstractCommandHandler implements CommandHandler {
 		List<String> args = new ArrayList<>();
 		for(int i = 0; i < cmd.getValue().length; i++) {
 			String arg;
-			CommandComponent cc = cmd.getValue()[i];
+			Object cc = cmd.getValue()[i];
 			if(cc instanceof CommandComponent.Expression)
 				arg = invoke(cause, (CommandComponent.Expression) cc);
 			else

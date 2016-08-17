@@ -6,17 +6,17 @@ grammar Command;
 
 command returns [CommandComponent.Expression c]:
 	a=args { 
-		$c = new CommandComponent.Expression($a.r.toArray(new CommandComponent[0])); 
+		$c = new CommandComponent.Expression($a.r.toArray(new Object[$a.r.size()])); 
 	}
 ;
 
-args returns [List<CommandComponent> r]:
+args returns [List<Object> r]:
 	a=arg { $r = new ArrayList<>(java.util.Arrays.asList($a.a)); }
 |	l=args a=arg { $l.r.add($a.a); $r = $l.r; }
 ;
 
-arg returns [CommandComponent a]:
-	s=string { $a = new CommandComponent.LiteralString($s.s); }
+arg returns [Object a]:
+	s=string { $a = $s.s; }
 	'\'' sa=arg { $a = new CommandComponent.Quote($sa.a); }
 	'`' sa=arg { $a = new CommandComponent.QuasiQuote($sa.a); }
 	'~' sa=arg { $a = new CommandComponent.Unquote($sa.a); }

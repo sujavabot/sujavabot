@@ -12,7 +12,6 @@ import org.pircbotx.hooks.Event;
 import org.sujavabot.core.Authorization;
 import org.sujavabot.core.Command;
 import org.sujavabot.core.CommandComponent;
-import org.sujavabot.core.CommandComponent.LiteralString;
 import org.sujavabot.core.SujavaBot;
 import org.sujavabot.core.util.Events;
 
@@ -202,7 +201,7 @@ public class AliasCommand extends AbstractReportingCommand {
 	protected CommandComponent.Expression flatten(SujavaBot bot, Event<?> cause, CommandComponent.Expression cmd) {
 		List<String> args = new ArrayList<>();
 		for(int i = 0; i < cmd.getValue().length; i++) {
-			CommandComponent cc = cmd.getValue()[i];
+			Object cc = cmd.getValue()[i];
 			String arg;
 			if(cc instanceof CommandComponent.Expression) {
 				CommandComponent.Expression subcmd = flatten(bot, cause, (CommandComponent.Expression) cc);
@@ -213,11 +212,7 @@ public class AliasCommand extends AbstractReportingCommand {
 			if(arg != null)
 				args.add(arg);
 		}
-		List<CommandComponent> ccl = new ArrayList<>();
-		for(String s : args) {
-			ccl.add(new CommandComponent.LiteralString(s));
-		}
-		return new CommandComponent.Expression(ccl.toArray(new CommandComponent[ccl.size()]));
+		return new CommandComponent.Expression(args.toArray());
 	}
 	
 	@Override
