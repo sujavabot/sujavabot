@@ -76,7 +76,7 @@ public class VoteCommand extends AbstractReportingCommand implements HelperConve
 				continue;
 			String v = props.getProperty(p);
 			if(nickp.matcher(v).find()) {
-				oldvote = v;
+				oldvote = p;
 			}
 		}
 		if(oldvote != null) {
@@ -84,9 +84,9 @@ public class VoteCommand extends AbstractReportingCommand implements HelperConve
 			oldval = oldval.replaceAll(Pattern.quote("," + nick) + "(?=,|$)", "");
 			props.setProperty(oldvote, oldval);
 		}
-		String newval = props.getProperty(vote);
+		String newval = props.getProperty("options." + vote);
 		newval += "," + nick;
-		props.setProperty(vote, newval);
+		props.setProperty("options." + vote, newval);
 		try {
 			FileOutputStream fout = new FileOutputStream(file);
 			FileLock lock = fout.getChannel().lock();
