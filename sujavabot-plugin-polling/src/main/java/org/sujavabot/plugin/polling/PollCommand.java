@@ -14,9 +14,13 @@ import java.util.Map;
 import java.util.Properties;
 
 import org.apache.commons.lang3.StringUtils;
+import org.pircbotx.Channel;
+import org.pircbotx.User;
 import org.pircbotx.hooks.Event;
 import org.sujavabot.core.SujavaBot;
 import org.sujavabot.core.commands.AbstractReportingCommand;
+import org.sujavabot.core.util.Events;
+import org.sujavabot.core.util.Messages;
 import org.sujavabot.core.xml.ConverterHelpers.MarshalHelper;
 import org.sujavabot.core.xml.ConverterHelpers.UnmarshalHelper;
 import org.sujavabot.core.xml.HelperConvertable;
@@ -48,7 +52,37 @@ public class PollCommand extends AbstractReportingCommand implements HelperConve
 	
 	@Override
 	protected void reportMessage(SujavaBot bot, Event<?> cause, String result, boolean isChannelMessage) {
-		super.reportMessage(bot, cause, result, isChannelMessage && !listing);
+		if(!listing)
+			super.reportMessage(bot, cause, result, isChannelMessage);
+		else {
+			User user = Events.getUser(cause);
+			Channel channel = Events.getChannel(cause);
+			if(isChannelMessage) {
+				String p = prefix(bot, cause, result);
+				for(String msg : result.split("[\r\n]+")) {
+					msg = Messages.sanitize(msg);
+					String[] sb = Messages.splitPM(bot, user.getNick(), p + msg);
+					while(true) {
+						channel.send().message(sb[0]);
+						if(sb[1] == null)
+							break;
+						sb = Messages.splitPM(bot, user.getNick(), p + sb[1]);
+					}
+				}
+			} else {
+				String p = prefix(bot, cause, result);
+				for(String msg : result.split("[\r\n]+")) {
+					msg = Messages.sanitize(msg);
+					String[] sb = Messages.splitPM(bot, user.getNick(), p + msg);
+					while(true) {
+						user.send().message(sb[0]);
+						if(sb[1] == null)
+							break;
+						sb = Messages.splitPM(bot, user.getNick(), p + sb[1]);
+					}
+				}
+			}
+		}
 	}
 	
 	private String createPoll(SujavaBot bot, Event<?> cause, List<String> args) {
