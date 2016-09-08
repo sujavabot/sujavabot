@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.channels.FileLock;
 import java.util.ArrayList;
@@ -32,6 +33,8 @@ public class PollCommand extends AbstractReportingCommand implements HelperConve
 			return createPoll(bot, cause, args);
 		else if("list".equals(args.get(1)))
 			return listPolls(bot, cause, args);
+		else if("question".equals(args.get(1)))
+			return pollQuestion(bot, cause, args);
 		else if("results".equals(args.get(1)))
 			return pollResults(bot, cause, args);
 		else if("delete".equals(args.get(1)))
@@ -116,6 +119,30 @@ public class PollCommand extends AbstractReportingCommand implements HelperConve
 		return StringUtils.join(results, " \n");
 	}
 
+	private String pollQuestion(SujavaBot bot, Event<?> cause, List<String> args) {
+		if(args.size() != 3)
+			return invokeHelp(bot, cause, args, "question");
+		String name = args.get(2);
+		if(!name.matches("\\w+"))
+			return "invalid poll name";
+		File file = new File(directory, name + ".poll");
+		if(!file.exists())
+			return "no such poll";
+		Properties props = new Properties();
+		try {
+			FileInputStream fin = new FileInputStream(file);
+			try {
+				props.load(fin);
+			} finally {
+				fin.close();
+			}
+		} catch(IOException e) {
+			return "unable to real poll";
+		}
+		return props.getProperty("question");
+	}
+
+	
 	private String deletePoll(SujavaBot bot, Event<?> cause, List<String> args) {
 		if(args.size() != 3)
 			return invokeHelp(bot, cause, args, "delete");
@@ -135,6 +162,7 @@ public class PollCommand extends AbstractReportingCommand implements HelperConve
 		return buildHelp("polling",
 				"create", "<name> <question> <options>...: create a poll",
 				"list", ": list existing polls",
+				"question", "<name>: return the poll question",
 				"results", "<name>: show poll results",
 				"delete", "<name>: delete a poll");
 	}
