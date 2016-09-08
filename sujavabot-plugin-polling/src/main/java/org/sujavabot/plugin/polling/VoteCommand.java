@@ -41,11 +41,9 @@ public class VoteCommand extends AbstractReportingCommand implements HelperConve
 		Properties props = new Properties();
 		try {
 			FileInputStream fin = new FileInputStream(file);
-			FileLock lock = fin.getChannel().lock();
 			try {
 				props.load(fin);
 			} finally {
-				lock.release();
 				fin.close();
 			}
 		} catch(IOException e) {
