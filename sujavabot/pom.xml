@@ -84,6 +84,20 @@
 				</dependency>
 			</dependencies>
 		</profile>
+		<profile>
+			<id>plugin.polling</id>
+			<activation>
+				<activeByDefault>true</activeByDefault>
+			</activation>
+			<dependencies>
+				<dependency>
+					<groupId>org.sujavabot.plugin</groupId>
+					<artifactId>polling-sujavabot-plugin</artifactId>
+					<version>0.0.1-SNAPSHOT</version>
+					<scope>runtime</scope>
+				</dependency>
+			</dependencies>
+		</profile>
 	</profiles>
 
 	<build>
