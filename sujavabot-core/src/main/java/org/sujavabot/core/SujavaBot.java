@@ -216,6 +216,8 @@ public class SujavaBot extends PircBotX {
 	}
 	
 	public boolean isVerified(String nick) {
+		if("@nobody".equals(nick))
+			return false;
 		if(verified.contains(nick))
 			return true;
 		try {
