@@ -70,7 +70,7 @@ public class VoteCommand extends AbstractReportingCommand implements HelperConve
 		}
 		String nick = Events.getUser(cause).getNick();
 		String oldvote = null;
-		Pattern nickp = Pattern.compile(Pattern.quote("," + nick) + "(?=,|$");
+		Pattern nickp = Pattern.compile(Pattern.quote("," + nick) + "(?=,|$)");
 		for(String p : props.stringPropertyNames()) {
 			if(!p.startsWith("option."))
 				continue;
