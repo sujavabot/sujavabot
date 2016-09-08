@@ -25,8 +25,11 @@ public class PollCommand extends AbstractReportingCommand implements HelperConve
 
 	private File directory;
 	
+	private transient boolean listing;
+	
 	@Override
 	public String invoke(SujavaBot bot, Event<?> cause, List<String> args) {
+		listing = false;
 		if(args.size() <= 1)
 			return invokeHelp(bot, cause, args);
 		if("create".equals(args.get(1)))
@@ -41,6 +44,11 @@ public class PollCommand extends AbstractReportingCommand implements HelperConve
 			return deletePoll(bot, cause, args);
 		else
 			return invokeHelp(bot, cause, args);
+	}
+	
+	@Override
+	protected void reportMessage(SujavaBot bot, Event<?> cause, String result, boolean isChannelMessage) {
+		super.reportMessage(bot, cause, result, isChannelMessage && !listing);
 	}
 	
 	private String createPoll(SujavaBot bot, Event<?> cause, List<String> args) {
@@ -84,7 +92,24 @@ public class PollCommand extends AbstractReportingCommand implements HelperConve
 		if(polls.size() == 0)
 			return "<no polls>";
 		Collections.sort(polls);
-		return StringUtils.join(polls, " ");
+		for(int i = 0; i < polls.size(); i++) {
+			String name = polls.get(i);
+			File file = new File(directory, name + ".poll");
+			Properties props = new Properties();
+			try {
+				FileInputStream fin = new FileInputStream(file);
+				try {
+					props.load(fin);
+				} finally {
+					fin.close();
+				}
+			} catch(IOException e) {
+				continue;
+			}
+			polls.set(i, name + ": " + props.getProperty("question"));
+		}
+		listing = true;
+		return StringUtils.join(polls, "\n");
 	}
 
 	private String pollResults(SujavaBot bot, Event<?> cause, List<String> args) {
