@@ -140,7 +140,15 @@ public class PollCommand extends AbstractReportingCommand implements HelperConve
 			} catch(IOException e) {
 				continue;
 			}
-			polls.set(i, name + ": " + props.getProperty("question"));
+			List<String> options = new ArrayList<String>();
+			for(String p : props.stringPropertyNames()) {
+				if(!p.startsWith("option."))
+					continue;
+				options.add(p.substring("option.".length()));
+			}
+			Collections.sort(options);
+			String o = StringUtils.join(options, "/");
+			polls.set(i, name + " (" + o + "): " + props.getProperty("question"));
 		}
 		listing = true;
 		return StringUtils.join(polls, "\n");
