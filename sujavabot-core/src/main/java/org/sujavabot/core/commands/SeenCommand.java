@@ -232,7 +232,7 @@ public class SeenCommand extends AbstractReportingCommand {
 		Pattern where;
 		Pattern nick;
 		try {
-			where = Pattern.compile(args.get(2));
+			where = Pattern.compile(args.get(2), Pattern.CASE_INSENSITIVE);
 		} catch(Exception e) {
 			return "invalid where_pattern: " + e.getMessage();
 		}
