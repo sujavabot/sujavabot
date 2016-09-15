@@ -19,9 +19,10 @@ import org.sujavabot.core.xml.HelperConvertable;
 
 public class PatternCommandListener extends ListenerAdapter<PircBotX> implements HelperConvertable<PatternCommandListener> {
 	protected static final Pattern ESCAPE = Pattern.compile("\\\\\\.");
-	protected static final Pattern GROUP = Pattern.compile("\\$\\d+");
+	protected static final Pattern GROUP = Pattern.compile("\\$(\\d+|nick|user)");
 	
 	protected Pattern user = Pattern.compile(".*");
+	protected Pattern nick = Pattern.compile(".*");
 	protected Pattern pattern;
 	protected String command;
 	
@@ -31,6 +32,9 @@ public class PatternCommandListener extends ListenerAdapter<PircBotX> implements
 		AuthorizedUser user = bot.getAuthorizedUser(event.getUser(), false);
 		Matcher mm = pattern.matcher(event.getMessage());
 		while(mm.find()) {
+			
+			if(!this.nick.matcher(event.getUser().getNick()).matches())
+				return;
 			
 			if(!this.user.matcher(user.getName()).matches())
 				return;
@@ -57,8 +61,14 @@ public class PatternCommandListener extends ListenerAdapter<PircBotX> implements
 			int end2 = 0;
 			while(gm.find()) {
 				sb.append(noescapes.substring(end2, gm.start()));
-				int gn = Integer.parseInt(gm.group().substring(1));
-				sb.append(mm.group(gn));
+				if("$nick".equals(gm.group()))
+					sb.append(event.getUser().getNick());
+				else if("$user".equals(gm.group()))
+					sb.append(user.getName());
+				else {
+					int gn = Integer.parseInt(gm.group().substring(1));
+					sb.append(mm.group(gn));
+				}
 				end2 = gm.end();
 			}
 			sb.append(noescapes.substring(end2));
@@ -77,6 +87,7 @@ public class PatternCommandListener extends ListenerAdapter<PircBotX> implements
 	public void configure(MarshalHelper helper, PatternCommandListener defaults) {
 		helper.field("pattern", String.class, () -> pattern.pattern());
 		helper.field("user", String.class, () -> user.pattern());
+		helper.field("nick", String.class, () -> nick.pattern());
 		helper.field("command", String.class, () -> command);
 	}
 
@@ -84,6 +95,7 @@ public class PatternCommandListener extends ListenerAdapter<PircBotX> implements
 	public void configure(UnmarshalHelper helper) {
 		helper.field("pattern", String.class, (s) -> pattern = Pattern.compile(s));
 		helper.field("user", String.class, (s) -> user = Pattern.compile(s));
+		helper.field("nick", String.class, (s) -> nick = Pattern.compile(s));
 		helper.field("command", String.class, (s) -> command = s);
 	}
 	
