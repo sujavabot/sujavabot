@@ -156,6 +156,8 @@ public class ConfigurationBuilderConverter extends AbstractConverter<Configurati
 		}
 		
 		for(Listener<?> l : current.getBotListeners()) {
+			if((l instanceof ConverterSkippable) && ((ConverterSkippable) l).isConverterSkipped())
+				continue;
 			helper.field("listener", () -> l);
 		}
 		
