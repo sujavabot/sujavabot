@@ -51,6 +51,9 @@ public class JRubyPlugin implements Plugin {
 			Reader r = new InputStreamReader(new FileInputStream(file), "UTF-8");
 			try {
 				plugin = (Plugin) engine.eval(r);
+			} catch(Exception e) {
+				e.printStackTrace();
+				throw e;
 			} finally {
 				r.close();
 			}
