@@ -7,6 +7,8 @@ import java.io.Reader;
 import java.net.URL;
 import java.nio.charset.Charset;
 
+import org.apache.commons.lang3.StringEscapeUtils;
+
 public abstract class URLs {
 	private URLs() {}
 	
@@ -14,7 +16,7 @@ public abstract class URLs {
 		InputStream in = url.openStream();
 		try {
 			Reader reader = new InputStreamReader(in, Charset.forName("UTF-8"));
-			long count = 16384;
+			long count = 65536;
 			String tag = "";
 			while(count-- > 0 && !"<TITLE>".equals(tag.toUpperCase())) {
 				int ch = reader.read();
@@ -50,6 +52,7 @@ public abstract class URLs {
 					tag = "";
 				}
 			}
+			title = StringEscapeUtils.unescapeHtml4(title);
 			return title;
 		} finally {
 			in.close();
