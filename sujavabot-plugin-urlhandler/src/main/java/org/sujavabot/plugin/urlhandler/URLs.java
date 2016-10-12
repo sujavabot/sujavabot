@@ -52,7 +52,7 @@ public abstract class URLs {
 					tag = "";
 				}
 			}
-			title = StringEscapeUtils.unescapeHtml4(title);
+			title = StringEscapeUtils.unescapeHtml4(title).trim();
 			return title;
 		} finally {
 			in.close();
