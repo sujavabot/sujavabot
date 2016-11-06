@@ -46,7 +46,7 @@ public class IdentificationCommand extends AbstractReportingCommand implements H
 			for(Entry<String, Double> e : ids.entrySet()) {
 				String nick = e.getKey();
 				double prob = e.getValue();
-				ret.add(String.format("%s (probability %d%%)", nick, prob * 100));
+				ret.add(String.format("%s (probability %d%%)", nick, Math.round(prob * 100)));
 				if(--count == 0)
 					break;
 			}
@@ -77,7 +77,7 @@ public class IdentificationCommand extends AbstractReportingCommand implements H
 					continue;
 				prob += e.getValue();
 			}
-			return String.format("%s (probability %d%%)", prob >= 0.5 ? "Yes" : "No", prob * 100);
+			return String.format("%s (probability %d%%)", prob >= 0.5 ? "Yes" : "No", Math.round(prob * 100));
 		}
 		return invokeHelp(bot, cause, args);
 	}
