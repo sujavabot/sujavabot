@@ -101,6 +101,8 @@ public class EditDistancer {
 			if(op == Op.NEXT) {
 				pos -= xval.length + 1;
 			}
+			if(op == Op.STOP)
+				break;
 		}
 		
 		return Arrays.copyOfRange(ret, 0, rpos);
