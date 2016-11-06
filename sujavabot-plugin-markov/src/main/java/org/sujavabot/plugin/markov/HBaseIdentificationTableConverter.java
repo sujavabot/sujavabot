@@ -84,7 +84,7 @@ public class HBaseIdentificationTableConverter extends AbstractConverter<HBaseId
 			
 			String table = (String) props.remove(TABLE);
 			String family = (String) props.remove(FAMILY);
-			double distancePower = props.containsKey(DISTANCE_POWER) ? Double.parseDouble(DISTANCE_POWER) : HBaseIdentificationTable.DEFAULT_DISTANCE_POWER;
+			double distancePower = props.containsKey(DISTANCE_POWER) ? Double.parseDouble((String) props.remove(DISTANCE_POWER)) : HBaseIdentificationTable.DEFAULT_DISTANCE_POWER;
 			Long duration = props.containsKey(DURATION) ? Long.parseLong((String) props.remove(DURATION)) : null;
 			Integer batch = props.containsKey(BATCH) ? Integer.parseInt((String) props.remove(BATCH)) : null;
 			Integer caching = props.containsKey(CACHING) ? Integer.parseInt((String) props.remove(CACHING)) : null;
