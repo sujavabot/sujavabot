@@ -2,6 +2,7 @@ package org.sujavabot.plugin.markov;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
@@ -39,8 +40,14 @@ public class IdentificationListenerConverter extends AbstractConverter<Identific
 
 	@Override
 	protected void configure(IdentificationListener current, MarshalHelper helper, IdentificationListener defaults) {
-		for(String channel : current.getChannels())
-			helper.field("channel", String.class, () -> channel);
+		if(current.getChannels() != null) {
+			for(String channel : current.getChannels())
+				helper.field("channel", String.class, () -> channel);
+		}
+		if(current.getIgnore() != null) {
+			for(Pattern p : current.getIgnore())
+				helper.field("ignore", String.class, () -> p.pattern());
+		}
 		helper.field("maxlen", Integer.class, () -> current.getIdent().getMaxlen());
 		helper.field("forward", () -> current.getIdent().getForwardTable());
 		helper.field("reverse", () -> current.getIdent().getReverseTable());
@@ -52,6 +59,11 @@ public class IdentificationListenerConverter extends AbstractConverter<Identific
 			if(current.getChannels() == null)
 				current.setChannels(new TreeSet<>());
 			current.getChannels().add(s);
+		});
+		helper.field("ignore", String.class, (s) -> {
+			if(current.getIgnore() == null)
+				current.setIgnore(new HashSet<>());
+			current.getIgnore().add(Pattern.compile(s));
 		});
 		helper.field("maxlen", Integer.class, (i) -> {
 			if(current.getIdent() == null)

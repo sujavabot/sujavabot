@@ -3,6 +3,7 @@ package org.sujavabot.plugin.markov;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
+import java.util.regex.Pattern;
 
 import org.pircbotx.PircBotX;
 import org.pircbotx.hooks.ListenerAdapter;
@@ -12,12 +13,19 @@ public class IdentificationListener extends ListenerAdapter<PircBotX> {
 
 	protected Identification ident;
 	protected Set<String> channels;
+	protected Set<Pattern> ignore;
 	
 	@Override
 	public void onMessage(MessageEvent<PircBotX> event) throws Exception {
-		if(!channels.contains(event.getChannel().getName()))
+		if(channels != null && !channels.contains(event.getChannel().getName()))
 			return;
 		String m = event.getMessage();
+		if(ignore != null) {
+			for(Pattern p : ignore) {
+				if(p.matcher(m).matches())
+					return;
+			}
+		}
 
 		m = m.replaceAll("^(\\S+:\\s*|<\\S+>\\s*)*", "");
 		List<String> content = StringContent.parse(m);
@@ -45,5 +53,13 @@ public class IdentificationListener extends ListenerAdapter<PircBotX> {
 
 	public void setChannels(Set<String> channels) {
 		this.channels = channels;
+	}
+
+	public Set<Pattern> getIgnore() {
+		return ignore;
+	}
+
+	public void setIgnore(Set<Pattern> ignore) {
+		this.ignore = ignore;
 	}
 }
