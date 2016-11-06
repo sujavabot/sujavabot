@@ -71,6 +71,11 @@ public class AliasCommand extends AbstractReportingCommand {
 	protected Map<String, String> helpTopics() {
 		return buildHelp("is an alias for: " + alias);
 	}
+
+	@Override
+	protected String invokeHelp(SujavaBot bot, Event<?> cause, List<String> args, String topic) {
+		return "is an alias for: " + alias;
+	}
 	
 	protected static String unescape(String s) {
 		Matcher m = ESCAPE.matcher(s);
