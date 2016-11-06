@@ -1,9 +1,11 @@
 package org.sujavabot.plugin.markov;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeSet;
+import java.util.regex.Pattern;
 import java.util.Map.Entry;
 
 import org.apache.commons.lang.StringUtils;
@@ -20,26 +22,71 @@ public class IdentificationCommand extends AbstractReportingCommand implements H
 	
 	@Override
 	public String invoke(SujavaBot bot, Event<?> cause, List<String> args) {
-		List<String> prompt = StringContent.parse(StringUtils.join(args.subList(1, args.size()), " "));
-		if(prompt.size() < Identification.MIN_CONTENT_SIZE)
-			return "minimum prompt size is " + Identification.MIN_CONTENT_SIZE;
-		Map<String, Double> ids;
-		try {
-			ids = ident.identify(System.currentTimeMillis(), prompt);
-		} catch (IOException e) {
-			throw new RuntimeException(e);
+		if(args.size() < 4)
+			return invokeHelp(bot, cause, args);
+		if("who".equals(args.get(1))) {
+			int count;
+			try {
+				count = Integer.parseInt(args.get(2));
+			} catch(RuntimeException e) {
+				return invokeHelp(bot, cause, args, "who");
+			}
+			if(count <= 0)
+				return invokeHelp(bot, cause, args, "who");
+			List<String> prompt = StringContent.parse(StringUtils.join(args.subList(3, args.size()), " "));
+			if(prompt.size() < Identification.MIN_CONTENT_SIZE)
+				return "minimum prompt size is " + Identification.MIN_CONTENT_SIZE;
+			Map<String, Double> ids;
+			try {
+				ids = ident.identify(System.currentTimeMillis(), prompt);
+			} catch (IOException e) {
+				throw new RuntimeException(e);
+			}
+			List<String> ret = new ArrayList<String>();
+			for(Entry<String, Double> e : ids.entrySet()) {
+				String nick = e.getKey();
+				double prob = e.getValue();
+				ret.add(String.format("%s (probability %3.0f%%)", nick, prob * 100));
+				if(--count == 0)
+					break;
+			}
+			if(ret.size() == 0)
+				return "no identification match";
+			return StringUtils.join(ret, ", ");
 		}
-		for(Entry<String, Double> e : ids.entrySet()) {
-			String nick = e.getKey();
-			double prob = e.getValue();
-			return String.format("%s (probability %3.0f%%)", nick, prob * 100);
+		if("did".equals(args.get(1))) {
+			Pattern npat;
+			try {
+				npat = Pattern.compile(args.get(2), Pattern.CASE_INSENSITIVE);
+			} catch(RuntimeException e) {
+				return invokeHelp(bot, cause, args, "did");
+			}
+			List<String> prompt = StringContent.parse(StringUtils.join(args.subList(3, args.size()), " "));
+			if(prompt.size() < Identification.MIN_CONTENT_SIZE)
+				return "minimum prompt size is " + Identification.MIN_CONTENT_SIZE;
+			Map<String, Double> ids;
+			try {
+				ids = ident.identify(System.currentTimeMillis(), prompt);
+			} catch (IOException e) {
+				throw new RuntimeException(e);
+			}
+			double prob = 0;
+			for(Entry<String, Double> e : ids.entrySet()) {
+				String nick = e.getKey();
+				if(!npat.matcher(nick).matches())
+					continue;
+				prob += e.getValue();
+			}
+			return String.format("%s (probability %3.0f%%)", prob >= 0.5 ? "Yes" : "No", prob * 100);
 		}
-		return "no identification match";
+		return invokeHelp(bot, cause, args);
 	}
 
 	@Override
 	protected Map<String, String> helpTopics() {
-		return buildHelp("<prompt>: attempt to identify a prompt");
+		return buildHelp("identify text using frequency analysis",
+				"who", "<count> <prompt>: identify nicks most likely to have said the prompt",
+				"did", "<pattern> <prompt>: identify whether a nick would likely say a prompt");
 	}
 
 	@Override
