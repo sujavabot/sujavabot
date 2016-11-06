@@ -26,7 +26,7 @@ public class Identification {
 		List<String> rContent = new ArrayList<>(content);
 		Collections.reverse(rContent);
 		
-		for(int start = 0; start < content.size() - MIN_CONTENT_SIZE; start++) {
+		for(int start = 0; start <= content.size() - MIN_CONTENT_SIZE; start++) {
 			for(int len = MIN_CONTENT_SIZE; len <= maxlen && start + len <= content.size(); len++) {
 				List<String> fPrefix = fContent.subList(start, start + len - 1);
 				String fSuffix = fContent.get(start + len - 1);
@@ -58,7 +58,7 @@ public class Identification {
 		Map<byte[], Double> psum = new TreeMap<>(Bytes.BYTES_COMPARATOR);
 		
 		double tsum = 0;
-		for(int start = 0; start < content.size() - MIN_CONTENT_SIZE; start++) {
+		for(int start = 0; start <= content.size() - MIN_CONTENT_SIZE; start++) {
 			for(int len = MIN_CONTENT_SIZE; len <= maxlen && start + len <= content.size(); len++) {
 				List<String> fPrefix = fContent.subList(start, start + len - 1);
 				String fSuffix = fContent.get(start + len - 1);
