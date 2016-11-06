@@ -83,10 +83,6 @@ public class HBaseIdentificationTable implements IdentificationTable {
 	public HBaseIdentificationTable() {
 	}
 	
-	public HBaseIdentificationTable(Table table) {
-		this(table, DEFAULT_FAMILY);
-	}
-	
 	public HBaseIdentificationTable(Table table, String family) {
 		this(table, family, DEFAULT_DISTANCE_POWER);
 	}

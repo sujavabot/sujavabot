@@ -23,7 +23,7 @@ public class HBaseIdentificationTableConverter extends AbstractConverter<HBaseId
 	
 	public static final String TABLE = "table";
 	public static final String FAMILY = "family";
-	public static final String DISTANCE_POWER = "distancepower";
+	public static final String DISTANCE_POWER = "distance-power";
 	public static final String DURATION = "duration";
 	public static final String AUTOFLUSH = "autoflush";
 	public static final String BATCH = "batching";

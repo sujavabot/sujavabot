@@ -12,11 +12,12 @@ import java.util.TreeMap;
 import org.apache.hadoop.hbase.util.Bytes;
 
 public class Identification {
-	private static final int MIN_CONTENT_SIZE = 2;
+	public static final int MIN_CONTENT_SIZE = 2;
 	
 	protected IdentificationTable forwardTable;
 	protected IdentificationTable reverseTable;
 	protected int maxlen;
+	protected double prefixPower;
 	
 	public void consume(long timestamp, String id, List<String> content) throws IOException {
 		byte[] tableId = Bytes.toBytes(id);
@@ -68,8 +69,9 @@ public class Identification {
 				Map<byte[], Double> fprob = forwardTable.get(timestamp, fTablePrefix, fTableSuffix);
 				for(Entry<byte[], Double> e : fprob.entrySet()) {
 					double d = psum.getOrDefault(e.getKey(), 0.);
-					d += e.getValue();
-					tsum += e.getValue();
+					double v = e.getValue() * Math.pow(fPrefix.size(), prefixPower);
+					d += v;
+					tsum += v;
 					psum.put(e.getKey(), d);
 				}
 
@@ -82,8 +84,9 @@ public class Identification {
 				Map<byte[], Double> rprob = reverseTable.get(timestamp, rTablePrefix, rTableSuffix);
 				for(Entry<byte[], Double> e : rprob.entrySet()) {
 					double d = psum.getOrDefault(e.getKey(), 0.);
-					d += e.getValue();
-					tsum += e.getValue();
+					double v = e.getValue() * Math.pow(rPrefix.size(), prefixPower);
+					d += v;
+					tsum += v;
 					psum.put(e.getKey(), d);
 				}
 			}
@@ -125,5 +128,13 @@ public class Identification {
 
 	public void setMaxlen(int maxlen) {
 		this.maxlen = maxlen;
+	}
+
+	public double getPrefixPower() {
+		return prefixPower;
+	}
+
+	public void setPrefixPower(double prefixPower) {
+		this.prefixPower = prefixPower;
 	}
 }
