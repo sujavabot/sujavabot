@@ -33,10 +33,10 @@ public class PatternCommandListener extends ListenerAdapter<PircBotX> implements
 		Matcher mm = pattern.matcher(event.getMessage());
 		while(mm.find()) {
 			
-			if(!this.nick.matcher(event.getUser().getNick()).matches())
+			if(this.nick != null && !this.nick.matcher(event.getUser().getNick()).matches())
 				return;
 			
-			if(!this.user.matcher(user.getName()).matches())
+			if(this.user != null && !this.user.matcher(user.getName()).matches())
 				return;
 			
 			StringBuilder sb = new StringBuilder();
