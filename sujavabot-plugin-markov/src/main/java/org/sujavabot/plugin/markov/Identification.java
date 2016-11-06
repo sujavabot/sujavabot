@@ -12,8 +12,6 @@ import java.util.TreeMap;
 import org.apache.hadoop.hbase.util.Bytes;
 
 public class Identification {
-	public static final int MIN_CONTENT_SIZE = 2;
-	
 	protected IdentificationTable forwardTable;
 	protected IdentificationTable reverseTable;
 	protected int maxlen;
@@ -26,8 +24,8 @@ public class Identification {
 		List<String> rContent = new ArrayList<>(content);
 		Collections.reverse(rContent);
 		
-		for(int start = 0; start <= content.size() - MIN_CONTENT_SIZE; start++) {
-			for(int len = MIN_CONTENT_SIZE; len <= maxlen && start + len <= content.size(); len++) {
+		for(int start = 0; start <= content.size() - 1; start++) {
+			for(int len = 1; len <= maxlen && start + len <= content.size(); len++) {
 				List<String> fPrefix = fContent.subList(start, start + len - 1);
 				String fSuffix = fContent.get(start + len - 1);
 				
@@ -57,9 +55,11 @@ public class Identification {
 		
 		Map<byte[], Double> psum = new TreeMap<>(Bytes.BYTES_COMPARATOR);
 		
+		int minlen = (content.size() <= 1 ? 1 : 2);
+		
 		double tsum = 0;
-		for(int start = 0; start <= content.size() - MIN_CONTENT_SIZE; start++) {
-			for(int len = MIN_CONTENT_SIZE; len <= maxlen && start + len <= content.size(); len++) {
+		for(int start = 0; start <= content.size() - minlen; start++) {
+			for(int len = minlen; len <= maxlen && start + len <= content.size(); len++) {
 				List<String> fPrefix = fContent.subList(start, start + len - 1);
 				String fSuffix = fContent.get(start + len - 1);
 				
