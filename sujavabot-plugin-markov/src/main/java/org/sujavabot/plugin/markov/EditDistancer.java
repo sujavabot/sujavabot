@@ -91,6 +91,8 @@ public class EditDistancer {
 		int pos = xval.length * yval.length - 1;
 		while(pos > 0) {
 			byte op = flags[pos];
+			if(op == Op.STOP)
+				break;
 			ret[rpos++] = op;
 			if(op == Op.INSERT) {
 				pos -= xval.length;
@@ -101,8 +103,6 @@ public class EditDistancer {
 			if(op == Op.NEXT) {
 				pos -= xval.length + 1;
 			}
-			if(op == Op.STOP)
-				break;
 		}
 		
 		return Arrays.copyOfRange(ret, 0, rpos);
