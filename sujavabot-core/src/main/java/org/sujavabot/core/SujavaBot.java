@@ -229,7 +229,7 @@ public class SujavaBot extends PircBotX {
 				if(!ServerResponseEvent.class.isInstance(event))
 					continue;
 				ServerResponseEvent<?> sre = (ServerResponseEvent<?>) event;
-				if (!sre.getParsedResponse().get(2).equals(nick))
+				if (!sre.getParsedResponse().get(1).equals(nick))
 					continue;
 
 				if(sre.getCode() == 318 || sre.getCode() == 307 || sre.getCode() == 330) {
