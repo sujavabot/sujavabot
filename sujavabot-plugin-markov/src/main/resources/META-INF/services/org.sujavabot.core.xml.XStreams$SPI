@@ -1,4 +1,5 @@
 org.sujavabot.plugin.markov.MarkovListenerConverter$SPI
 org.sujavabot.plugin.markov.BerkeleyDBMarkovConverter$SPI
 org.sujavabot.plugin.markov.HBaseMarkovConverter$SPI
+org.sujavabot.plugin.markov.HBaseIdentificationTableConverter$SPI
 
