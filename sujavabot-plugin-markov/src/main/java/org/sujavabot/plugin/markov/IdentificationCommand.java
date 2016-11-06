@@ -32,7 +32,7 @@ public class IdentificationCommand extends AbstractReportingCommand implements H
 		for(Entry<String, Double> e : ids.entrySet()) {
 			String nick = e.getKey();
 			double prob = e.getValue();
-			return String.format("%s (probability %f%%)", nick, prob * 100);
+			return String.format("%s (probability %3f%%)", nick, prob * 100);
 		}
 		return "no identification match";
 	}
