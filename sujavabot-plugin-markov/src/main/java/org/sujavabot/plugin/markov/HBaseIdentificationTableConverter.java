@@ -62,7 +62,7 @@ public class HBaseIdentificationTableConverter extends AbstractConverter<HBaseId
 			props.setProperty(CACHING, Integer.toString(current.getCaching()));
 		
 		for(String key : props.stringPropertyNames()) {
-			helper.field(key, String.class, () -> current.getProperties().getProperty(key));
+			helper.field(key, String.class, () -> props.getProperty(key));
 		}
 	}
 
