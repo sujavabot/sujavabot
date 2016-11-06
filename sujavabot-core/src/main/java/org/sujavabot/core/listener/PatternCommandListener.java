@@ -86,8 +86,10 @@ public class PatternCommandListener extends ListenerAdapter<PircBotX> implements
 	@Override
 	public void configure(MarshalHelper helper, PatternCommandListener defaults) {
 		helper.field("pattern", String.class, () -> pattern.pattern());
-		helper.field("user", String.class, () -> user.pattern());
-		helper.field("nick", String.class, () -> nick.pattern());
+		if(user != null)
+			helper.field("user", String.class, () -> user.pattern());
+		if(nick != null)
+			helper.field("nick", String.class, () -> nick.pattern());
 		helper.field("command", String.class, () -> command);
 	}
 
