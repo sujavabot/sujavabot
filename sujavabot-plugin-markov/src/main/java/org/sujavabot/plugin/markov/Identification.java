@@ -27,17 +27,17 @@ public class Identification {
 		Collections.reverse(rContent);
 		
 		for(int start = 0; start < content.size() - MIN_CONTENT_SIZE; start++) {
-			for(int stop = MIN_CONTENT_SIZE; stop < maxlen && start + stop <= content.size(); stop++) {
-				List<String> fPrefix = fContent.subList(start, stop - 1);
-				String fSuffix = fContent.get(stop - 1);
+			for(int len = MIN_CONTENT_SIZE; len <= maxlen && start + len <= content.size(); len++) {
+				List<String> fPrefix = fContent.subList(start, start + len - 1);
+				String fSuffix = fContent.get(start + len - 1);
 				
 				byte[] fTablePrefix = Bytes.toBytes(StringContent.join(fPrefix));
 				byte[] fTableSuffix = Bytes.toBytes(fSuffix);
 				
 				forwardTable.put(timestamp, fTablePrefix, fTableSuffix, tableId);
 				
-				List<String> rPrefix = rContent.subList(start, stop - 1);
-				String rSuffix = rContent.get(stop - 1);
+				List<String> rPrefix = rContent.subList(start, start + len - 1);
+				String rSuffix = rContent.get(start + len - 1);
 				
 				byte[] rTablePrefix = Bytes.toBytes(StringContent.join(rPrefix));
 				byte[] rTableSuffix = Bytes.toBytes(rSuffix);
@@ -59,9 +59,9 @@ public class Identification {
 		
 		double tsum = 0;
 		for(int start = 0; start < content.size() - MIN_CONTENT_SIZE; start++) {
-			for(int stop = MIN_CONTENT_SIZE; stop < maxlen && start + stop <= content.size(); stop++) {
-				List<String> fPrefix = fContent.subList(start, stop - 1);
-				String fSuffix = fContent.get(stop - 1);
+			for(int len = MIN_CONTENT_SIZE; len <= maxlen && start + len <= content.size(); len++) {
+				List<String> fPrefix = fContent.subList(start, start + len - 1);
+				String fSuffix = fContent.get(start + len - 1);
 				
 				byte[] fTablePrefix = Bytes.toBytes(StringContent.join(fPrefix));
 				byte[] fTableSuffix = Bytes.toBytes(fSuffix);
@@ -75,8 +75,8 @@ public class Identification {
 					psum.put(e.getKey(), d);
 				}
 
-				List<String> rPrefix = rContent.subList(start, stop - 1);
-				String rSuffix = rContent.get(stop - 1);
+				List<String> rPrefix = rContent.subList(start, start + len - 1);
+				String rSuffix = rContent.get(start + len - 1);
 				
 				byte[] rTablePrefix = Bytes.toBytes(StringContent.join(rPrefix));
 				byte[] rTableSuffix = Bytes.toBytes(rSuffix);
