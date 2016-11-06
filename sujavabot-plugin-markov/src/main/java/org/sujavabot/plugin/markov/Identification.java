@@ -69,7 +69,7 @@ public class Identification {
 				Map<byte[], Double> fprob = forwardTable.get(timestamp, fTablePrefix, fTableSuffix);
 				for(Entry<byte[], Double> e : fprob.entrySet()) {
 					double d = psum.getOrDefault(e.getKey(), 0.);
-					double v = e.getValue() * Math.pow(fPrefix.size(), prefixPower);
+					double v = e.getValue() * Math.pow(fPrefix.size() + 1, prefixPower);
 					d += v;
 					tsum += v;
 					psum.put(e.getKey(), d);
@@ -84,7 +84,7 @@ public class Identification {
 				Map<byte[], Double> rprob = reverseTable.get(timestamp, rTablePrefix, rTableSuffix);
 				for(Entry<byte[], Double> e : rprob.entrySet()) {
 					double d = psum.getOrDefault(e.getKey(), 0.);
-					double v = e.getValue() * Math.pow(rPrefix.size(), prefixPower);
+					double v = e.getValue() * Math.pow(rPrefix.size() + 1, prefixPower);
 					d += v;
 					tsum += v;
 					psum.put(e.getKey(), d);
