@@ -150,7 +150,7 @@ public class AliasCommand extends AbstractReportingCommand {
 				String val = bot.getCommands().invoke(cause, expr);
 				sb.append(escape.apply(val));
 			} else if(m.group(2).startsWith("{")) {
-				int from = (m.group(3).isEmpty() ? 0 : Integer.parseInt(m.group(3)));
+				int from = (m.group(3).isEmpty() ? 1 : Integer.parseInt(m.group(3)));
 				int to = (m.group(4).isEmpty() ? args.size() : Integer.parseInt(m.group(4)));
 				if(from <= args.size() && to <= args.size() && from <= to) {
 					List<String> sub = new ArrayList<>(args.subList(from, to));
@@ -159,7 +159,7 @@ public class AliasCommand extends AbstractReportingCommand {
 					sb.append(escape.apply(StringUtils.join(sub, " ")));
 				}
 			} else if(m.group(2).startsWith("<")) {
-				int from = (m.group(5).isEmpty() ? 0 : Integer.parseInt(m.group(5)));
+				int from = (m.group(5).isEmpty() ? 1 : Integer.parseInt(m.group(5)));
 				int to = (m.group(6).isEmpty() ? args.size() : Integer.parseInt(m.group(6)));
 				if(from <= args.size() && to <= args.size() && from <= to) {
 					List<String> sub = new ArrayList<>(args.subList(from, to));
