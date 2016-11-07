@@ -33,7 +33,7 @@ public class IdentificationCommand extends AbstractReportingCommand implements H
 			}
 			if(count <= 0)
 				return invokeHelp(bot, cause, args, "who");
-			List<String> prompt = StringContent.parse(StringUtils.join(args.subList(3, args.size()), " "));
+			List<String> prompt = StringContent.parse(StringUtils.join(args.subList(3, args.size()), " ").toUpperCase());
 			if(prompt.size() < Identification.MIN_CONTENT_LENGTH)
 				return "must supply a prompt at least of length " + Identification.MIN_CONTENT_LENGTH;
 			List<Entry<String, Double>> ids;
@@ -61,7 +61,7 @@ public class IdentificationCommand extends AbstractReportingCommand implements H
 			} catch(RuntimeException e) {
 				return invokeHelp(bot, cause, args, "did");
 			}
-			List<String> prompt = StringContent.parse(StringUtils.join(args.subList(3, args.size()), " "));
+			List<String> prompt = StringContent.parse(StringUtils.join(args.subList(3, args.size()), " ").toUpperCase());
 			if(prompt.size() < Identification.MIN_CONTENT_LENGTH)
 				return "must supply a prompt at least of length " + Identification.MIN_CONTENT_LENGTH;
 			List<Entry<String, Double>> ids;

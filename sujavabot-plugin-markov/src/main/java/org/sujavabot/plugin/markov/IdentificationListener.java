@@ -27,7 +27,7 @@ public class IdentificationListener extends ListenerAdapter<PircBotX> {
 			}
 		}
 
-		m = m.replaceAll("^(\\S+:\\s*|<\\S+>\\s*)*", "");
+		m = m.replaceAll("^(\\S+:\\s*|<\\S+>\\s*)*", "").toUpperCase();
 		List<String> content = StringContent.parse(m);
 		Iterator<String> ci = content.iterator();
 		while(ci.hasNext()) {
