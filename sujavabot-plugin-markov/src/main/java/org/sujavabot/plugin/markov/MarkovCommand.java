@@ -35,6 +35,8 @@ public class MarkovCommand extends AbstractReportingCommand implements HelperCon
 		String context = args.get(1);
 		String m = StringUtils.join(args.subList(2, args.size()), " ");
 		List<String> prefix = StringContent.parse(m);
+		if(prefix.size() == 0)
+			prefix = Arrays.asList(Markov.SOT);
 		List<String> ml = new MarkovIterator(context, markov, maxlen, prefix).toList();
 		int size = ml.size();
 		for(int i = 0; i < extensions; i++) {
