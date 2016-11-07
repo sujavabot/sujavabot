@@ -63,16 +63,20 @@ public class HBaseMarkovIdentificationTable implements IdentificationTable {
 	
 	@Override
 	public Map<byte[], Double> get(long timestamp, byte[] prefix, byte[] suffix) throws IOException {
-		Get get = new Get(prefix);
+		
+		byte[] uprefix = Bytes.toBytes(Bytes.toString(prefix).toUpperCase());
+		byte[] usuffix = Bytes.toBytes(Bytes.toString(suffix).toUpperCase());
+		
+		Get get = new Get(uprefix);
 		get.addFamily(family);
 		
 		Map<byte[], Double> freqs = new TreeMap<>(Bytes.BYTES_COMPARATOR);
-		Map<byte[], Double> distances = new TreeMap<byte[], Double>(Bytes.BYTES_COMPARATOR);
+		Map<byte[], Double> distances = new TreeMap<>(Bytes.BYTES_COMPARATOR);
 		
 		EditDistancer distancer = new EditDistancer();
 		Function<byte[], Double> distanceFn = (b) -> {
 			double editDistance = 0;
-			byte[] edits = distancer.compute(suffix, b);
+			byte[] edits = distancer.compute(usuffix, b);
 			for(int i = 0; i < edits.length; i++) {
 				if(edits[i] == EditDistancer.Op.NEXT)
 					editDistance += 1. / edits.length;
@@ -85,7 +89,7 @@ public class HBaseMarkovIdentificationTable implements IdentificationTable {
 		
 		for(Entry<byte[], byte[]> e : result.getFamilyMap(family).entrySet()) {
 			String[] f = Bytes.toString(e.getKey()).split(" ", 2);
-			byte[] resultSuffix = Bytes.toBytes(f[0]);
+			byte[] resultSuffix = Bytes.toBytes(f[0].toUpperCase());
 			byte[] resultId = Bytes.toBytes(f[1]);
 			long count = Bytes.toLong(e.getValue());
 			

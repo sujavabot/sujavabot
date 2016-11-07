@@ -30,24 +30,22 @@ public class Identification {
 		
 		for(int start = 0; start <= content.size() - MIN_CONTENT_LENGTH; start++) {
 			for(int len = MIN_CONTENT_LENGTH; len <= maxlen && start + len <= content.size(); len++) {
-				for(int plen = Math.max(1, len - MAX_SUFFIX_LENGTH); plen < len; plen++) {
-					List<String> fPrefix = fContent.subList(start, start + plen);
-					List<String> fSuffix = fContent.subList(start + plen, start + len);
-					
-					byte[] fTablePrefix = Bytes.toBytes(StringContent.join(fPrefix));
-					byte[] fTableSuffix = Bytes.toBytes(StringContent.join(fSuffix));
-					
-					forwardTable.put(timestamp, fTablePrefix, fTableSuffix, tableId);
-					
-					List<String> rPrefix = rContent.subList(start, start + plen);
-					List<String> rSuffix = rContent.subList(start + plen, start + len);
-					
-					byte[] rTablePrefix = Bytes.toBytes(StringContent.join(rPrefix));
-					byte[] rTableSuffix = Bytes.toBytes(StringContent.join(rSuffix));
-					
-					reverseTable.put(timestamp, rTablePrefix, rTableSuffix, tableId);
-					
-				}
+				List<String> fPrefix = fContent.subList(start, start + len - 1);
+				String fSuffix = fContent.get(start + len - 1);
+				
+				byte[] fTablePrefix = Bytes.toBytes(StringContent.join(fPrefix));
+				byte[] fTableSuffix = Bytes.toBytes(fSuffix);
+				
+				forwardTable.put(timestamp, fTablePrefix, fTableSuffix, tableId);
+				
+				List<String> rPrefix = rContent.subList(start, start + len - 1);
+				String rSuffix = rContent.get(start + len - 1);
+				
+				byte[] rTablePrefix = Bytes.toBytes(StringContent.join(rPrefix));
+				byte[] rTableSuffix = Bytes.toBytes(rSuffix);
+				
+				reverseTable.put(timestamp, rTablePrefix, rTableSuffix, tableId);
+				
 			}
 		}
 		
@@ -65,37 +63,34 @@ public class Identification {
 
 		for(int start = 0; start <= content.size() - MIN_CONTENT_LENGTH; start++) {
 			for(int len = MIN_CONTENT_LENGTH; len <= maxlen && start + len <= content.size(); len++) {
-				for(int plen = Math.max(1, len - MAX_SUFFIX_LENGTH); plen < len; plen++) {
-					List<String> fPrefix = fContent.subList(start, start + plen);
-					List<String> fSuffix = fContent.subList(start + plen, start + len);
-					
-					byte[] fTablePrefix = Bytes.toBytes(StringContent.join(fPrefix));
-					byte[] fTableSuffix = Bytes.toBytes(StringContent.join(fSuffix));
-					
-					Map<byte[], Double> fprob = forwardTable.get(timestamp, fTablePrefix, fTableSuffix);
-					for(Entry<byte[], Double> e : fprob.entrySet()) {
-						double d = psum.getOrDefault(e.getKey(), 0.);
-						double v = e.getValue() * Math.pow(fPrefix.size(), prefixPower);
-						d += v;
-						tsum += v;
-						psum.put(e.getKey(), d);
-					}
-					
-					List<String> rPrefix = rContent.subList(start, start + plen);
-					List<String> rSuffix = rContent.subList(start + plen, start + len);
-					
-					byte[] rTablePrefix = Bytes.toBytes(StringContent.join(rPrefix));
-					byte[] rTableSuffix = Bytes.toBytes(StringContent.join(rSuffix));
-					
-					Map<byte[], Double> rprob = reverseTable.get(timestamp, rTablePrefix, rTableSuffix);
-					for(Entry<byte[], Double> e : rprob.entrySet()) {
-						double d = psum.getOrDefault(e.getKey(), 0.);
-						double v = e.getValue() * Math.pow(rPrefix.size(), prefixPower);
-						d += v;
-						tsum += v;
-						psum.put(e.getKey(), d);
-					}
-					
+				List<String> fPrefix = fContent.subList(start, start + len - 1);
+				String fSuffix = fContent.get(start + len - 1);
+				
+				byte[] fTablePrefix = Bytes.toBytes(StringContent.join(fPrefix));
+				byte[] fTableSuffix = Bytes.toBytes(fSuffix);
+				
+				Map<byte[], Double> fprob = forwardTable.get(timestamp, fTablePrefix, fTableSuffix);
+				for(Entry<byte[], Double> e : fprob.entrySet()) {
+					double d = psum.getOrDefault(e.getKey(), 0.);
+					double v = e.getValue() * Math.pow(fPrefix.size(), prefixPower);
+					d += v;
+					tsum += v;
+					psum.put(e.getKey(), d);
+				}
+				
+				List<String> rPrefix = rContent.subList(start, start + len - 11);
+				String rSuffix = rContent.get(start + len - 1);
+				
+				byte[] rTablePrefix = Bytes.toBytes(StringContent.join(rPrefix));
+				byte[] rTableSuffix = Bytes.toBytes(rSuffix);
+				
+				Map<byte[], Double> rprob = reverseTable.get(timestamp, rTablePrefix, rTableSuffix);
+				for(Entry<byte[], Double> e : rprob.entrySet()) {
+					double d = psum.getOrDefault(e.getKey(), 0.);
+					double v = e.getValue() * Math.pow(rPrefix.size(), prefixPower);
+					d += v;
+					tsum += v;
+					psum.put(e.getKey(), d);
 				}
 			}
 		}
