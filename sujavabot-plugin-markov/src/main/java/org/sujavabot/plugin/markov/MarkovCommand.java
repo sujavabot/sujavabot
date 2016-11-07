@@ -58,20 +58,7 @@ public class MarkovCommand extends AbstractReportingCommand implements HelperCon
 			ml = l;
 			Collections.reverse(ml);
 		}
-		if(ml.size() == prefix.size()) {
-			ml = new MarkovIterator(context, markov, maxlen, Arrays.asList(Markov.SOT)).toList();
-			ml.remove(0);
-			size = ml.size();
-			for(int i = 0; i < extensions; i++) {
-				List<String> ml2 = new MarkovIterator(context, markov, maxlen, Arrays.asList(Markov.SOT)).toList();
-				ml2.remove(0);
-				if(ml2.size() > size) {
-					size = ml2.size();
-					ml = ml2;
-				}
-			}
-		}
-		if(ml.size() == 0)
+		if(ml.size() == prefix.size())
 			ml = Arrays.asList("i have nothing to say to that");
 		for(int i = ml.size() - 3; i >= 0; i--) {
 			int j = i+3;
