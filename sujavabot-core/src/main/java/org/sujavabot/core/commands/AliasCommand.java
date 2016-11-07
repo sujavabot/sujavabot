@@ -183,7 +183,6 @@ public class AliasCommand extends AbstractReportingCommand {
 	@Override
 	public String invoke(SujavaBot bot, Event<?> cause, List<String> args) {
 		String applied = applyAlias(bot, cause, args, alias);
-		System.err.println(">>" + applied);
 		Object[] parsed = bot.getCommands().parse(applied);
 		String[] flat = flatten(bot, cause, parsed);
 		if(flat.length > 0) {
