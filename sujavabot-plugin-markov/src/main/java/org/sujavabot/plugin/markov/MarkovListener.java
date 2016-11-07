@@ -44,10 +44,12 @@ public class MarkovListener extends ListenerAdapter<PircBotX> {
 	protected Markov inverseMarkov;
 	protected int maxlen;
 	protected Set<String> channels;
+	protected boolean respond;
 	protected boolean learn;
 	protected Pattern prefix;
 	protected List<Pattern> ignore;
 	protected List<Pattern> listen;
+	protected List<Pattern> messageIgnore;
 	protected int shutdownPort = -1;
 	
 	protected int extensions = 10;
@@ -80,6 +82,10 @@ public class MarkovListener extends ListenerAdapter<PircBotX> {
 	public void onMessage(MessageEvent<PircBotX> event) throws Exception {
 		if(!channels.contains(event.getChannel().getName()))
 			return;
+		for(Pattern p : messageIgnore) {
+			if(p.matcher(event.getMessage()).matches())
+				return;
+		}
 		for(Pattern p : ignore) {
 			if(p.matcher(event.getUser().getNick()).matches())
 				return;
@@ -117,7 +123,7 @@ public class MarkovListener extends ListenerAdapter<PircBotX> {
 				break;
 			}
 		}
-		if(found) {
+		if(respond && found) {
 			if(matcher.start() == 0)
 				m = m.substring(matcher.end()).trim();
 			m = m.replaceAll("\\?+$", "");
@@ -292,5 +298,21 @@ public class MarkovListener extends ListenerAdapter<PircBotX> {
 
 	public void setListen(List<Pattern> listen) {
 		this.listen = listen;
+	}
+
+	public boolean isRespond() {
+		return respond;
+	}
+
+	public void setRespond(boolean respond) {
+		this.respond = respond;
+	}
+
+	public List<Pattern> getMessageIgnore() {
+		return messageIgnore;
+	}
+
+	public void setMessageIgnore(List<Pattern> messageIgnore) {
+		this.messageIgnore = messageIgnore;
 	}
 }

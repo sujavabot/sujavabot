@@ -48,6 +48,7 @@ public class MarkovListenerConverter extends AbstractConverter<MarkovListener> {
 		helper.field("maxlen", Integer.class, () -> current.getMaxlen());
 		helper.field("prefix", String.class, () -> current.getPrefix().pattern());
 		helper.field("learn", Boolean.class, () -> current.isLearn());
+		helper.field("respond", Boolean.class, () -> current.isRespond());
 		helper.field("extensions", Integer.class, () -> current.getExtensions());
 		for(String channel : current.getChannels())
 			helper.field("channel", String.class, () -> channel);
@@ -55,6 +56,8 @@ public class MarkovListenerConverter extends AbstractConverter<MarkovListener> {
 			helper.field("ignore", String.class, () -> p.pattern());
 		for(Pattern p : current.getListen())
 			helper.field("listen", String.class, () -> p.pattern());
+		for(Pattern p : current.getMessageIgnore())
+			helper.field("ignore-message", String.class, () -> p.pattern());
 		helper.field("shutdown-port", Integer.class, () -> current.getShutdownPort());
 		for(Entry<Pattern, String> e : current.getContexts().entrySet()) {
 			if(e.getKey().equals(current.getPrefix()))
@@ -82,6 +85,8 @@ public class MarkovListenerConverter extends AbstractConverter<MarkovListener> {
 			
 			ml.setListen(new ArrayList<>());
 			
+			ml.setMessageIgnore(new ArrayList<>());
+			
 			UnmarshalHelper helper = new UnmarshalHelper(x, reader, context);
 
 			helper.field("markov", (o) -> m.put("markov", o));
@@ -90,9 +95,11 @@ public class MarkovListenerConverter extends AbstractConverter<MarkovListener> {
 			helper.field("maxlen", Integer.class, i -> m.put("maxlen", i));
 			helper.field("prefix", String.class, s -> m.put("prefix", s));
 			helper.field("learn", Boolean.class, b -> m.put("learn", b));
+			helper.field("respond", Boolean.class, b -> m.put("respond", b));
 			helper.field("channel", String.class, s -> ch.add(s));
 			helper.field("ignore", String.class, s -> ml.getIgnore().add(Pattern.compile(s)));
 			helper.field("listen", String.class, s -> ml.getListen().add(Pattern.compile(s)));
+			helper.field("ignore-message", String.class, s -> ml.getMessageIgnore().add(Pattern.compile(s)));
 			helper.field("thesaurus", Boolean.class, b -> m.put("thesaurus", b));
 			helper.field("shutdown-port", Integer.class, i -> m.put("shutdown-port", i));
 			helper.field("extensions", Integer.class, i -> m.put("extensions", i));
@@ -116,6 +123,7 @@ public class MarkovListenerConverter extends AbstractConverter<MarkovListener> {
 			
 			ml.setChannels(ch);
 			ml.setLearn((Boolean) m.getOrDefault("learn", true));
+			ml.setRespond((Boolean) m.getOrDefault("respond", true));
 			if(m.containsKey("extensions"))
 				ml.setExtensions((Integer) m.get("extensions"));
 			ml.setMarkov(markov);
