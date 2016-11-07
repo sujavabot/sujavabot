@@ -98,6 +98,8 @@ public class HBaseMarkovIdentificationTable implements IdentificationTable {
 			
 			double idf = freqs.getOrDefault(resultId, 0.);
 			double d = count * distances.computeIfAbsent(resultSuffix, distanceFn);
+			if(d == 0)
+				continue;
 			normalizedTotal += d;
 			freqs.put(resultId, idf + d);
 		}
