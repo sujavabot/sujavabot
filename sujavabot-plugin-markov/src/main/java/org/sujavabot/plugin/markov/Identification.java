@@ -78,7 +78,7 @@ public class Identification {
 					psum.put(e.getKey(), d);
 				}
 				
-				List<String> rPrefix = rContent.subList(start, start + len - 11);
+				List<String> rPrefix = rContent.subList(start, start + len - 1);
 				String rSuffix = rContent.get(start + len - 1);
 				
 				byte[] rTablePrefix = Bytes.toBytes(StringContent.join(rPrefix));
