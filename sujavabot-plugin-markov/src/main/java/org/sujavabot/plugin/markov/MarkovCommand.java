@@ -30,6 +30,8 @@ public class MarkovCommand extends AbstractReportingCommand implements HelperCon
 
 	@Override
 	public String invoke(SujavaBot bot, Event<?> cause, List<String> args) {
+		if(args.size() < 2)
+			return invokeHelp(bot, cause, args);
 		String context = args.get(1);
 		String m = StringUtils.join(args.subList(2, args.size()), " ");
 		List<String> prefix = StringContent.parse(m);
