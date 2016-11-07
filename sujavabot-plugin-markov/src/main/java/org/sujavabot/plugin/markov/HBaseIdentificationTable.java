@@ -149,11 +149,15 @@ public class HBaseIdentificationTable implements IdentificationTable {
 		Function<byte[], Double> distanceFn = (b) -> {
 			double editDistance = 0;
 			byte[] edits = distancer.compute(suffix, b);
+			byte op = EditDistancer.Op.NEXT;
 			for(int i = 0; i < edits.length; i++) {
 				if(edits[i] == EditDistancer.Op.NEXT)
 					editDistance += 1. / edits.length;
+				if(op != edits[i])
+					editDistance -= 1. / edits.length;
+				op = edits[i];
 			}
-			return Math.pow(editDistance, distancePower);
+			return editDistance <= 0 ? 0 : Math.pow(editDistance, distancePower);
 		};
 		
 		for(Result result : table.getScanner(scan)) {
