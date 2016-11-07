@@ -160,22 +160,25 @@ public class HBaseIdentificationTable implements IdentificationTable {
 			return editDistance <= 0 ? 0 : Math.pow(editDistance, distancePower);
 		};
 		
+		double normalizedTotal = 0;
 		for(Result result : table.getScanner(scan)) {
 			byte[] row = result.getRow();
 			byte[] id = unescapeBytes(row, rowPrefixLength, row.length - rowPrefixLength);
 			
-			long totalCount = 0;
 			double normalizedCount = 0;
 			
 			for(Entry<byte[], byte[]> e : result.getFamilyMap(family).entrySet()) {
 				byte[] rowSuffix = bytesToSuffix(e.getKey());
 				long count = Bytes.toLong(e.getValue());
-				totalCount += count;
 				normalizedCount += count * distances.computeIfAbsent(rowSuffix, distanceFn);
 			}
+			normalizedTotal += normalizedCount;
 			
-			freqs.put(id, normalizedCount / totalCount);
+			freqs.put(id, normalizedCount);
 		}
+
+		double nt = normalizedTotal;
+		freqs.replaceAll((k, v) -> v / nt);
 		
 		return freqs;
 	}
