@@ -34,16 +34,16 @@ public class IdentificationCommand extends AbstractReportingCommand implements H
 			if(count <= 0)
 				return invokeHelp(bot, cause, args, "who");
 			List<String> prompt = StringContent.parse(StringUtils.join(args.subList(3, args.size()), " "));
-			if(prompt.size() == 0)
-				return "must supply a prompt";
-			Map<String, Double> ids;
+			if(prompt.size() < Identification.MIN_CONTENT_LENGTH)
+				return "must supply a prompt at least of length " + Identification.MIN_CONTENT_LENGTH;
+			List<Entry<String, Double>> ids;
 			try {
 				ids = ident.identify(System.currentTimeMillis(), prompt);
 			} catch (IOException e) {
 				throw new RuntimeException(e);
 			}
 			List<String> ret = new ArrayList<String>();
-			for(Entry<String, Double> e : ids.entrySet()) {
+			for(Entry<String, Double> e : ids) {
 				String nick = e.getKey();
 				double prob = e.getValue();
 				ret.add(String.format("%s (probability %d%%)", nick, Math.round(prob * 100)));
@@ -62,16 +62,16 @@ public class IdentificationCommand extends AbstractReportingCommand implements H
 				return invokeHelp(bot, cause, args, "did");
 			}
 			List<String> prompt = StringContent.parse(StringUtils.join(args.subList(3, args.size()), " "));
-			if(prompt.size() == 0)
-				return "must supply a prompt";
-			Map<String, Double> ids;
+			if(prompt.size() < Identification.MIN_CONTENT_LENGTH)
+				return "must supply a prompt at least of length " + Identification.MIN_CONTENT_LENGTH;
+			List<Entry<String, Double>> ids;
 			try {
 				ids = ident.identify(System.currentTimeMillis(), prompt);
 			} catch (IOException e) {
 				throw new RuntimeException(e);
 			}
 			double prob = 0;
-			for(Entry<String, Double> e : ids.entrySet()) {
+			for(Entry<String, Double> e : ids) {
 				String nick = e.getKey();
 				if(!npat.matcher(nick).matches())
 					continue;

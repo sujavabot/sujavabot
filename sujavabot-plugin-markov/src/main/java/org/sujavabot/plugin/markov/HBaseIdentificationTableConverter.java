@@ -23,7 +23,6 @@ public class HBaseIdentificationTableConverter extends AbstractConverter<HBaseId
 	
 	public static final String TABLE = "table";
 	public static final String FAMILY = "family";
-	public static final String DISTANCE_POWER = "distance-power";
 	public static final String DURATION = "duration";
 	public static final String AUTOFLUSH = "autoflush";
 	public static final String BATCH = "batching";
@@ -53,7 +52,6 @@ public class HBaseIdentificationTableConverter extends AbstractConverter<HBaseId
 		
 		props.setProperty(TABLE, current.getTable().getName().getNameAsString());
 		props.setProperty(FAMILY, current.getFamily());
-		props.setProperty(DISTANCE_POWER, Double.toString(current.getDistancePower()));
 		if(current.getDuration() != null)
 			props.setProperty(DURATION, Long.toString(current.getDuration()));
 		if(current.getBatch() != null)
@@ -84,7 +82,6 @@ public class HBaseIdentificationTableConverter extends AbstractConverter<HBaseId
 			
 			String table = (String) props.remove(TABLE);
 			String family = (String) props.remove(FAMILY);
-			double distancePower = props.containsKey(DISTANCE_POWER) ? Double.parseDouble((String) props.remove(DISTANCE_POWER)) : HBaseIdentificationTable.DEFAULT_DISTANCE_POWER;
 			Long duration = props.containsKey(DURATION) ? Long.parseLong((String) props.remove(DURATION)) : null;
 			Integer batch = props.containsKey(BATCH) ? Integer.parseInt((String) props.remove(BATCH)) : null;
 			Integer caching = props.containsKey(CACHING) ? Integer.parseInt((String) props.remove(CACHING)) : null;
@@ -107,7 +104,6 @@ public class HBaseIdentificationTableConverter extends AbstractConverter<HBaseId
 			
 			idtable.setTable(htable);
 			idtable.setFamily(family);
-			idtable.setDistancePower(distancePower);
 			idtable.setDuration(duration);
 			idtable.setBatch(batch);
 			idtable.setCaching(caching);

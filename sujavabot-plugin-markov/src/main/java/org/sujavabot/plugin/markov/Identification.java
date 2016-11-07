@@ -1,6 +1,7 @@
 package org.sujavabot.plugin.markov;
 
 import java.io.IOException;
+import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedHashMap;
@@ -12,6 +13,9 @@ import java.util.TreeMap;
 import org.apache.hadoop.hbase.util.Bytes;
 
 public class Identification {
+	public static final int MIN_CONTENT_LENGTH = 2;
+	public static final int MAX_SUFFIX_LENGTH = 3;
+	
 	protected IdentificationTable forwardTable;
 	protected IdentificationTable reverseTable;
 	protected int maxlen;
@@ -24,23 +28,26 @@ public class Identification {
 		List<String> rContent = new ArrayList<>(content);
 		Collections.reverse(rContent);
 		
-		for(int start = 0; start <= content.size() - 1; start++) {
-			for(int len = 1; len <= maxlen && start + len <= content.size(); len++) {
-				List<String> fPrefix = fContent.subList(start, start + len - 1);
-				String fSuffix = fContent.get(start + len - 1);
-				
-				byte[] fTablePrefix = Bytes.toBytes(StringContent.join(fPrefix));
-				byte[] fTableSuffix = Bytes.toBytes(fSuffix);
-				
-				forwardTable.put(timestamp, fTablePrefix, fTableSuffix, tableId);
-				
-				List<String> rPrefix = rContent.subList(start, start + len - 1);
-				String rSuffix = rContent.get(start + len - 1);
-				
-				byte[] rTablePrefix = Bytes.toBytes(StringContent.join(rPrefix));
-				byte[] rTableSuffix = Bytes.toBytes(rSuffix);
-				
-				reverseTable.put(timestamp, rTablePrefix, rTableSuffix, tableId);
+		for(int start = 0; start <= content.size() - MIN_CONTENT_LENGTH; start++) {
+			for(int len = MIN_CONTENT_LENGTH; len <= maxlen && start + len <= content.size(); len++) {
+				for(int plen = Math.max(1, len - MAX_SUFFIX_LENGTH); plen < len; plen++) {
+					List<String> fPrefix = fContent.subList(start, start + plen);
+					List<String> fSuffix = fContent.subList(start + plen, start + len);
+					
+					byte[] fTablePrefix = Bytes.toBytes(StringContent.join(fPrefix));
+					byte[] fTableSuffix = Bytes.toBytes(StringContent.join(fSuffix));
+					
+					forwardTable.put(timestamp, fTablePrefix, fTableSuffix, tableId);
+					
+					List<String> rPrefix = rContent.subList(start, start + plen);
+					List<String> rSuffix = rContent.subList(start + plen, start + len);
+					
+					byte[] rTablePrefix = Bytes.toBytes(StringContent.join(rPrefix));
+					byte[] rTableSuffix = Bytes.toBytes(StringContent.join(rSuffix));
+					
+					reverseTable.put(timestamp, rTablePrefix, rTableSuffix, tableId);
+					
+				}
 			}
 		}
 		
@@ -48,62 +55,58 @@ public class Identification {
 		reverseTable.flush();
 	}
 	
-	public Map<String, Double> identify(long timestamp, List<String> content) throws IOException {
+	public List<Entry<String, Double>> identify(long timestamp, List<String> content) throws IOException {
 		List<String> fContent = new ArrayList<>(content);
 		List<String> rContent = new ArrayList<>(content);
 		Collections.reverse(rContent);
 		
 		Map<byte[], Double> psum = new TreeMap<>(Bytes.BYTES_COMPARATOR);
-		
-		int minlen = (content.size() <= 1 ? 1 : 2);
-		
 		double tsum = 0;
-		for(int start = 0; start <= content.size() - minlen; start++) {
-			for(int len = minlen; len <= maxlen && start + len <= content.size(); len++) {
-				List<String> fPrefix = fContent.subList(start, start + len - 1);
-				String fSuffix = fContent.get(start + len - 1);
-				
-				byte[] fTablePrefix = Bytes.toBytes(StringContent.join(fPrefix));
-				byte[] fTableSuffix = Bytes.toBytes(fSuffix);
-				
-				Map<byte[], Double> fprob = forwardTable.get(timestamp, fTablePrefix, fTableSuffix);
-				for(Entry<byte[], Double> e : fprob.entrySet()) {
-					double d = psum.getOrDefault(e.getKey(), 0.);
-					double v = e.getValue() * Math.pow(fPrefix.size() + 1, prefixPower);
-					d += v;
-					tsum += v;
-					psum.put(e.getKey(), d);
-				}
 
-				List<String> rPrefix = rContent.subList(start, start + len - 1);
-				String rSuffix = rContent.get(start + len - 1);
-				
-				byte[] rTablePrefix = Bytes.toBytes(StringContent.join(rPrefix));
-				byte[] rTableSuffix = Bytes.toBytes(rSuffix);
-				
-				Map<byte[], Double> rprob = reverseTable.get(timestamp, rTablePrefix, rTableSuffix);
-				for(Entry<byte[], Double> e : rprob.entrySet()) {
-					double d = psum.getOrDefault(e.getKey(), 0.);
-					double v = e.getValue() * Math.pow(rPrefix.size() + 1, prefixPower);
-					d += v;
-					tsum += v;
-					psum.put(e.getKey(), d);
+		for(int start = 0; start <= content.size() - MIN_CONTENT_LENGTH; start++) {
+			for(int len = MIN_CONTENT_LENGTH; len <= maxlen && start + len <= content.size(); len++) {
+				for(int plen = Math.max(1, len - MAX_SUFFIX_LENGTH); plen < len; plen++) {
+					List<String> fPrefix = fContent.subList(start, start + plen);
+					List<String> fSuffix = fContent.subList(start + plen, start + len);
+					
+					byte[] fTablePrefix = Bytes.toBytes(StringContent.join(fPrefix));
+					byte[] fTableSuffix = Bytes.toBytes(StringContent.join(fSuffix));
+					
+					Map<byte[], Double> fprob = forwardTable.get(timestamp, fTablePrefix, fTableSuffix);
+					for(Entry<byte[], Double> e : fprob.entrySet()) {
+						double d = psum.getOrDefault(e.getKey(), 0.);
+						double v = e.getValue() * Math.pow(fPrefix.size(), prefixPower);
+						d += v;
+						tsum += v;
+						psum.put(e.getKey(), d);
+					}
+					
+					List<String> rPrefix = rContent.subList(start, start + plen);
+					List<String> rSuffix = rContent.subList(start + plen, start + len);
+					
+					byte[] rTablePrefix = Bytes.toBytes(StringContent.join(rPrefix));
+					byte[] rTableSuffix = Bytes.toBytes(StringContent.join(rSuffix));
+					
+					Map<byte[], Double> rprob = reverseTable.get(timestamp, rTablePrefix, rTableSuffix);
+					for(Entry<byte[], Double> e : rprob.entrySet()) {
+						double d = psum.getOrDefault(e.getKey(), 0.);
+						double v = e.getValue() * Math.pow(rPrefix.size(), prefixPower);
+						d += v;
+						tsum += v;
+						psum.put(e.getKey(), d);
+					}
+					
 				}
 			}
 		}
 		
-		Map<String, Double> idprobs = new LinkedHashMap<>();
-		while(psum.size() > 0) {
-			byte[] key = null;
-			for(byte[] k : psum.keySet()) {
-				if(key == null || psum.get(k) > psum.get(key))
-					key = k;
-			}
-			double isum = psum.remove(key);
-			idprobs.put(Bytes.toString(key), isum / tsum);
+		List<Entry<String, Double>> ret = new ArrayList<>();
+		for(Entry<byte[], Double> e : psum.entrySet()) {
+			ret.add(new AbstractMap.SimpleImmutableEntry<>(Bytes.toString(e.getKey()), e.getValue() / tsum));
 		}
+		Collections.sort(ret, (o1, o2) -> -Double.compare(o1.getValue(), o2.getValue()));
 		
-		return idprobs;
+		return ret;
 	}
 
 	public IdentificationTable getForwardTable() {

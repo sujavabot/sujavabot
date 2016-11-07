@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.TreeMap;
+import java.util.function.Function;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.client.HTable;
@@ -48,6 +49,10 @@ public class HBaseIdentificationTable implements IdentificationTable {
 		return escapeBytes(suffix);
 	}
 	
+	protected static byte[] bytesToSuffix(byte[] suffix) {
+		return unescapeBytes(suffix);
+	}
+	
 	protected static byte[] prefixToStartRow(byte[] prefix) {
 		byte[] b = prefixToBytes(prefix);
 		return Arrays.copyOf(b, b.length + 1);
@@ -59,8 +64,8 @@ public class HBaseIdentificationTable implements IdentificationTable {
 		return b;
 	}
 	
-	protected static byte[] tupleToRow(byte[] prefix, byte[] suffix) {
-		return Bytes.add(prefixToStartRow(prefix), suffixToBytes(suffix));
+	protected static byte[] tupleToRow(byte[] prefix, byte[] id) {
+		return Bytes.add(prefixToStartRow(prefix), idToBytes(id));
 	}
 	
 	protected static byte[] idToBytes(byte[] id) {
@@ -94,8 +99,8 @@ public class HBaseIdentificationTable implements IdentificationTable {
 	}
 	
 	protected Increment createIncrement(long timestamp, byte[] prefix, byte[] suffix, byte[] id) throws IOException {
-		Increment inc = new Increment(tupleToRow(prefix, suffix));
-		inc.addColumn(family, idToBytes(id), 1L);
+		Increment inc = new Increment(tupleToRow(prefix, id));
+		inc.addColumn(family, suffixToBytes(suffix), 1L);
 		return inc;
 	}
 	
@@ -129,7 +134,7 @@ public class HBaseIdentificationTable implements IdentificationTable {
 			scan.setCaching(caching);
 		return scan;
 	}
-	
+
 	@Override
 	public Map<byte[], Double> get(long timestamp, byte[] prefix, byte[] suffix) throws IOException {
 		Scan scan = createScan(timestamp, prefix, suffix);
@@ -138,42 +143,34 @@ public class HBaseIdentificationTable implements IdentificationTable {
 		int rowPrefixLength = scan.getStartRow().length;
 		
 		Map<byte[], Double> freqs = new TreeMap<>(Bytes.BYTES_COMPARATOR);
-		EditDistancer distancer = new EditDistancer();
+		Map<byte[], Double> distances = new TreeMap<byte[], Double>(Bytes.BYTES_COMPARATOR);
 		
-		for(Result result : table.getScanner(scan)) {
-			byte[] row = result.getRow();
-			byte[] rowSuffix = unescapeBytes(row, rowPrefixLength, row.length - rowPrefixLength);
+		EditDistancer distancer = new EditDistancer();
+		Function<byte[], Double> distanceFn = (b) -> {
 			double editDistance = 0;
-			
-			byte[] edits = distancer.compute(suffix, rowSuffix);
+			byte[] edits = distancer.compute(suffix, b);
 			for(int i = 0; i < edits.length; i++) {
 				if(edits[i] == EditDistancer.Op.NEXT)
 					editDistance += 1. / edits.length;
 			}
+			return Math.pow(editDistance, distancePower);
+		};
+		
+		for(Result result : table.getScanner(scan)) {
+			byte[] row = result.getRow();
+			byte[] id = unescapeBytes(row, rowPrefixLength, row.length - rowPrefixLength);
 			
-			editDistance = Math.pow(editDistance, distancePower);
+			long totalCount = 0;
+			double normalizedCount = 0;
 			
-			long resultCount = 0;
 			for(Entry<byte[], byte[]> e : result.getFamilyMap(family).entrySet()) {
-				resultCount += Bytes.toLong(e.getValue());
-			}
-			
-			if(resultCount == 0)
-				continue;
-			
-			for(Entry<byte[], byte[]> e : result.getFamilyMap(family).entrySet()) {
-				byte[] id = bytesToId(e.getKey());
+				byte[] rowSuffix = bytesToSuffix(e.getKey());
 				long count = Bytes.toLong(e.getValue());
-				
-				double idfreq;
-				if(!freqs.containsKey(id))
-					freqs.put(id, idfreq = 0.);
-				else
-					idfreq = freqs.get(id);
-				
-				idfreq += (count * editDistance) / resultCount;
-				freqs.put(id, idfreq);
+				totalCount += count;
+				normalizedCount += count * distances.computeIfAbsent(rowSuffix, distanceFn);
 			}
+			
+			freqs.put(id, normalizedCount / totalCount);
 		}
 		
 		return freqs;
