@@ -23,6 +23,7 @@ public class HBaseMarkovIdentificationTableConverter extends AbstractConverter<H
 	
 	public static final String TABLE = "table";
 	public static final String FAMILY = "family";
+	public static final String DISTANCE_POWER = "distance-power";
 
 	public static class SPI extends XStreams.SPI {
 		@Override
@@ -48,6 +49,7 @@ public class HBaseMarkovIdentificationTableConverter extends AbstractConverter<H
 		
 		props.setProperty(TABLE, current.getTable().getName().getNameAsString());
 		props.setProperty(FAMILY, current.getFamily());
+		props.setProperty(DISTANCE_POWER, Double.toString(current.getDistancePower()));
 		
 		for(String key : props.stringPropertyNames()) {
 			helper.field(key, String.class, () -> props.getProperty(key));
@@ -72,6 +74,7 @@ public class HBaseMarkovIdentificationTableConverter extends AbstractConverter<H
 			
 			String table = (String) props.remove(TABLE);
 			String family = (String) props.remove(FAMILY);
+			double distancePower = props.containsKey(DISTANCE_POWER) ? Double.parseDouble((String) props.remove(DISTANCE_POWER)) : HBaseMarkovIdentificationTable.DEFAULT_DISTANCE_POWER;
 			
 			idtable.setProperties(props);
 			
@@ -88,6 +91,7 @@ public class HBaseMarkovIdentificationTableConverter extends AbstractConverter<H
 			
 			idtable.setTable(htable);
 			idtable.setFamily(family);
+			idtable.setDistancePower(distancePower);
 			
 			return idtable;
 		} catch(Exception e) {
