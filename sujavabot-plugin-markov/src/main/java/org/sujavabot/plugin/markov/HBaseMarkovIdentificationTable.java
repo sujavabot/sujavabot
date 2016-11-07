@@ -86,6 +86,9 @@ public class HBaseMarkovIdentificationTable implements IdentificationTable {
 
 		double normalizedTotal = 0;
 		Result result = table.get(get);
+
+		if(result.isEmpty())
+			return freqs;
 		
 		for(Entry<byte[], byte[]> e : result.getFamilyMap(family).entrySet()) {
 			String[] f = Bytes.toString(e.getKey()).split(" ", 2);
