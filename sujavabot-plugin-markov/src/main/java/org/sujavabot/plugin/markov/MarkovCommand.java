@@ -63,7 +63,6 @@ public class MarkovCommand extends AbstractReportingCommand implements HelperCon
 			if(ml.size() == prefix.size())
 				ml = Arrays.asList("i have nothing to say to that");
 		} else {
-			prefix = Arrays.asList(Markov.SOT);
 			ml = new MarkovIterator(context, markov, maxlen, prefix).toList();
 			int size = ml.size();
 			for(int i = 0; i < extensions; i++) {
