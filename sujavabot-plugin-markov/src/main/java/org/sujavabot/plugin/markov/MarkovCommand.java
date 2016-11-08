@@ -35,33 +35,45 @@ public class MarkovCommand extends AbstractReportingCommand implements HelperCon
 		String context = args.get(1);
 		String m = StringUtils.join(args.subList(2, args.size()), " ");
 		List<String> prefix = StringContent.parse(m);
-		if(prefix.size() == 0)
-			prefix = Arrays.asList(Markov.SOT);
-		List<String> ml = new MarkovIterator(context, markov, maxlen, prefix).toList();
-		int size = ml.size();
-		for(int i = 0; i < extensions; i++) {
-			List<String> ml2 = new MarkovIterator(context, markov, maxlen, prefix).toList();
-			if(ml2.size() > size) {
-				size = ml2.size();
-				ml = ml2;
-			}
-		}
-		if(inverseMarkov != null) {
-			Collections.reverse(ml);
-			List<String> l = ml;
-			size = l.size();
+		List<String> ml;
+		if(prefix.size() > 0) {
+			ml = new MarkovIterator(context, markov, maxlen, prefix).toList();
+			int size = ml.size();
 			for(int i = 0; i < extensions; i++) {
-				List<String> l2 = new MarkovIterator(context, inverseMarkov, maxlen, ml).toList();
-				if(l2.size() > size) {
-					size = l2.size();
-					l = l2;
+				List<String> ml2 = new MarkovIterator(context, markov, maxlen, prefix).toList();
+				if(ml2.size() > size) {
+					size = ml2.size();
+					ml = ml2;
 				}
 			}
-			ml = l;
-			Collections.reverse(ml);
+			if(inverseMarkov != null) {
+				Collections.reverse(ml);
+				List<String> l = ml;
+				size = l.size();
+				for(int i = 0; i < extensions; i++) {
+					List<String> l2 = new MarkovIterator(context, inverseMarkov, maxlen, ml).toList();
+					if(l2.size() > size) {
+						size = l2.size();
+						l = l2;
+					}
+				}
+				ml = l;
+				Collections.reverse(ml);
+			}
+			if(ml.size() == prefix.size())
+				ml = Arrays.asList("i have nothing to say to that");
+		} else {
+			prefix = Arrays.asList(Markov.SOT);
+			ml = new MarkovIterator(context, markov, maxlen, prefix).toList();
+			int size = ml.size();
+			for(int i = 0; i < extensions; i++) {
+				List<String> ml2 = new MarkovIterator(context, markov, maxlen, prefix).toList();
+				if(ml2.size() > size) {
+					size = ml2.size();
+					ml = ml2;
+				}
+			}
 		}
-		if(ml.size() == prefix.size())
-			ml = Arrays.asList("i have nothing to say to that");
 		for(int i = ml.size() - 3; i >= 0; i--) {
 			int j = i+3;
 			List<String> sub = ml.subList(i, j);
