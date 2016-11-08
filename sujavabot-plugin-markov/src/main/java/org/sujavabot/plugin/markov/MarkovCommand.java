@@ -35,7 +35,6 @@ public class MarkovCommand extends AbstractReportingCommand implements HelperCon
 		String context = args.get(1);
 		String m = StringUtils.join(args.subList(2, args.size()), " ");
 		List<String> prefix = StringContent.parse(m);
-		System.out.println(prefix);
 		List<String> ml;
 		if(prefix.size() > 0) {
 			ml = new MarkovIterator(context, markov, maxlen, prefix).toList();
@@ -64,6 +63,7 @@ public class MarkovCommand extends AbstractReportingCommand implements HelperCon
 			if(ml.size() == prefix.size())
 				ml = Arrays.asList("i have nothing to say to that");
 		} else {
+			prefix = Arrays.asList(Markov.SOT);
 			ml = new MarkovIterator(context, markov, maxlen, prefix).toList();
 			int size = ml.size();
 			for(int i = 0; i < extensions; i++) {
