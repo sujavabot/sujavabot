@@ -35,8 +35,7 @@ public class MarkovCommand extends AbstractReportingCommand implements HelperCon
 		String context = args.get(1);
 		String m = StringUtils.join(args.subList(2, args.size()), " ");
 		List<String> prefix = StringContent.parse(m);
-		if(prefix.size() == 1 && prefix.get(0).isEmpty())
-			prefix = Collections.emptyList();
+		System.out.println(prefix);
 		List<String> ml;
 		if(prefix.size() > 0) {
 			ml = new MarkovIterator(context, markov, maxlen, prefix).toList();
