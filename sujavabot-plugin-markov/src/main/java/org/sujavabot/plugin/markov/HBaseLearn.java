@@ -45,6 +45,8 @@ public class HBaseLearn {
 		
 		boolean buffer = conf.getBoolean("buffer", true);
 
+		boolean join = conf.getBoolean("join", false);
+		
 		Connection cxn = ConnectionFactory.createConnection(conf);
 		try {
 			Admin admin = cxn.getAdmin();
@@ -79,6 +81,10 @@ public class HBaseLearn {
 				long start = System.currentTimeMillis();
 				BufferedReader buf = new BufferedReader(new InputStreamReader(in, "UTF-8"), 256);
 				for(String line = buf.readLine(); line != null; line = buf.readLine()) {
+					if(join) {
+						for(String s = buf.readLine(); s != null && !s.trim().isEmpty(); s = buf.readLine())
+							line += " " + s;
+					}
 					line = line.replaceAll("^\\S+:", "").trim();
 					List<String> words = StringContent.parse(line);
 					if(words.size() == 0)
