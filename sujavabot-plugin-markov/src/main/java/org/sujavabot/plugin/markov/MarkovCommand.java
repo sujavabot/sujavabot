@@ -73,7 +73,10 @@ public class MarkovCommand extends AbstractReportingCommand implements HelperCon
 					ml = ml2;
 				}
 			}
-			ml.remove(0);
+			if(ml.size() == prefix.size())
+				ml = Arrays.asList("i have nothing to say to that");
+			else
+				ml.remove(0);
 		}
 		for(int i = ml.size() - 3; i >= 0; i--) {
 			int j = i+3;
