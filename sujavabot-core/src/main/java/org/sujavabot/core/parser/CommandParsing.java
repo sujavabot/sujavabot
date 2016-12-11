@@ -2,41 +2,9 @@ package org.sujavabot.core.parser;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.NoSuchElementException;
 
 public abstract class CommandParsing {
 	private CommandParsing() {}
-	
-	private static class ChItr {
-		public final String raw;
-		public int pos;
-		
-		public ChItr(String raw) {
-			this.raw = raw;
-			pos = 0;
-		}
-		
-		public boolean hasNext() {
-			return pos < raw.length();
-		}
-		
-		public char peek() {
-			if(!hasNext())
-				throw new NoSuchElementException();
-			return raw.charAt(pos);
-		}
-		
-		public ChItr advance() {
-			pos++;
-			return this;
-		}
-		
-		public char next() {
-			if(!hasNext())
-				throw new NoSuchElementException();
-			return raw.charAt(pos++);
-		}
-	}
 	
 	public static List<ParsedSubstring> parse(String raw) {
 		List<ParsedSubstring> ss = new ArrayList<>();
