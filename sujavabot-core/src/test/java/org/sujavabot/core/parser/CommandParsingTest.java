@@ -15,6 +15,10 @@ public class CommandParsingTest {
 		return new ParsedSubstring(true, literal);
 	}
 	
+	private static ParsedSubstring quo(String quoted) {
+		return new ParsedSubstring(true, '"' + quoted + '"', quoted);
+	}
+	
 	private static ParsedSubstring exp(String original) {
 		return new ParsedSubstring(false, original);
 	}
@@ -30,7 +34,9 @@ public class CommandParsingTest {
 				p("a[b]c", lit("a"), exp("b"), lit("c")),
 				p("a[b][c]d", lit("a"), exp("b"), lit(""), exp("c"), lit("d")),
 				p("a[b[c]]d", lit("a"), exp("b[c]"), lit("d")),
-				p("a]b", lit("a]b"))
+				p("a]b", lit("a]b")),
+				p("a\"b[c]d\"e", lit("a"), quo("b[c]d"), lit("e")),
+				p("a[b\"]c\"]d", lit("a"), exp("b\"]c\""), lit("d"))
 				);
 	}
 	
