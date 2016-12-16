@@ -1,23 +1,16 @@
 package org.sujavabot.plugin.jruby;
 
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStreamReader;
-import java.io.PrintStream;
 import java.io.Reader;
-import java.util.function.Supplier;
 
 import javax.script.ScriptEngine;
-
-import org.jruby.embed.LocalContextScope;
-import org.jruby.embed.ScriptingContainer;
 import org.jruby.embed.jsr223.JRubyEngineFactory;
 import org.sujavabot.core.SujavaBot;
 import org.sujavabot.core.Plugin;
 
 public class JRubyPlugin implements Plugin {
-	public static final Supplier<ScriptingContainer> container = () -> new ScriptingContainer();
 	
 	protected String source;
 	protected File file;
@@ -51,15 +44,13 @@ public class JRubyPlugin implements Plugin {
 
 	@Override
 	public void load(SujavaBot bot) throws Exception {
-		ScriptingContainer container = JRubyPlugin.container.get();
-		container.put("bot", bot);
-
+		ScriptEngine engine = new JRubyEngineFactory().getScriptEngine();
 		if(file == null) {
-			plugin = (Plugin) container.runScriptlet(source);
+			plugin = (Plugin) engine.eval(source);
 		} else {
 			Reader r = new InputStreamReader(new FileInputStream(file), "UTF-8");
 			try {
-				plugin = (Plugin) container.runScriptlet(r, file.getName());
+				plugin = (Plugin) engine.eval(r);
 			} catch(Exception e) {
 				e.printStackTrace();
 				throw e;
