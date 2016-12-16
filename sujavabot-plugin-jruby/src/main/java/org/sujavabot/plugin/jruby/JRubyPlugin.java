@@ -6,6 +6,7 @@ import java.io.FileInputStream;
 import java.io.InputStreamReader;
 import java.io.PrintStream;
 import java.io.Reader;
+import java.util.function.Supplier;
 
 import javax.script.ScriptEngine;
 
@@ -16,7 +17,7 @@ import org.sujavabot.core.SujavaBot;
 import org.sujavabot.core.Plugin;
 
 public class JRubyPlugin implements Plugin {
-	public static final ScriptingContainer container = new ScriptingContainer(LocalContextScope.CONCURRENT);
+	public static final Supplier<ScriptingContainer> container = () -> new ScriptingContainer();
 	
 	protected String source;
 	protected File file;
@@ -50,7 +51,7 @@ public class JRubyPlugin implements Plugin {
 
 	@Override
 	public void load(SujavaBot bot) throws Exception {
-		ScriptingContainer container = JRubyPlugin.container;
+		ScriptingContainer container = JRubyPlugin.container.get();
 		container.put("bot", bot);
 
 		if(file == null) {
