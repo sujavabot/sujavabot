@@ -31,7 +31,7 @@ public abstract class CommandParsing {
 		return ss;
 	}
 	
-	private static char unescape(ChItr ci) {
+	static char unescape(ChItr ci) {
 		char c = ci.next();
 		if(ci.hasNext())
 			c = ci.next();
@@ -42,7 +42,7 @@ public abstract class CommandParsing {
 		return c;
 	}
 	
-	private static ParsedSubstring quoting(ChItr ci) {
+	static ParsedSubstring quoting(ChItr ci) {
 		StringBuilder sb = new StringBuilder();
 		char qc = ci.next();
 		while(ci.hasNext()) {
@@ -61,7 +61,7 @@ public abstract class CommandParsing {
 		return new ParsedSubstring(true, qc + s, s);
 	}
 	
-	private static ParsedSubstring exp(ChItr ci) {
+	static ParsedSubstring exp(ChItr ci) {
 		ci.advance();
 		StringBuilder sb = new StringBuilder();
 		int depth = 1;
