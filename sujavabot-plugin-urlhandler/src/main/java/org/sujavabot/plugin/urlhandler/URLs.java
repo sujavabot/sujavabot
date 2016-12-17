@@ -5,10 +5,15 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.net.HttpURLConnection;
+import java.net.Inet4Address;
+import java.net.Inet6Address;
+import java.net.InetAddress;
 import java.net.URL;
 import java.nio.charset.Charset;
 
 import org.apache.commons.lang3.StringEscapeUtils;
+
+import com.google.common.net.InetAddresses;
 
 public abstract class URLs {
 	public static int MAX_REDIRECTS = 10;
@@ -17,6 +22,11 @@ public abstract class URLs {
 	
 	public static String title(URL url) throws IOException {
 		for(int i = 0; i <= MAX_REDIRECTS; i++) {
+			String host = url.getHost();
+			for(InetAddress addr : InetAddress.getAllByName(host)) {
+				if(ReservedAddresses.isReserved(addr))
+					throw new IOException("rejecting fetch to reserved address");
+			}
 			HttpURLConnection c = (HttpURLConnection) url.openConnection();
 			c.setInstanceFollowRedirects(false);
 			c.connect();
