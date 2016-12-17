@@ -15,5 +15,17 @@ public abstract class Throwables {
 		}
 	}
 	
+	public static String message(Throwable t) {
+		String m = t.getMessage();
+		while(t.getCause() != null) {
+			t = t.getCause();
+			if(t.getMessage() != null)
+				m = t.getMessage();
+		}
+		if(m == null)
+			m = t.getClass().getSimpleName();
+		return m;
+	}
+	
 	private Throwables() {}
 }
