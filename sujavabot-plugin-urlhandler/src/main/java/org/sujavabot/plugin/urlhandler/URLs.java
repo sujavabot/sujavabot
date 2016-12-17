@@ -24,8 +24,11 @@ public abstract class URLs {
 		for(int i = 0; i <= MAX_REDIRECTS; i++) {
 			String host = url.getHost();
 			for(InetAddress addr : InetAddress.getAllByName(host)) {
-				if(ReservedAddresses.isReserved(addr))
-					throw new IOException("rejecting fetch to reserved address " + addr);
+				if(ReservedAddresses.isReserved(addr)) {
+					String s = addr.toString();
+					s = s.startsWith("/") ? s.substring(1) : s.replace("/", " --> ");
+					throw new IOException("rejecting fetch to reserved address " + s);
+				}
 			}
 			HttpURLConnection c = (HttpURLConnection) url.openConnection();
 			c.setInstanceFollowRedirects(false);
