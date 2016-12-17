@@ -4,15 +4,31 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
+import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.charset.Charset;
 
 import org.apache.commons.lang3.StringEscapeUtils;
 
 public abstract class URLs {
+	public static int MAX_REDIRECTS = 10;
+	
 	private URLs() {}
 	
 	public static String title(URL url) throws IOException {
+		for(int i = 0; i <= MAX_REDIRECTS; i++) {
+			HttpURLConnection c = (HttpURLConnection) url.openConnection();
+			c.setInstanceFollowRedirects(false);
+			c.connect();
+			int rc = c.getResponseCode();
+			String loc = c.getHeaderField("Location");
+			c.disconnect();
+			if(rc < 300 || rc >= 400)
+				break;
+			if(i == MAX_REDIRECTS)
+				throw new IOException("too many redirects");
+			url = new URL(loc);
+		}
 		InputStream in = url.openStream();
 		try {
 			Reader reader = new InputStreamReader(in, Charset.forName("UTF-8"));
