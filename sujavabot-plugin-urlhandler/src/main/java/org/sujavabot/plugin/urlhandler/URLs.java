@@ -25,7 +25,7 @@ public abstract class URLs {
 			String host = url.getHost();
 			for(InetAddress addr : InetAddress.getAllByName(host)) {
 				if(ReservedAddresses.isReserved(addr))
-					throw new IOException("rejecting fetch to reserved address");
+					throw new IOException("rejecting fetch to reserved address " + addr);
 			}
 			HttpURLConnection c = (HttpURLConnection) url.openConnection();
 			c.setInstanceFollowRedirects(false);
