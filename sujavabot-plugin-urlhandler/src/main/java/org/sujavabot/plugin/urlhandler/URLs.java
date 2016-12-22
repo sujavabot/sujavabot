@@ -12,6 +12,7 @@ import java.net.URL;
 import java.nio.charset.Charset;
 
 import org.apache.commons.lang3.StringEscapeUtils;
+import org.sujavabot.plugin.urlhandler.AddressRanges.AddressRange;
 
 import com.google.common.net.InetAddresses;
 
@@ -20,11 +21,11 @@ public abstract class URLs {
 	
 	private URLs() {}
 	
-	public static String title(URL url) throws IOException {
+	public static String title(URL url, Iterable<AddressRange> whitelist) throws IOException {
 		for(int i = 0; i <= MAX_REDIRECTS; i++) {
 			String host = url.getHost();
 			for(InetAddress addr : InetAddress.getAllByName(host)) {
-				if(ReservedAddresses.isReserved(addr)) {
+				if(AddressRanges.isReserved(addr) && !AddressRanges.matches(addr, whitelist)) {
 					String s = addr.toString();
 					s = s.startsWith("/") ? s.substring(1) : s.replace("/", " --> ");
 					throw new IOException("rejecting fetch to reserved address " + s);
