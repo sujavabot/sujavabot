@@ -1,6 +1,7 @@
 package org.sujavabot.core.commands;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -57,6 +58,33 @@ public class AliasCommand extends AbstractReportingCommand {
 					
 		}
 		
+	}
+	
+	public static class MapCommand extends AbstractReportingCommand {
+		@Override
+		public String invoke(SujavaBot bot, Event<?> cause, List<String> args) {
+			if(args.size() < 2)
+				return invokeHelp(bot, cause, args);
+			String alias = args.get(1);
+			List<String> aliasArgs = Arrays.asList(args.get(0), "");
+			StringBuilder sb = new StringBuilder();
+			String sep = "";
+			for(String arg : args.subList(2, args.size())) {
+				sb.append(sep);
+				sep = "";
+				aliasArgs.set(1, arg);
+				sb.append(applyAlias(bot, cause, aliasArgs, alias));
+			}
+			return sb.toString();
+		}
+
+		@Override
+		protected Map<String, String> helpTopics() {
+			return buildHelp(
+					"<alias> [<args>...]: map arguments into alias and return the result"
+					);
+					
+		}
 	}
 	
 	protected String alias;
