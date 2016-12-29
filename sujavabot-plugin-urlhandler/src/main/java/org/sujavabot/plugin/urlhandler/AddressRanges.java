@@ -26,7 +26,8 @@ public class AddressRanges {
 		}
 		@Override
 		public String toString() {
-			return addr + "/" + mask;
+			String a = addr.toString();
+			return a.substring(a.indexOf('/') + 1) + "/" + mask;
 		}
 	}
 	
