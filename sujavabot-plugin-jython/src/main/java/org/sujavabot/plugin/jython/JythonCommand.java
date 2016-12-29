@@ -25,8 +25,8 @@ public class JythonCommand extends AbstractReportingCommand implements HelperCon
 	protected String source;
 	protected File file;
 
-	protected PySystemState state = new PySystemState();
-	protected PythonInterpreter interp = new PythonInterpreter(null, state);
+	protected PySystemState state;
+	protected PythonInterpreter interp;
 
 	@Override
 	protected Map<String, String> helpTopics() {
@@ -77,6 +77,9 @@ public class JythonCommand extends AbstractReportingCommand implements HelperCon
 
 	@Override
 	public void configure(UnmarshalHelper helper) {
+		state = new PySystemState();
+		interp = new PythonInterpreter(null, state);
+
 		helper.field("source", String.class, s -> source = s);
 		helper.field("file", File.class, f -> file = f);
 	}
