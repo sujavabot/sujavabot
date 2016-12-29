@@ -25,6 +25,9 @@ public class JythonCommand extends AbstractReportingCommand implements HelperCon
 	protected String source;
 	protected File file;
 
+	protected PySystemState state = new PySystemState();
+	protected PythonInterpreter interp = new PythonInterpreter(null, state);
+
 	@Override
 	protected Map<String, String> helpTopics() {
 		return buildHelp("python script: " + (source != null ? source : file.toString()));
@@ -33,10 +36,8 @@ public class JythonCommand extends AbstractReportingCommand implements HelperCon
 	@Override
 	public String invoke(SujavaBot bot, Event<?> cause, List<String> args) {
 		try {
-			PySystemState state = new PySystemState();
 			state.argv = new PyList(args);
 			state.path.add(new File(".").getCanonicalPath());
-			PythonInterpreter interp = new PythonInterpreter(null, state);
 			
 			ByteArrayOutputStream bytes = new ByteArrayOutputStream();
 			Writer out = new OutputStreamWriter(bytes, Charset.forName("UTF-8"));
