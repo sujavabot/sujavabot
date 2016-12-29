@@ -73,7 +73,9 @@ public class AliasCommand extends AbstractReportingCommand {
 				sb.append(sep);
 				sep = "";
 				aliasArgs.set(1, arg);
-				sb.append(applyAlias(bot, cause, aliasArgs, alias));
+				String aliased = applyAlias(bot, cause, aliasArgs, alias);
+				String evaled = bot.getCommands().invoke(cause, aliased);
+				sb.append(evaled);
 			}
 			return sb.toString();
 		}
