@@ -57,7 +57,7 @@ public class SujavaBot extends PircBotX {
 	
 	protected Set<String> verified = Collections.synchronizedSet(new HashSet<>());
 	
-	protected Map<Channel, Map<User, String>> outputBuffers = Collections.synchronizedMap(new WeakHashMap<>());
+	protected Map<Channel, Map<String, String>> outputBuffers = Collections.synchronizedMap(new WeakHashMap<>());
 
 	public SujavaBot(Configuration configuration) {
 		super(configuration);
@@ -267,30 +267,30 @@ public class SujavaBot extends PircBotX {
 		return c;
 	}
 	
-	public Map<Channel, Map<User, String>> getOutputBuffers() {
+	public Map<Channel, Map<String, String>> getOutputBuffers() {
 		return outputBuffers;
 	}
 	
 	public synchronized String buffer(Channel channel, User user, String prefix, String result) {
 		if(!outputBuffers.containsKey(channel))
 			outputBuffers.put(channel, Collections.synchronizedMap(new WeakHashMap<>()));
-		Map<User, String> channelBuffer = outputBuffers.get(channel);
+		Map<String, String> channelBuffer = outputBuffers.get(channel);
 		int maxlen = Messages.maxlenPM(this, channel.getName());
 		String[] sb = Messages.split(maxlen, channel.getName(), prefix + result);
 		if(sb[1] != null) {
 			sb = Messages.split(maxlen - " (more)".length(), channel.getName(), prefix + result);
 			sb[0] += " (more)";
-			channelBuffer.put(user, sb[1]);
+			channelBuffer.put(user.getNick(), sb[1]);
 		} else
-			channelBuffer.put(user, null);
+			channelBuffer.put(user.getNick(), null);
 		return sb[0];
 	}
 	
 	public synchronized String continueBuffer(Channel channel, User user, String prefix) {
 		if(!outputBuffers.containsKey(channel))
 			outputBuffers.put(channel, Collections.synchronizedMap(new WeakHashMap<>()));
-		Map<User, String> channelBuffer = outputBuffers.get(channel);
-		String pb = channelBuffer.get(user);
+		Map<String, String> channelBuffer = outputBuffers.get(channel);
+		String pb = channelBuffer.get(user.getNick());
 		if(pb == null) {
 			return null;
 		}
@@ -299,9 +299,9 @@ public class SujavaBot extends PircBotX {
 		if(sb[1] != null) {
 			sb = Messages.split(maxlen - " (more)".length(), channel.getName(), prefix + pb);
 			sb[0] += " (more)";
-			channelBuffer.put(user, sb[1]);
+			channelBuffer.put(user.getNick(), sb[1]);
 		} else
-			channelBuffer.put(user, null);
+			channelBuffer.put(user.getNick(), null);
 		return sb[0];
 	}
 	
