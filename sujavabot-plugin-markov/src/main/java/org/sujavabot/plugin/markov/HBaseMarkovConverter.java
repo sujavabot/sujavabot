@@ -1,5 +1,7 @@
 package org.sujavabot.plugin.markov;
 
+import java.util.Map.Entry;
+
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.Admin;
@@ -42,6 +44,9 @@ public class HBaseMarkovConverter extends AbstractConverter<HBaseMarkov> {
 		helper.field("family", String.class, () -> Bytes.toString(current.getFamily()));
 		if(current.getDuration() != null)
 			helper.field("duration", Long.class, () -> current.getDuration());
+		for(Entry<String, String> e : current.getConf()) {
+			helper.field(e.getKey(), String.class, () -> e.getValue());
+		}
 	}
 
 	@Override
