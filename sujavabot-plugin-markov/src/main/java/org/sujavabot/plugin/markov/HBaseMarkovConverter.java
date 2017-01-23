@@ -61,7 +61,12 @@ public class HBaseMarkovConverter extends AbstractConverter<HBaseMarkov> {
 			
 			UnmarshalHelper helper = new UnmarshalHelper(x, reader, context);
 
-			helper.setDefaultHandler((Object o, UnmarshalHelper h) -> conf.set(h.getReader().getNodeName(), h.getReader().getValue()));
+			helper.setDefaultHandler((Object o, UnmarshalHelper h) -> {
+				String key = h.getReader().getNodeName();
+				String val = h.getReader().getValue();
+				System.out.println(key + " => " + val);
+				conf.set(key, val);
+			});
 			
 			helper.read(ml);
 
