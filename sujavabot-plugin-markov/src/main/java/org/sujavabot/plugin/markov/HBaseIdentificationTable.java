@@ -9,7 +9,6 @@ import java.util.Properties;
 import java.util.TreeMap;
 import java.util.function.Function;
 
-import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.client.HTable;
 import org.apache.hadoop.hbase.client.Increment;
 import org.apache.hadoop.hbase.client.Result;
