@@ -36,6 +36,7 @@ public class ConfigurationBuilderConverter extends AbstractConverter<Configurati
 			x.registerConverter(new AuthorizedGroupConverter(x));
 			x.registerConverter(new AuthorizedUserConverter(x));
 			x.registerConverter(new CommandsMapConverter(x));
+			x.registerConverter(new CommandsMap2Converter(x));
 			x.alias("sujavabot", ConfigurationBuilder.class);
 		}
 	}
