@@ -18,7 +18,7 @@ public class SudoCommand extends AbstractReportingCommand {
 	
 	@Override
 	protected Map<String, String> helpTopics() {
-		return buildHelp("<user> <command>: run a command as another user");
+		return buildHelp("<nick> <command>: run a command as another nick");
 	}
 	
 	@Override
@@ -27,7 +27,7 @@ public class SudoCommand extends AbstractReportingCommand {
 			return invokeHelp(bot, cause, args);
 		String name = args.get(1);
 		String command = args.get(2);
-		AuthorizedUser a = bot.getAuthorizedUserByName(name);
+		AuthorizedUser a = bot.getAuthorizedUserByNick(name, true);
 		if(a == null)
 			return "invalid user";
 		LimitedCallable<String, RuntimeException> task = new LimitedCallable<String, RuntimeException>() {
