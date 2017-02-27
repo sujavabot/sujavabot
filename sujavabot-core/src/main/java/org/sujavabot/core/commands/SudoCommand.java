@@ -11,22 +11,25 @@ import org.sujavabot.core.xml.ConverterHelpers.MarshalHelper;
 import org.sujavabot.core.xml.ConverterHelpers.UnmarshalHelper;
 import org.sujavabot.core.xml.HelperConvertable;
 
-public class SudoCommand extends AbstractReportingCommand implements HelperConvertable<SudoCommand> {
+public class SudoCommand extends AbstractReportingCommand {
 
-	private String name;
-	private String command;
-	
 	public SudoCommand() {
 	}
 	
 	@Override
 	protected Map<String, String> helpTopics() {
-		return buildHelp("run a pre-defined command as a different pre-defined user");
+		return buildHelp("<user> <command>: run a command as another user");
 	}
 	
 	@Override
 	public String invoke(SujavaBot bot, Event<?> cause, List<String> args) {
+		if(args.size() != 3)
+			return invokeHelp(bot, cause, args);
+		String name = args.get(1);
+		String command = args.get(2);
 		AuthorizedUser a = bot.getAuthorizedUserByName(name);
+		if(a == null)
+			return "invalid user";
 		LimitedCallable<String, RuntimeException> task = new LimitedCallable<String, RuntimeException>() {
 			@Override
 			public String call() throws RuntimeException {
@@ -35,17 +38,4 @@ public class SudoCommand extends AbstractReportingCommand implements HelperConve
 		}; 
 		return Authorization.limitedCall(a, task);
 	}
-
-	@Override
-	public void configure(MarshalHelper helper, SudoCommand defaults) {
-		helper.field("name", String.class, () -> name);
-		helper.field("command", String.class, () -> command);
-	}
-
-	@Override
-	public void configure(UnmarshalHelper helper) {
-		helper.field("name", String.class, (s) -> name = s);
-		helper.field("command", String.class, (c) -> command = c);
-	}
-
 }
