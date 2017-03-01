@@ -58,6 +58,7 @@ public class MarkovListener extends ListenerAdapter<PircBotX> {
 				s = word;
 			}
 		}
+		ret.add(0, s);
 		return ret;
 	}
 	
