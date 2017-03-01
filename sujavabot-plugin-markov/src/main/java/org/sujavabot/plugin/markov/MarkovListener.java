@@ -45,6 +45,8 @@ public class MarkovListener extends ListenerAdapter<PircBotX> {
 	}
 	
 	protected static List<String> split(int maxlen, String suffix, List<String> words) {
+		String sentence = StringContent.join(words);
+		words = Arrays.asList(sentence.split(" "));
 		List<String> ret = new ArrayList<String>();
 		String s = "";
 		for(int i = 0; i < words.size(); i++) {
