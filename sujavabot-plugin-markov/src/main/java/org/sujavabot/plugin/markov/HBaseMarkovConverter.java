@@ -1,6 +1,7 @@
 package org.sujavabot.plugin.markov;
 
 import java.util.Map.Entry;
+import java.util.Properties;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.TableName;
@@ -44,8 +45,8 @@ public class HBaseMarkovConverter extends AbstractConverter<HBaseMarkov> {
 		helper.field("family", String.class, () -> Bytes.toString(current.getFamily()));
 		if(current.getDuration() != null)
 			helper.field("duration", Long.class, () -> current.getDuration());
-		for(Entry<String, String> e : current.getConf()) {
-			helper.field(e.getKey(), String.class, () -> e.getValue());
+		for(String key : current.getProperties().stringPropertyNames()) {
+			helper.field(key, String.class, () -> current.getProperties().getProperty(key));
 		}
 	}
 
@@ -60,17 +61,24 @@ public class HBaseMarkovConverter extends AbstractConverter<HBaseMarkov> {
 			Configuration conf = new Configuration();
 			
 			UnmarshalHelper helper = new UnmarshalHelper(x, reader, context);
+			
+			Properties props = new Properties();
 
 			helper.setDefaultHandler((Object o, UnmarshalHelper h) -> {
 				String key = h.getReader().getNodeName();
 				String val = h.getReader().getValue();
-				System.out.println(key + " => " + val);
-				conf.set(key, val);
+				props.setProperty(key, val);
 			});
 			
 			helper.read(ml);
 
 			TableName name = TableName.valueOf(conf.get("table"));
+			
+			ml.setProperties(props);
+			
+			for(String key : props.stringPropertyNames()) {
+				conf.set(key, props.getProperty(key));
+			}
 			
 			ml.setConf(conf);
 			if(conf.get("family") != null)

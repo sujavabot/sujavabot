@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Properties;
 import java.util.TreeMap;
 import java.util.regex.Pattern;
 
@@ -67,6 +68,8 @@ public class HBaseMarkov implements Markov {
 	private double prefixPower = 5;
 	
 	private transient List<Increment> rows = new ArrayList<>(); 
+	
+	private Properties properties;
 	
 	public HBaseMarkov() {
 	}
@@ -214,6 +217,14 @@ public class HBaseMarkov implements Markov {
 
 	public void setFamily(byte[] family) {
 		this.family = family;
+	}
+
+	public Properties getProperties() {
+		return properties;
+	}
+
+	public void setProperties(Properties properties) {
+		this.properties = properties;
 	}
 
 }
