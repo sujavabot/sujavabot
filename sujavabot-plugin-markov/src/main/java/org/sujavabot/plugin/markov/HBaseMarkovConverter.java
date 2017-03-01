@@ -72,13 +72,13 @@ public class HBaseMarkovConverter extends AbstractConverter<HBaseMarkov> {
 			
 			helper.read(ml);
 
-			TableName name = TableName.valueOf(conf.get("table"));
-			
-			ml.setProperties(props);
-			
 			for(String key : props.stringPropertyNames()) {
 				conf.set(key, props.getProperty(key));
 			}
+			
+			TableName name = TableName.valueOf(conf.get("table"));
+			
+			ml.setProperties(props);
 			
 			ml.setConf(conf);
 			if(conf.get("family") != null)
