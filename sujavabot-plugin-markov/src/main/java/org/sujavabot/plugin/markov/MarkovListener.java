@@ -18,8 +18,13 @@ import org.pircbotx.PircBotX;
 import org.pircbotx.hooks.ListenerAdapter;
 import org.pircbotx.hooks.events.MessageEvent;
 
+import twitter4j.Twitter;
+import twitter4j.TwitterFactory;
+
 
 public class MarkovListener extends ListenerAdapter<PircBotX> {
+	protected static Twitter twitter = TwitterFactory.getSingleton();
+	
 	protected static List<String> merge(int maxlen, String prefix, List<String> words) {
 		List<String> merged = new ArrayList<>();
 		merged.add(prefix + StringContent.join(words));
@@ -37,6 +42,23 @@ public class MarkovListener extends ListenerAdapter<PircBotX> {
 			prefix = "";
 		}
 		return merged;
+	}
+	
+	protected static List<String> split(int maxlen, String suffix, List<String> words) {
+		List<String> ret = new ArrayList<String>();
+		String s = "";
+		for(int i = 0; i < words.size(); i++) {
+			String word = words.get(i);
+			boolean lastWord = (i == words.size() - 1);
+			if(lastWord && s.length() + word.length() + 1 <= maxlen || !lastWord && s.length() + word.length() + suffix.length() + 1 <= maxlen)
+				s += " " + word;
+			else {
+				s += suffix;
+				ret.add(0, s);
+				s = word;
+			}
+		}
+		return ret;
 	}
 	
 	protected Markov markov;
@@ -193,6 +215,10 @@ public class MarkovListener extends ListenerAdapter<PircBotX> {
 					ml);
 			for(String line : lines) {
 				event.getChannel().send().message(line);
+			}
+			
+			for(String tweet : split(140, "\u2026", ml)) {
+				twitter.updateStatus(tweet);
 			}
 		} else if(learn && listening) {
 			for(Pattern p : ignore) {
