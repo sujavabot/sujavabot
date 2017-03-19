@@ -397,7 +397,7 @@ public class SujavaBot extends PircBotX {
 	
 	public void schedule() {
 		for(ScheduledCommand sc : ((Configuration) configuration).getSchedule()) {
-			AuthorizedUser user = getAuthorizedUsers().get(sc.user);
+			AuthorizedUser user = getAuthorizedUserByName(sc.user);
 			Authorization auth = new Authorization(this, user, user.getAllGroups(), user.getOwnedGroups());
 			auth.run(() -> Scheduler.get().add(this, sc.target, sc.name, sc.alias, sc.delay));
 		}
