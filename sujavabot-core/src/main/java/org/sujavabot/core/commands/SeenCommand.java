@@ -172,7 +172,6 @@ public class SeenCommand extends AbstractReportingCommand {
 				oout.writeObject(seen);
 				oout.close();
 				oout.flush();
-				out.getFD().sync();
 			} finally {
 				out.close();
 			}
