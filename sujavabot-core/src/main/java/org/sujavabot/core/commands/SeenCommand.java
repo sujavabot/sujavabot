@@ -166,15 +166,18 @@ public class SeenCommand extends AbstractReportingCommand {
 	protected static synchronized void setSeen(Map<String, String> seen) {
 		File tmp = new File(SEEN_DB.getParentFile(), SEEN_DB.getName() + ".tmp");
 		try {
-			OutputStream out = new FileOutputStream(tmp);
+			FileOutputStream out = new FileOutputStream(tmp);
 			try {
 				ObjectOutputStream oout = new ObjectOutputStream(out);
 				oout.writeObject(seen);
 				oout.close();
+				oout.flush();
+				out.getFD().sync();
 			} finally {
 				out.close();
 			}
 			Files.move(tmp.toPath(), SEEN_DB.toPath(), StandardCopyOption.REPLACE_EXISTING);
+			
 		} catch(Exception e) {
 			e.printStackTrace();
 		}
