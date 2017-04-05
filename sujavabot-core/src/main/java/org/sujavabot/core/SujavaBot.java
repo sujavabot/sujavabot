@@ -336,7 +336,7 @@ public class SujavaBot extends PircBotX {
 			backups.add(configFileOld);
 			if(configFileOld.exists()) {
 				File f = configFileOld;
-				for(int i = 1; f.exists(); i++)
+				for(int i = 1; f.exists() && i <= 10; i++)
 					backups.add(f = new File(configFile.getParentFile(), configFile.getName() + ".old." + i));
 				ListIterator<File> bi = backups.listIterator(backups.size());
 				File next = bi.previous();
