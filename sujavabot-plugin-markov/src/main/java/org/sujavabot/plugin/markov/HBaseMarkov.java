@@ -1,6 +1,8 @@
 package org.sujavabot.plugin.markov;
 
 import java.io.IOException;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -43,6 +45,14 @@ public class HBaseMarkov implements Markov {
 			}
 		} finally {
 			cxn.close();
+		}
+	}
+	
+	private static MessageDigest createSHA1() {
+		try {
+			return MessageDigest.getInstance("SHA1");
+		} catch(NoSuchAlgorithmException e) {
+			throw new InternalError(e);
 		}
 	}
 	
@@ -124,6 +134,7 @@ public class HBaseMarkov implements Markov {
 		long startTS = System.currentTimeMillis();
 		long stopTS = (duration != null ? startTS + duration : Long.MAX_VALUE);
 		List<Increment> incs = new ArrayList<>();
+		MessageDigest sha1 = createSHA1();
 		for(int i = 0; i < content.size() - 1; i++) {
 			for(int j = 0; j < maxlen; j++) {
 				List<String> prefix = content.subList(Math.max(0, i-j), i+1);
@@ -131,6 +142,7 @@ public class HBaseMarkov implements Markov {
 				byte[] row = Bytes.toBytes(StringContent.join(prefix).toUpperCase());
 				if(row.length == 0)
 					continue;
+				row = sha1.digest(row);
 				byte[] qual = Bytes.toBytes(suffix + " " + context);
 				Increment inc = new Increment(row);
 				inc.addColumn(family, qual, 1);
@@ -154,11 +166,13 @@ public class HBaseMarkov implements Markov {
 	public String next(Pattern context, List<String> prefix) throws Exception {
 		prefix = new ArrayList<>(prefix);
 
+		MessageDigest sha1 = createSHA1();
 		List<Get> gets = new ArrayList<>();
 		while(prefix.size() > 0) {
 			byte[] row = Bytes.toBytes(StringContent.join(prefix).toUpperCase());
 			if(row.length == 0)
 				break;
+			row = sha1.digest(row);
 			Get get = new Get(row);
 			get.addFamily(family);
 			gets.add(get);
