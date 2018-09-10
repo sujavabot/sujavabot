@@ -166,6 +166,8 @@ public class HBaseMarkov implements Markov {
 	public String next(Pattern context, List<String> prefix) throws Exception {
 		prefix = new ArrayList<>(prefix);
 
+		long now = System.currentTimeMillis();
+		
 		MessageDigest sha1 = createSHA1();
 		List<Get> gets = new ArrayList<>();
 		while(prefix.size() > 0) {
@@ -175,6 +177,9 @@ public class HBaseMarkov implements Markov {
 			row = sha1.digest(row);
 			Get get = new Get(row);
 			get.addFamily(family);
+			if (duration != null) {
+				get.setTimeRange(now - duration, now);
+			}
 			gets.add(get);
 			prefix.remove(0);
 		}
