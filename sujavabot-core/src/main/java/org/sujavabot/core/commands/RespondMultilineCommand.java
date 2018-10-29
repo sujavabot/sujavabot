@@ -10,6 +10,7 @@ public class RespondMultilineCommand extends AbstractReportingCommand {
 
 	@Override
 	public void report(SujavaBot bot, Event<?> cause, String result) {
+		if (result == null || "".equals(result)) return;
 		for (String line : result.split("\n")) {
 			super.report(bot, cause, line);
 		}
