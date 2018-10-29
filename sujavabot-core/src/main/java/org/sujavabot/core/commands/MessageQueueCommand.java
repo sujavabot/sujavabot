@@ -92,7 +92,7 @@ public abstract class MessageQueueCommand extends AbstractReportingCommand {
 		return messages;
 	}
 	
-	public class OfferMessageCommand extends MessageQueueCommand implements HelperConvertable<OfferMessageCommand> {
+	public static class OfferMessageCommand extends MessageQueueCommand implements HelperConvertable<OfferMessageCommand> {
 
 		@Override
 		public String invoke(SujavaBot bot, Event<?> cause, List<String> args) {
@@ -124,7 +124,7 @@ public abstract class MessageQueueCommand extends AbstractReportingCommand {
 
 	}
 
-	public class PollMessageCommand extends MessageQueueCommand implements HelperConvertable<PollMessageCommand> {
+	public static class PollMessageCommand extends MessageQueueCommand implements HelperConvertable<PollMessageCommand> {
 
 		@Override
 		public String invoke(SujavaBot bot, Event<?> cause, List<String> args) {
