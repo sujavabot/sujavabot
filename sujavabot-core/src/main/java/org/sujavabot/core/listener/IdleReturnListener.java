@@ -1,5 +1,6 @@
 package org.sujavabot.core.listener;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -26,6 +27,7 @@ public class IdleReturnListener extends ListenerAdapter<PircBotX> implements Hel
 	protected transient Map<AuthorizedUser, Long> lastActive = new ConcurrentHashMap<>();
 	
 	protected void fire(Event<PircBotX> event, boolean force) {
+		if (lastActive == null) lastActive = new HashMap<>();
 		SujavaBot bot = (SujavaBot) event.getBot();
 		AuthorizedUser user = bot.getAuthorizedUser(Events.getUser(event), false);
 		long now = System.currentTimeMillis();
